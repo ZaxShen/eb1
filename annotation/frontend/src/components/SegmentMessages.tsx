@@ -1,6 +1,14 @@
 import { useMemo } from "react";
+import { ArrowUpToLine, Scissors } from "lucide-react";
 import type { Message, SegmentDetail, SegmentSummary } from "../api";
-import { Badge } from "./ui/Badge";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { topicColorClass, SUBTOPIC_BADGE_CLASS } from "../lib/badges";
 import {
   cn,
@@ -8,15 +16,15 @@ import {
   formatLabel,
   isSameMinute,
 } from "../lib/utils";
-import { Scissors, ArrowUpToLine } from "./icons";
 
-// Bubble color-by-role, mirroring ufl-dev RoleStyleLight/Dark:
-// assistant=emerald, user=neutral/secondary, automated=amber, team=sky.
+// Bubble color-by-role, mirroring ufl-dev RoleStyleLight/Dark via semantic
+// tokens: assistant=role-assistant, automated=role-automated, team=role-team,
+// user/system=neutral secondary.
 const ROLE_STYLE: Record<string, string> = {
-  assistant: "bg-emerald-100 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-50",
-  bot: "bg-emerald-100 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-50",
-  automated: "bg-amber-100 text-amber-900 dark:bg-amber-950/50 dark:text-amber-50",
-  team: "bg-sky-100 text-sky-900 dark:bg-sky-950/50 dark:text-sky-50",
+  assistant: "bg-role-assistant/15 text-foreground",
+  bot: "bg-role-assistant/15 text-foreground",
+  automated: "bg-role-automated/15 text-foreground",
+  team: "bg-role-team/15 text-foreground",
   user: "bg-secondary text-secondary-foreground",
   human: "bg-secondary text-secondary-foreground",
   system: "bg-secondary text-secondary-foreground",
@@ -62,13 +70,15 @@ const MessageBubble = ({
       {(isFirstInSeries || showTimestamp) && (
         <div
           className={cn(
-            "flex items-center gap-1.5 text-[11px] text-muted-foreground px-3 select-none mt-2 mb-0.5",
+            "mb-0.5 mt-2 flex select-none items-center gap-1.5 px-3 text-[11px] text-muted-foreground",
             isUser ? "justify-start" : "justify-end",
           )}
         >
           {isFirstInSeries && <span>{senderLabel(msg.type)}</span>}
           {showTimestamp && msg.createdAt && (
-            <span className="opacity-60">{formatChatTimestamp(msg.createdAt)}</span>
+            <span className="opacity-60">
+              {formatChatTimestamp(msg.createdAt)}
+            </span>
           )}
         </div>
       )}
@@ -80,7 +90,7 @@ const MessageBubble = ({
       >
         <div
           className={cn(
-            "max-w-[80%] rounded-xl px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words",
+            "max-w-[80%] whitespace-pre-wrap break-words rounded-xl px-3 py-2 text-sm leading-relaxed",
             bubbleStyle,
             isUser ? "rounded-bl-sm" : "rounded-br-sm",
           )}
@@ -88,13 +98,21 @@ const MessageBubble = ({
           {msg.message}
         </div>
         {onSplitHere && (
-          <button
-            onClick={onSplitHere}
-            title="Split a new segment starting at this message"
-            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-primary p-1 shrink-0"
-          >
-            <Scissors className="h-3.5 w-3.5" />
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={onSplitHere}
+                className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+              >
+                <Scissors />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              Split a new segment starting here
+            </TooltipContent>
+          </Tooltip>
         )}
       </div>
     </div>
@@ -112,48 +130,57 @@ const SegmentDivider = ({
   current?: boolean;
   onMergePrev?: () => void;
 }) => (
-  <div className="flex flex-row items-center gap-2 py-1 w-full">
-    <div className={cn("flex-1 h-px", current ? "bg-primary/50" : "bg-border")} />
+  <div className="flex w-full flex-row items-center gap-2 py-1">
+    <div
+      className={cn("h-px flex-1", current ? "bg-primary/40" : "bg-border")}
+    />
     {onMergePrev && (
-      <button
-        onClick={onMergePrev}
-        title="Merge this segment into the previous one"
-        className="text-muted-foreground hover:text-primary p-0.5 shrink-0"
-      >
-        <ArrowUpToLine className="h-3.5 w-3.5" />
-      </button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            onClick={onMergePrev}
+            className="shrink-0"
+          >
+            <ArrowUpToLine />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Merge into the previous segment</TooltipContent>
+      </Tooltip>
     )}
     <span
       className={cn(
-        "font-medium shrink-0",
-        current ? "text-xs text-primary font-semibold" : "text-[10px] text-muted-foreground",
+        "shrink-0 font-medium",
+        current
+          ? "text-xs font-semibold text-primary"
+          : "text-[10px] text-muted-foreground",
       )}
     >
       {label}
     </span>
     {segment.topic ? (
-      <Badge
-        variant="secondary"
-        className={cn("text-[10px] py-0 px-1.5 h-4 border", topicColorClass(segment.topic))}
-      >
+      <Badge variant="outline" className={topicColorClass(segment.topic)}>
         {formatLabel(segment.topic)}
       </Badge>
     ) : (
-      <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4 text-muted-foreground">
+      <Badge variant="outline" className="text-muted-foreground">
         No topic
       </Badge>
     )}
     {segment.subtopic && (
-      <Badge variant="outline" className={cn("text-[10px] py-0 px-1.5 h-4", SUBTOPIC_BADGE_CLASS)}>
+      <Badge variant="outline" className={SUBTOPIC_BADGE_CLASS}>
         {formatLabel(segment.subtopic)}
       </Badge>
     )}
     {segment.sentiment && (
-      <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4 text-muted-foreground">
+      <Badge variant="outline" className="text-muted-foreground">
         {segment.sentiment}
       </Badge>
     )}
-    <div className={cn("flex-1 h-px", current ? "bg-primary/50" : "bg-border")} />
+    <div
+      className={cn("h-px flex-1", current ? "bg-primary/40" : "bg-border")}
+    />
   </div>
 );
 
@@ -174,8 +201,7 @@ const SegmentMessages = ({
   const orderedSpans = useMemo(() => {
     if (!detail) return [];
     return [...detail.siblings].sort(
-      (a, b) =>
-        (a.message_indices[0] ?? 0) - (b.message_indices[0] ?? 0),
+      (a, b) => (a.message_indices[0] ?? 0) - (b.message_indices[0] ?? 0),
     );
   }, [detail]);
 
@@ -187,7 +213,7 @@ const SegmentMessages = ({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
         Loading…
       </div>
     );
@@ -195,7 +221,7 @@ const SegmentMessages = ({
 
   if (!detail) {
     return (
-      <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
         Select a segment
       </div>
     );
@@ -248,7 +274,7 @@ const SegmentMessages = ({
   };
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <ScrollArea className="min-h-0 flex-1">
       <div className="flex flex-col gap-1 p-3">
         {orderedSpans.map((span, spanIdx) => {
           const isCurrent = span.id === currentId;
@@ -267,14 +293,14 @@ const SegmentMessages = ({
               ) : (
                 <button
                   onClick={() => onSelectSegment(span.id)}
-                  className="w-full hover:opacity-100 transition-opacity"
+                  className="w-full transition-opacity hover:opacity-100"
                 >
                   <SegmentDivider label="Context" segment={span} />
                 </button>
               )}
               <div className="flex flex-col gap-0.5 pb-2">
                 {messages.length === 0 && (
-                  <p className="text-[10px] text-muted-foreground italic text-center">
+                  <p className="text-center text-[10px] italic text-muted-foreground">
                     No messages
                   </p>
                 )}
@@ -285,7 +311,9 @@ const SegmentMessages = ({
                     prevMsg={messages[i - 1]}
                     muted={!isCurrent}
                     onSplitHere={
-                      isCurrent && i > 0 ? () => handleSplitHere(msg.index) : undefined
+                      isCurrent && i > 0
+                        ? () => handleSplitHere(msg.index)
+                        : undefined
                     }
                   />
                 ))}
@@ -294,7 +322,7 @@ const SegmentMessages = ({
           );
         })}
       </div>
-    </div>
+    </ScrollArea>
   );
 };
 

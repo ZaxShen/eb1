@@ -1,8 +1,8 @@
 import type { SegmentFilters, Stats } from "../api";
 import type { TaxonomyMap } from "../lib/taxonomy";
-import { Badge } from "./ui/Badge";
+import { Badge } from "@/components/ui/badge";
 import { cn, formatLabel } from "../lib/utils";
-import { topicColorClass } from "../lib/badges";
+import { topicBarClass } from "../lib/badges";
 
 interface StatisticsPanelProps {
   stats: Stats | null;
@@ -23,17 +23,20 @@ const StatisticsPanel = ({
   const maxTopicCount = topicEntries.reduce((m, [, c]) => Math.max(m, c), 0) || 1;
 
   return (
-    <div className="flex flex-col gap-2 p-3">
-      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+    <div className="flex flex-col gap-2.5 p-3">
+      <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         Statistics
       </h3>
 
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex flex-wrap items-center gap-1.5">
         <Badge
           variant="secondary"
           title="Show all segments"
           onClick={() => onFiltersChange({ ...filters, status: undefined })}
-          className={cn(!filters.status && "ring-1 ring-primary")}
+          className={cn(
+            "cursor-pointer",
+            !filters.status && "ring-1 ring-primary",
+          )}
         >
           {stats?.total ?? 0} total
         </Badge>
@@ -46,9 +49,12 @@ const StatisticsPanel = ({
               status: filters.status === "reviewed" ? undefined : "reviewed",
             })
           }
-          className={cn(filters.status === "reviewed" && "ring-1 ring-primary")}
+          className={cn(
+            "cursor-pointer",
+            filters.status === "reviewed" && "ring-1 ring-primary",
+          )}
         >
-          <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-1" />
+          <span className="size-1.5 rounded-full bg-positive" />
           {stats?.reviewed ?? 0} reviewed
         </Badge>
         <Badge
@@ -57,12 +63,16 @@ const StatisticsPanel = ({
           onClick={() =>
             onFiltersChange({
               ...filters,
-              status: filters.status === "unreviewed" ? undefined : "unreviewed",
+              status:
+                filters.status === "unreviewed" ? undefined : "unreviewed",
             })
           }
-          className={cn(filters.status === "unreviewed" && "ring-1 ring-primary")}
+          className={cn(
+            "cursor-pointer",
+            filters.status === "unreviewed" && "ring-1 ring-primary",
+          )}
         >
-          <span className="inline-block w-2 h-2 rounded-full bg-yellow-500 mr-1" />
+          <span className="size-1.5 rounded-full bg-neutral-mixed" />
           {stats?.unreviewed ?? 0} unreviewed
         </Badge>
       </div>
@@ -78,22 +88,25 @@ const StatisticsPanel = ({
               <button
                 key={topic}
                 onClick={() =>
-                  onFiltersChange({ ...filters, topic: active ? undefined : topic })
+                  onFiltersChange({
+                    ...filters,
+                    topic: active ? undefined : topic,
+                  })
                 }
                 className={cn(
-                  "flex items-center gap-2 rounded-md px-1 py-0.5 transition-colors hover:bg-secondary/60",
-                  active && "bg-secondary",
+                  "flex items-center gap-2 rounded-md px-1 py-0.5 transition-colors hover:bg-accent",
+                  active && "bg-accent",
                 )}
                 title={`Filter by ${formatLabel(topic)}`}
               >
                 <span className="w-28 shrink-0 truncate text-left text-[11px]">
                   {taxonomy[topic]?.name ?? formatLabel(topic)}
                 </span>
-                <span className="relative flex-1 h-2 rounded-full bg-secondary/60 overflow-hidden">
+                <span className="relative h-2 flex-1 overflow-hidden rounded-full bg-muted">
                   <span
                     className={cn(
-                      "absolute inset-y-0 left-0 rounded-full border",
-                      topicColorClass(topic),
+                      "absolute inset-y-0 left-0 rounded-full",
+                      topicBarClass(topic),
                     )}
                     style={{ width: `${(count / maxTopicCount) * 100}%` }}
                   />

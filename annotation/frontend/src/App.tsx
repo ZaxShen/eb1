@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { Moon, Sun, Database } from "lucide-react";
+import { toast } from "sonner";
 import {
   api,
   type BoundarySpan,
@@ -10,13 +11,27 @@ import {
   type TaxonomyEntry,
 } from "./api";
 import { buildTaxonomyMap } from "./lib/taxonomy";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import SegmentQueue from "./components/SegmentQueue";
 import SegmentMessages from "./components/SegmentMessages";
 import StatisticsPanel from "./components/StatisticsPanel";
 import AnnotationPanel from "./components/AnnotationPanel";
 import SegmentFieldsPanel from "./components/SegmentFieldsPanel";
-
-const CARD = "h-full overflow-hidden rounded-xl border border-border/50 bg-background shadow-lg";
 
 function useTheme() {
   const [theme, setTheme] = useState<"light" | "dark">(() => {
@@ -28,7 +43,10 @@ function useTheme() {
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
-  return { theme, toggle: () => setTheme((t) => (t === "dark" ? "light" : "dark")) };
+  return {
+    theme,
+    toggle: () => setTheme((t) => (t === "dark" ? "light" : "dark")),
+  };
 }
 
 export default function App() {
@@ -52,9 +70,13 @@ export default function App() {
   const [subtopic, setSubtopic] = useState("");
   const [reviewedBy, setReviewedBy] = useState("");
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const taxonomy = useMemo(() => buildTaxonomyMap(taxonomyEntries), [taxonomyEntries]);
+  const taxonomy = useMemo(
+    () => buildTaxonomyMap(taxonomyEntries),
+    [taxonomyEntries],
+  );
+
+  const fail = useCallback((e: unknown) => toast.error(String(e)), []);
 
   useEffect(() => {
     api
@@ -63,32 +85,35 @@ export default function App() {
         setDatasets(names);
         if (names.length > 0) setDataset((cur) => cur || names[0]);
       })
-      .catch((e: unknown) => setError(String(e)));
-  }, []);
+      .catch(fail);
+  }, [fail]);
 
-  const refreshStats = useCallback((ds: string) => {
-    api.getStats(ds).then(setStats).catch((e: unknown) => setError(String(e)));
-  }, []);
+  const refreshStats = useCallback(
+    (ds: string) => {
+      api.getStats(ds).then(setStats).catch(fail);
+    },
+    [fail],
+  );
 
-  const refreshQueue = useCallback((ds: string, f: SegmentFilters) => {
-    setQueueLoading(true);
-    api
-      .listSegments(ds, f)
-      .then(setSegments)
-      .catch((e: unknown) => setError(String(e)))
-      .finally(() => setQueueLoading(false));
-  }, []);
+  const refreshQueue = useCallback(
+    (ds: string, f: SegmentFilters) => {
+      setQueueLoading(true);
+      api
+        .listSegments(ds, f)
+        .then(setSegments)
+        .catch(fail)
+        .finally(() => setQueueLoading(false));
+    },
+    [fail],
+  );
 
   useEffect(() => {
     if (!dataset) return;
     setSelectedId(null);
     setDetail(null);
-    api
-      .getTaxonomy(dataset)
-      .then(setTaxonomyEntries)
-      .catch((e: unknown) => setError(String(e)));
+    api.getTaxonomy(dataset).then(setTaxonomyEntries).catch(fail);
     refreshStats(dataset);
-  }, [dataset, refreshStats]);
+  }, [dataset, refreshStats, fail]);
 
   useEffect(() => {
     if (!dataset) return;
@@ -107,10 +132,10 @@ export default function App() {
           setTopic(d.segment.topic ?? "");
           setSubtopic(d.segment.subtopic ?? "");
         })
-        .catch((e: unknown) => setError(String(e)))
+        .catch(fail)
         .finally(() => setDetailLoading(false));
     },
-    [dataset],
+    [dataset, fail],
   );
 
   const selectAdjacent = useCallback(
@@ -141,13 +166,25 @@ export default function App() {
         reviewed_by: reviewedBy || null,
       })
       .then(() => {
+        toast.success("Annotation saved");
         refreshQueue(dataset, filters);
         refreshStats(dataset);
         selectAdjacent(1);
       })
-      .catch((e: unknown) => setError(String(e)))
+      .catch(fail)
       .finally(() => setSaving(false));
-  }, [dataset, selectedId, topic, subtopic, reviewedBy, filters, refreshQueue, refreshStats, selectAdjacent]);
+  }, [
+    dataset,
+    selectedId,
+    topic,
+    subtopic,
+    reviewedBy,
+    filters,
+    refreshQueue,
+    refreshStats,
+    selectAdjacent,
+    fail,
+  ]);
 
   const handleConfirmAi = useCallback(() => {
     if (!detail) return;
@@ -166,10 +203,13 @@ export default function App() {
           segments: spans,
           reviewed_by: reviewedBy || null,
         })
-        .then(() => afterWrite())
-        .catch((e: unknown) => setError(String(e)));
+        .then(() => {
+          toast.success("Boundaries updated");
+          afterWrite();
+        })
+        .catch(fail);
     },
-    [dataset, detail, reviewedBy, afterWrite],
+    [dataset, detail, reviewedBy, afterWrite, fail],
   );
 
   // Keyboard orchestration (ignored while typing in inputs/selects).
@@ -182,8 +222,14 @@ export default function App() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement | null)?.tagName;
-      const typing = tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA";
+      const el = e.target as HTMLElement | null;
+      const tag = el?.tagName;
+      const typing =
+        tag === "INPUT" ||
+        tag === "SELECT" ||
+        tag === "TEXTAREA" ||
+        el?.getAttribute("role") === "combobox" ||
+        el?.closest("[data-radix-popper-content-wrapper]") != null;
       if (typing) return;
       if (e.key === "Enter") {
         e.preventDefault();
@@ -204,122 +250,130 @@ export default function App() {
   }, []);
 
   return (
-    <div className="flex h-full flex-col bg-muted text-foreground">
-      <header className="flex items-center gap-3 px-3 py-2">
-        <h1 className="text-sm font-semibold">UFL Annotation</h1>
-        <div className="flex items-center gap-1.5 rounded-md border border-border bg-background px-2">
-          <span className="text-[11px] text-muted-foreground">dataset</span>
-          <select
-            value={dataset}
-            onChange={(e) => setDataset(e.target.value)}
-            className="bg-transparent py-1 text-sm focus:outline-none"
+    <TooltipProvider delayDuration={300}>
+      <div className="flex h-full flex-col bg-muted text-foreground">
+        <header className="flex items-center gap-3 border-b border-border bg-background px-4 py-2">
+          <h1 className="text-sm font-semibold tracking-tight">
+            UFL Annotation
+          </h1>
+          <div className="flex items-center gap-2">
+            <Database className="size-4 text-muted-foreground" />
+            <Select
+              value={dataset}
+              onValueChange={setDataset}
+              disabled={datasets.length === 0}
+            >
+              <SelectTrigger size="sm" className="min-w-[180px]">
+                <SelectValue placeholder="no datasets" />
+              </SelectTrigger>
+              <SelectContent>
+                {datasets.map((d) => (
+                  <SelectItem key={d} value={d}>
+                    {d}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button
+            variant="outline"
+            size="icon-sm"
+            onClick={toggle}
+            title="Toggle theme"
+            className="ml-auto"
           >
-            {datasets.length === 0 && <option value="">no datasets</option>}
-            {datasets.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button
-          onClick={toggle}
-          className="ml-auto rounded-md border border-border bg-background px-2 py-1 text-xs hover:bg-secondary/60"
-          title="Toggle theme"
+            {theme === "dark" ? (
+              <Sun className="size-4" />
+            ) : (
+              <Moon className="size-4" />
+            )}
+          </Button>
+        </header>
+
+        <ResizablePanelGroup
+          direction="horizontal"
+          className="min-h-0 flex-1 gap-1.5 p-2"
         >
-          {theme === "dark" ? "Light" : "Dark"}
-        </button>
-        {error && (
-          <button
-            type="button"
-            onClick={() => setError(null)}
-            className="rounded-md bg-red-500/10 px-2 py-1 text-xs text-red-500"
-            title="Dismiss"
-          >
-            {error}
-          </button>
-        )}
-      </header>
+          <ResizablePanel defaultSize={22} minSize={15} maxSize={35}>
+            <Card className="h-full gap-0 overflow-hidden py-0">
+              <SegmentQueue
+                segments={segments}
+                selectedId={selectedId}
+                filters={filters}
+                taxonomy={taxonomy}
+                loading={queueLoading}
+                total={stats?.total ?? segments.length}
+                onSelect={loadSegment}
+                onFiltersChange={setFilters}
+              />
+            </Card>
+          </ResizablePanel>
 
-      <PanelGroup direction="horizontal" className="min-h-0 flex-1 gap-1 px-2 pb-2">
-        <Panel defaultSize={22} minSize={15} maxSize={35}>
-          <div className={CARD}>
-            <SegmentQueue
-              segments={segments}
-              selectedId={selectedId}
-              filters={filters}
-              taxonomy={taxonomy}
-              loading={queueLoading}
-              total={stats?.total ?? segments.length}
-              onSelect={loadSegment}
-              onFiltersChange={setFilters}
-            />
-          </div>
-        </Panel>
+          <ResizableHandle withHandle />
 
-        <PanelResizeHandle className="w-1" />
+          <ResizablePanel defaultSize={50} minSize={30}>
+            <Card className="flex h-full flex-col gap-0 overflow-hidden py-0">
+              <SegmentMessages
+                detail={detail}
+                loading={detailLoading}
+                onSelectSegment={loadSegment}
+                onReplaceBoundaries={handleReplaceBoundaries}
+              />
+            </Card>
+          </ResizablePanel>
 
-        <Panel defaultSize={50} minSize={30}>
-          <div className={`${CARD} flex flex-col`}>
-            <SegmentMessages
-              detail={detail}
-              loading={detailLoading}
-              onSelectSegment={loadSegment}
-              onReplaceBoundaries={handleReplaceBoundaries}
-            />
-          </div>
-        </Panel>
+          <ResizableHandle withHandle />
 
-        <PanelResizeHandle className="w-1" />
+          <ResizablePanel defaultSize={28} minSize={18} maxSize={40}>
+            <ResizablePanelGroup direction="vertical" className="gap-1.5">
+              <ResizablePanel defaultSize={28} minSize={15}>
+                <Card className="h-full gap-0 overflow-y-auto py-0">
+                  <StatisticsPanel
+                    stats={stats}
+                    filters={filters}
+                    taxonomy={taxonomy}
+                    onFiltersChange={setFilters}
+                  />
+                </Card>
+              </ResizablePanel>
 
-        <Panel defaultSize={28} minSize={18} maxSize={40}>
-          <PanelGroup direction="vertical" className="h-full gap-1">
-            <Panel defaultSize={28} minSize={15}>
-              <div className={`${CARD} overflow-y-auto`}>
-                <StatisticsPanel
-                  stats={stats}
-                  filters={filters}
-                  taxonomy={taxonomy}
-                  onFiltersChange={setFilters}
-                />
-              </div>
-            </Panel>
+              <ResizableHandle withHandle />
 
-            <PanelResizeHandle className="h-1" />
+              <ResizablePanel defaultSize={36} minSize={20}>
+                <Card className="flex h-full flex-col gap-0 overflow-hidden py-0">
+                  <AnnotationPanel
+                    detail={detail}
+                    taxonomy={taxonomy}
+                    topic={topic}
+                    subtopic={subtopic}
+                    reviewedBy={reviewedBy}
+                    saving={saving}
+                    onTopicChange={(t) => {
+                      setTopic(t);
+                      setSubtopic("");
+                    }}
+                    onSubtopicChange={setSubtopic}
+                    onReviewedByChange={setReviewedBy}
+                    onConfirmAi={handleConfirmAi}
+                    onSave={handleSave}
+                    onPrev={() => selectAdjacent(-1)}
+                    onNext={() => selectAdjacent(1)}
+                  />
+                </Card>
+              </ResizablePanel>
 
-            <Panel defaultSize={32} minSize={20}>
-              <div className={`${CARD} flex flex-col`}>
-                <AnnotationPanel
-                  detail={detail}
-                  taxonomy={taxonomy}
-                  topic={topic}
-                  subtopic={subtopic}
-                  reviewedBy={reviewedBy}
-                  saving={saving}
-                  onTopicChange={(t) => {
-                    setTopic(t);
-                    setSubtopic("");
-                  }}
-                  onSubtopicChange={setSubtopic}
-                  onReviewedByChange={setReviewedBy}
-                  onConfirmAi={handleConfirmAi}
-                  onSave={handleSave}
-                  onPrev={() => selectAdjacent(-1)}
-                  onNext={() => selectAdjacent(1)}
-                />
-              </div>
-            </Panel>
+              <ResizableHandle withHandle />
 
-            <PanelResizeHandle className="h-1" />
-
-            <Panel defaultSize={60} minSize={20}>
-              <div className={CARD}>
-                <SegmentFieldsPanel segment={detail?.segment ?? null} />
-              </div>
-            </Panel>
-          </PanelGroup>
-        </Panel>
-      </PanelGroup>
-    </div>
+              <ResizablePanel defaultSize={36} minSize={20}>
+                <Card className="h-full gap-0 overflow-hidden py-0">
+                  <SegmentFieldsPanel segment={detail?.segment ?? null} />
+                </Card>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
+      <Toaster theme={theme} position="bottom-right" />
+    </TooltipProvider>
   );
 }

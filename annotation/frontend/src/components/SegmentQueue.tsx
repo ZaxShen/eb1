@@ -1,16 +1,30 @@
+import { RotateCcw, Tag, User } from "lucide-react";
 import type { SegmentFilters, SegmentSummary } from "../api";
 import type { TaxonomyMap } from "../lib/taxonomy";
 import { sortedTopics } from "../lib/taxonomy";
-import { Badge } from "./ui/Badge";
-import { Button } from "./ui/Button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   sentimentBadgeClass,
   SUBTOPIC_BADGE_CLASS,
   topicColorClass,
-  topicTextColor,
 } from "../lib/badges";
 import { cn, formatConfidence, formatLabel } from "../lib/utils";
-import { RotateCcw, Tag, User } from "./icons";
 
 interface SegmentQueueProps {
   segments: SegmentSummary[];
@@ -22,6 +36,8 @@ interface SegmentQueueProps {
   onSelect: (segmentId: number) => void;
   onFiltersChange: (filters: SegmentFilters) => void;
 }
+
+const ALL_TOPICS = "__all__";
 
 const SegmentCard = ({
   segment,
@@ -35,25 +51,27 @@ const SegmentCard = ({
   <button
     onClick={onClick}
     className={cn(
-      "w-full text-left rounded-lg px-2 py-3 border transition-colors hover:bg-secondary/70 focus:outline-none",
-      isSelected ? "bg-secondary border-border" : "border-transparent",
+      "w-full rounded-lg border px-2.5 py-3 text-left transition-colors hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+      isSelected
+        ? "border-primary/40 bg-accent ring-1 ring-primary/30"
+        : "border-transparent",
     )}
   >
-    <div className="flex items-center gap-2 mb-1.5">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary text-muted-foreground">
-        <User className="h-3.5 w-3.5" />
+    <div className="mb-1.5 flex items-center gap-2">
+      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-secondary text-muted-foreground">
+        <User className="size-3.5" />
       </span>
-      <span className="text-sm font-medium truncate flex-1">
+      <span className="flex-1 truncate text-sm font-medium">
         {segment.conversation}
       </span>
       {segment.reviewed && (
-        <span className="inline-block w-2 h-2 rounded-full bg-green-500 shrink-0" />
+        <span className="size-2 shrink-0 rounded-full bg-positive" />
       )}
     </div>
 
-    <div className="flex items-center gap-1 flex-wrap mb-1">
+    <div className="mb-1 flex flex-wrap items-center gap-1">
       {segment.topic ? (
-        <Badge variant="secondary" className={cn("border", topicColorClass(segment.topic))}>
+        <Badge variant="outline" className={topicColorClass(segment.topic)}>
           {formatLabel(segment.topic)}
         </Badge>
       ) : (
@@ -67,22 +85,27 @@ const SegmentCard = ({
         </Badge>
       )}
       {segment.sentiment && (
-        <Badge variant="outline" className={cn("border", sentimentBadgeClass(segment.sentiment))}>
+        <Badge
+          variant="outline"
+          className={sentimentBadgeClass(segment.sentiment)}
+        >
           {segment.sentiment}
         </Badge>
       )}
     </div>
 
-    <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+    <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
       {segment.summary ?? "No summary available"}
     </p>
 
-    <div className="mt-1 flex items-center gap-2 flex-wrap">
-      <span className="text-xs text-muted-foreground">
-        Confidence:{" "}
-        <span className="text-foreground">{formatConfidence(segment.label_confidence)}</span>
+    <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+      <span>
+        Confidence{" "}
+        <span className="text-foreground">
+          {formatConfidence(segment.label_confidence)}
+        </span>
       </span>
-      <span className="text-xs text-muted-foreground">chunk {segment.chunk_index}</span>
+      <span>chunk {segment.chunk_index}</span>
     </div>
   </button>
 );
@@ -107,7 +130,9 @@ const SegmentQueue = ({
     filters.max_confidence !== undefined;
 
   const maxConfidencePct =
-    filters.max_confidence !== undefined ? Math.round(filters.max_confidence * 100) : 100;
+    filters.max_confidence !== undefined
+      ? Math.round(filters.max_confidence * 100)
+      : 100;
 
   const statusOptions: { value: SegmentFilters["status"]; label: string }[] = [
     { value: undefined, label: "All" },
@@ -116,32 +141,38 @@ const SegmentQueue = ({
   ];
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      <div className="flex flex-col gap-2 p-3 border-b border-border/50">
+    <div className="flex h-full flex-col overflow-hidden">
+      <div className="flex flex-col gap-2.5 p-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold">Topic Annotation</h2>
+          <h2 className="text-sm font-semibold tracking-tight">
+            Topic Annotation
+          </h2>
           {hasActiveFilters && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onFiltersChange({})}
-              title="Reset all filters"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={() => onFiltersChange({})}
+                >
+                  <RotateCcw />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Reset all filters</TooltipContent>
+            </Tooltip>
           )}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 rounded-md bg-muted p-0.5">
           {statusOptions.map((opt) => (
             <button
               key={opt.label}
               onClick={() => update({ status: opt.value })}
               className={cn(
-                "flex-1 rounded-md px-2 py-1 text-xs font-medium transition-colors",
+                "flex-1 rounded-sm px-2 py-1 text-xs font-medium transition-colors",
                 filters.status === opt.value
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary/60 text-secondary-foreground hover:bg-secondary",
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               {opt.label}
@@ -149,72 +180,80 @@ const SegmentQueue = ({
           ))}
         </div>
 
-        <div className="flex items-center gap-1.5 rounded-md border border-border bg-background px-2">
-          <Tag className="h-3 w-3 text-muted-foreground shrink-0" />
-          <select
-            value={filters.topic ?? "__all__"}
-            onChange={(e) =>
-              update({ topic: e.target.value === "__all__" ? undefined : e.target.value })
-            }
-            className="flex-1 bg-transparent py-1.5 text-xs focus:outline-none"
-          >
-            <option value="__all__">All topics</option>
+        <Select
+          value={filters.topic ?? ALL_TOPICS}
+          onValueChange={(v) =>
+            update({ topic: v === ALL_TOPICS ? undefined : v })
+          }
+        >
+          <SelectTrigger size="sm" className="w-full">
+            <Tag className="size-3.5 text-muted-foreground" />
+            <SelectValue placeholder="All topics" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_TOPICS}>All topics</SelectItem>
             {topics.map((t) => (
-              <option key={t} value={t} className={topicTextColor(t)}>
+              <SelectItem key={t} value={t}>
                 {taxonomy[t]?.name ?? formatLabel(t)}
-              </option>
+              </SelectItem>
             ))}
-          </select>
-        </div>
+          </SelectContent>
+        </Select>
 
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground shrink-0">
-            Max conf
-          </span>
-          <input
-            type="range"
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Max confidence
+            </span>
+            <span className="text-xs tabular-nums text-muted-foreground">
+              {filters.max_confidence !== undefined
+                ? `${maxConfidencePct}%`
+                : "off"}
+            </span>
+          </div>
+          <Slider
             min={0}
             max={100}
             step={5}
-            value={maxConfidencePct}
-            onChange={(e) => {
-              const pct = Number(e.target.value);
-              update({ max_confidence: pct >= 100 ? undefined : pct / 100 });
-            }}
-            className="flex-1 accent-[hsl(var(--primary))]"
+            value={[maxConfidencePct]}
+            onValueChange={([pct]) =>
+              update({ max_confidence: pct >= 100 ? undefined : pct / 100 })
+            }
           />
-          <span className="text-xs tabular-nums w-10 text-right text-muted-foreground">
-            {filters.max_confidence !== undefined ? `${maxConfidencePct}%` : "off"}
-          </span>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-2 py-2">
-        {loading && (
-          <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">
-            Loading…
-          </div>
-        )}
-        {!loading && segments.length === 0 && (
-          <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">
-            No segments found
-          </div>
-        )}
-        {!loading && segments.length > 0 && (
-          <div className="flex flex-col gap-1">
-            {segments.map((segment) => (
-              <SegmentCard
-                key={segment.id}
-                segment={segment}
-                isSelected={selectedId === segment.id}
-                onClick={() => onSelect(segment.id)}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      <Separator />
 
-      <div className="border-t border-border/50 px-4 py-1.5 text-center text-xs text-muted-foreground">
+      <ScrollArea className="min-h-0 flex-1">
+        <div className="p-2">
+          {loading && (
+            <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
+              Loading…
+            </div>
+          )}
+          {!loading && segments.length === 0 && (
+            <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
+              No segments found
+            </div>
+          )}
+          {!loading && segments.length > 0 && (
+            <div className="flex flex-col gap-1">
+              {segments.map((segment) => (
+                <SegmentCard
+                  key={segment.id}
+                  segment={segment}
+                  isSelected={selectedId === segment.id}
+                  onClick={() => onSelect(segment.id)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </ScrollArea>
+
+      <Separator />
+      <div className="px-4 py-1.5 text-center text-xs text-muted-foreground">
         {segments.length} shown · {total} total segment{total !== 1 ? "s" : ""}
       </div>
     </div>

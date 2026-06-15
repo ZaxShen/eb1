@@ -1,10 +1,19 @@
+import type { ReactNode } from "react";
+import { Check, ChevronLeft, ChevronRight, Save } from "lucide-react";
 import type { SegmentDetail } from "../api";
 import type { TaxonomyMap } from "../lib/taxonomy";
 import { sortedTopics, subtopicsFor } from "../lib/taxonomy";
-import { Button, Kbd } from "./ui/Button";
-import { ChevronLeft, ChevronRight } from "./icons";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { formatLabel } from "../lib/utils";
-import { topicTextColor } from "../lib/badges";
 
 interface AnnotationPanelProps {
   detail: SegmentDetail | null;
@@ -21,6 +30,12 @@ interface AnnotationPanelProps {
   onPrev: () => void;
   onNext: () => void;
 }
+
+const Kbd = ({ children }: { children: ReactNode }) => (
+  <kbd className="inline-flex h-4 items-center rounded border border-border bg-muted px-1 text-[0.625rem] font-medium text-muted-foreground">
+    {children}
+  </kbd>
+);
 
 const AnnotationPanel = ({
   detail,
@@ -51,88 +66,112 @@ const AnnotationPanel = ({
 
   return (
     <div className="flex h-full flex-col overflow-y-auto p-3">
-      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+      <h3 className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         Annotation
       </h3>
 
       <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <label className="text-xs text-muted-foreground">True Topic</label>
-          <select
-            value={topic}
-            onChange={(e) => onTopicChange(e.target.value)}
-            className="rounded-md border border-border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            <option value="">Select a topic…</option>
-            {topics.map((t) => (
-              <option key={t} value={t} className={topicTextColor(t)}>
-                {taxonomy[t]?.name ?? formatLabel(t)}
-              </option>
-            ))}
-          </select>
+          <Select value={topic} onValueChange={onTopicChange}>
+            <SelectTrigger size="sm" className="w-full">
+              <SelectValue placeholder="Select a topic…" />
+            </SelectTrigger>
+            <SelectContent>
+              {topics.map((t) => (
+                <SelectItem key={t} value={t}>
+                  {taxonomy[t]?.name ?? formatLabel(t)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <label className="text-xs text-muted-foreground">True Subtopic</label>
-          <select
+          <Select
             value={subtopic}
-            onChange={(e) => onSubtopicChange(e.target.value)}
+            onValueChange={onSubtopicChange}
             disabled={!topic || subtopics.length === 0}
-            className="rounded-md border border-border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
           >
-            <option value="">
-              {topic ? "Select a subtopic…" : "Select a topic first"}
-            </option>
-            {subtopics.map((s) => (
-              <option key={s} value={s}>
-                {formatLabel(s)}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger size="sm" className="w-full">
+              <SelectValue
+                placeholder={
+                  topic ? "Select a subtopic…" : "Select a topic first"
+                }
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {subtopics.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {formatLabel(s)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground">Reviewed by (optional)</label>
-          <input
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs text-muted-foreground">
+            Reviewed by (optional)
+          </label>
+          <Input
             value={reviewedBy}
             onChange={(e) => onReviewedByChange(e.target.value)}
             placeholder="your name"
-            className="rounded-md border border-border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="h-8 text-sm"
           />
         </div>
+
+        <Separator />
 
         <div className="flex gap-2">
           <Button
             variant="outline"
+            size="sm"
             className="flex-1"
             onClick={onConfirmAi}
             disabled={!aiTopic}
             title="Confirm the AI label (Space)"
           >
+            <Check />
             Confirm AI
             <Kbd>Space</Kbd>
           </Button>
           <Button
-            variant="primary"
+            size="sm"
             className="flex-1"
             onClick={onSave}
             disabled={saving || !topic}
             title="Save annotation (Enter)"
           >
+            <Save />
             {saving ? "Saving…" : "Save"}
             {!saving && <Kbd>Enter</Kbd>}
           </Button>
         </div>
 
         <div className="flex gap-2">
-          <Button variant="outline" className="flex-1" onClick={onPrev} title="Previous segment (←)">
-            <ChevronLeft className="h-4 w-4" />
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            onClick={onPrev}
+            title="Previous segment (←)"
+          >
+            <ChevronLeft />
             Prev
             <Kbd>←</Kbd>
           </Button>
-          <Button variant="outline" className="flex-1" onClick={onNext} title="Next segment (→)">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            onClick={onNext}
+            title="Next segment (→)"
+          >
             Next
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight />
             <Kbd>→</Kbd>
           </Button>
         </div>
