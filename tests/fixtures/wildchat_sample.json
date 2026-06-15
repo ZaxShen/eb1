@@ -1,0 +1,26 @@
+[
+  {
+    "conversation_hash": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+    "model": "gpt-4",
+    "timestamp": "2023-09-12T14:30:00Z",
+    "turn": 2,
+    "language": "English",
+    "conversation": [
+      {"role": "user", "content": "my python script throws KeyError on a dict, how do i fix it"},
+      {"role": "assistant", "content": "A KeyError means the key is missing. Use dict.get(key, default) or check `if key in d:` before access. Can you share the line that raises it?"},
+      {"role": "user", "content": "it's value = data[\"count\"]"},
+      {"role": "assistant", "content": "Replace it with value = data.get(\"count\", 0) to default to 0 when the key is absent."}
+    ]
+  },
+  {
+    "conversation_hash": "f0e1d2c3b4a5f0e1d2c3b4a5f0e1d2c3",
+    "model": "gpt-3.5-turbo",
+    "timestamp": "2023-10-01T09:05:30Z",
+    "turn": 1,
+    "language": "English",
+    "conversation": [
+      {"role": "user", "content": "can you help me write a cover letter for a marketing internship"},
+      {"role": "assistant", "content": "Sure -- what's your strongest relevant experience and the company name?"}
+    ]
+  }
+]

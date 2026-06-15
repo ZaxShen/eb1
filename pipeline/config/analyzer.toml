@@ -1,6 +1,6 @@
 [analyzer]
 model             = "openai/gpt-5.4"
-prompt_version        = "latest"
+prompt_version        = "v3"        # pinned: production Acme default. v4 is the domain-neutral profile (opt-in via analyzer_wildchat.toml); "latest" would silently flip to it.
 bot_prompt_version    = "bot_v1"    # prompt for bot-only chunks (no user engagement)
 temperature       = 0.0
 base_url          = "https://ai-gateway.vercel.sh/v1"  # empty = local Ollama
