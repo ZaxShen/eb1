@@ -13,6 +13,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { mergeWithPrevious, splitAt } from "../lib/boundaries";
 import {
   sentimentBadgeClass,
   SUBTOPIC_BADGE_CLASS,
@@ -238,41 +239,24 @@ const ConversationStream = ({
     );
   }
 
-  /** Split the span at `segmentId` into two at `splitIndex` (starts span 2). */
-  const handleSplitHere = (segmentId: number, splitIndex: number) => {
-    const flattened: { message_indices: number[] }[] = [];
-    for (const span of orderedSegments) {
-      if (span.id !== segmentId) {
-        flattened.push({ message_indices: span.message_indices });
-        continue;
-      }
-      const before = span.message_indices.filter((i) => i < splitIndex);
-      const after = span.message_indices.filter((i) => i >= splitIndex);
-      if (before.length > 0) flattened.push({ message_indices: before });
-      if (after.length > 0) flattened.push({ message_indices: after });
-    }
-    onReplaceBoundaries(flattened);
+  /** Split the span at `segIdx` into two at `splitIndex` (starts span 2). */
+  const handleSplitHere = (segIdx: number, splitIndex: number) => {
+    const spans = orderedSegments.map((s) => s.message_indices);
+    onReplaceBoundaries(
+      splitAt(spans, segIdx, splitIndex).map((message_indices) => ({
+        message_indices,
+      })),
+    );
   };
 
-  /** Merge the span at `segmentId` into the immediately-previous span. */
-  const handleMergePrev = (segmentId: number) => {
-    const pos = orderedSegments.findIndex((s) => s.id === segmentId);
-    if (pos <= 0) return;
-    const spans: { message_indices: number[] }[] = [];
-    for (let i = 0; i < orderedSegments.length; i += 1) {
-      if (i === pos) continue;
-      if (i === pos - 1) {
-        spans.push({
-          message_indices: [
-            ...orderedSegments[i].message_indices,
-            ...orderedSegments[pos].message_indices,
-          ].sort((a, b) => a - b),
-        });
-      } else {
-        spans.push({ message_indices: orderedSegments[i].message_indices });
-      }
-    }
-    onReplaceBoundaries(spans);
+  /** Merge the span at `segIdx` into the immediately-previous span. */
+  const handleMergePrev = (segIdx: number) => {
+    const spans = orderedSegments.map((s) => s.message_indices);
+    onReplaceBoundaries(
+      mergeWithPrevious(spans, segIdx).map((message_indices) => ({
+        message_indices,
+      })),
+    );
   };
 
   return (
@@ -304,7 +288,7 @@ const ConversationStream = ({
                 segment={segment}
                 current={isSelected}
                 onMergePrev={
-                  segIdx > 0 ? () => handleMergePrev(segment.id) : undefined
+                  segIdx > 0 ? () => handleMergePrev(segIdx) : undefined
                 }
               />
               <div className="flex flex-col gap-0.5 pb-2">
@@ -320,7 +304,7 @@ const ConversationStream = ({
                     prevMsg={messages[i - 1]}
                     onSplitHere={
                       i > 0
-                        ? () => handleSplitHere(segment.id, msg.index)
+                        ? () => handleSplitHere(segIdx, msg.index)
                         : undefined
                     }
                   />
