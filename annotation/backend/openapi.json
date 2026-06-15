@@ -1,0 +1,1403 @@
+{
+  "components": {
+    "schemas": {
+      "AnnotateRequest": {
+        "description": "Relabel/confirm one base segment's topic/subtopic.",
+        "properties": {
+          "reviewed_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed By"
+          },
+          "sentiment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sentiment"
+          },
+          "true_subtopic": {
+            "title": "True Subtopic",
+            "type": "string"
+          },
+          "true_topic": {
+            "title": "True Topic",
+            "type": "string"
+          }
+        },
+        "required": [
+          "true_topic",
+          "true_subtopic"
+        ],
+        "title": "AnnotateRequest",
+        "type": "object"
+      },
+      "AnnotateResponse": {
+        "description": "Result of an annotate write.",
+        "properties": {
+          "gold_segment_id": {
+            "title": "Gold Segment Id",
+            "type": "integer"
+          },
+          "reviewed": {
+            "default": true,
+            "title": "Reviewed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "gold_segment_id"
+        ],
+        "title": "AnnotateResponse",
+        "type": "object"
+      },
+      "AuthConfig": {
+        "description": "Whether Google SSO is required (unauthenticated config endpoint).",
+        "properties": {
+          "sso_enabled": {
+            "title": "Sso Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sso_enabled"
+        ],
+        "title": "AuthConfig",
+        "type": "object"
+      },
+      "BoundaryRequest": {
+        "description": "Replace a conversation's gold spans (split/merge).",
+        "properties": {
+          "reviewed_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed By"
+          },
+          "segments": {
+            "items": {
+              "$ref": "#/components/schemas/BoundarySpan"
+            },
+            "title": "Segments",
+            "type": "array"
+          }
+        },
+        "required": [
+          "segments"
+        ],
+        "title": "BoundaryRequest",
+        "type": "object"
+      },
+      "BoundaryResponse": {
+        "description": "Result of a boundary replace.",
+        "properties": {
+          "conversation": {
+            "title": "Conversation",
+            "type": "string"
+          },
+          "gold_segments_written": {
+            "title": "Gold Segments Written",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "conversation",
+          "gold_segments_written"
+        ],
+        "title": "BoundaryResponse",
+        "type": "object"
+      },
+      "BoundarySpan": {
+        "description": "One corrected gold span in a boundary edit.",
+        "properties": {
+          "message_indices": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Message Indices",
+            "type": "array"
+          },
+          "sentiment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sentiment"
+          },
+          "subtopic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subtopic"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic"
+          }
+        },
+        "required": [
+          "message_indices"
+        ],
+        "title": "BoundarySpan",
+        "type": "object"
+      },
+      "ClearAnnotationResponse": {
+        "description": "Result of clearing a segment's gold annotation.",
+        "properties": {
+          "deleted": {
+            "title": "Deleted",
+            "type": "integer"
+          },
+          "reviewed": {
+            "default": false,
+            "title": "Reviewed",
+            "type": "boolean"
+          },
+          "segment_id": {
+            "title": "Segment Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "segment_id",
+          "deleted"
+        ],
+        "title": "ClearAnnotationResponse",
+        "type": "object"
+      },
+      "ConversationSummary": {
+        "description": "One row in the user/conversation review queue.",
+        "properties": {
+          "conversation": {
+            "title": "Conversation",
+            "type": "string"
+          },
+          "message_count": {
+            "title": "Message Count",
+            "type": "integer"
+          },
+          "reviewed": {
+            "default": false,
+            "title": "Reviewed",
+            "type": "boolean"
+          },
+          "reviewed_count": {
+            "title": "Reviewed Count",
+            "type": "integer"
+          },
+          "segment_count": {
+            "title": "Segment Count",
+            "type": "integer"
+          },
+          "topics": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "conversation",
+          "message_count",
+          "segment_count",
+          "reviewed_count"
+        ],
+        "title": "ConversationSummary",
+        "type": "object"
+      },
+      "ConversationView": {
+        "description": "All messages + all machine segments for the boundary-edit view.",
+        "properties": {
+          "conversation": {
+            "title": "Conversation",
+            "type": "string"
+          },
+          "gold_segments": {
+            "items": {
+              "$ref": "#/components/schemas/GoldSegment"
+            },
+            "title": "Gold Segments",
+            "type": "array"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "segments": {
+            "items": {
+              "$ref": "#/components/schemas/SegmentSummary"
+            },
+            "title": "Segments",
+            "type": "array"
+          }
+        },
+        "required": [
+          "conversation",
+          "messages",
+          "segments",
+          "gold_segments"
+        ],
+        "title": "ConversationView",
+        "type": "object"
+      },
+      "GoldSegment": {
+        "description": "A persisted human-gold segment.",
+        "properties": {
+          "base_segment_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Segment Id"
+          },
+          "conversation": {
+            "title": "Conversation",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "message_indices": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Message Indices",
+            "type": "array"
+          },
+          "reviewed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed At"
+          },
+          "reviewed_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed By"
+          },
+          "sentiment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sentiment"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "subtopic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subtopic"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic"
+          }
+        },
+        "required": [
+          "id",
+          "conversation",
+          "message_indices"
+        ],
+        "title": "GoldSegment",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "Message": {
+        "description": "One normalized conversation message, with its positional index.",
+        "properties": {
+          "createdAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Createdat"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "index",
+          "id",
+          "type",
+          "message"
+        ],
+        "title": "Message",
+        "type": "object"
+      },
+      "SegmentDetail": {
+        "description": "A segment plus its conversation context for the annotation panel.",
+        "properties": {
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "segment": {
+            "$ref": "#/components/schemas/SegmentSummary"
+          },
+          "siblings": {
+            "items": {
+              "$ref": "#/components/schemas/SegmentSummary"
+            },
+            "title": "Siblings",
+            "type": "array"
+          },
+          "span": {
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            },
+            "title": "Span",
+            "type": "array"
+          }
+        },
+        "required": [
+          "segment",
+          "messages",
+          "span",
+          "siblings"
+        ],
+        "title": "SegmentDetail",
+        "type": "object"
+      },
+      "SegmentSummary": {
+        "description": "A machine segment as listed in the review queue.",
+        "properties": {
+          "chunk_index": {
+            "title": "Chunk Index",
+            "type": "integer"
+          },
+          "conversation": {
+            "title": "Conversation",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "label_confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label Confidence"
+          },
+          "message_indices": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Message Indices",
+            "type": "array"
+          },
+          "reviewed": {
+            "default": false,
+            "title": "Reviewed",
+            "type": "boolean"
+          },
+          "sentiment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sentiment"
+          },
+          "subtopic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subtopic"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic"
+          },
+          "true_subtopic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "True Subtopic"
+          },
+          "true_topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "True Topic"
+          }
+        },
+        "required": [
+          "id",
+          "conversation",
+          "chunk_index",
+          "message_indices"
+        ],
+        "title": "SegmentSummary",
+        "type": "object"
+      },
+      "Stats": {
+        "description": "Review progress for a dataset.",
+        "properties": {
+          "per_topic": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Per Topic",
+            "type": "object"
+          },
+          "reviewed": {
+            "title": "Reviewed",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "unreviewed": {
+            "title": "Unreviewed",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total",
+          "reviewed",
+          "unreviewed"
+        ],
+        "title": "Stats",
+        "type": "object"
+      },
+      "TaxonomyEntry": {
+        "description": "One taxonomy (topic, subtopic) row from the metadata provider.",
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "subtopic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subtopic"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic"
+          }
+        },
+        "title": "TaxonomyEntry",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "UFL Annotation Backend",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/auth/config": {
+      "get": {
+        "description": "Unauthenticated: tell the frontend whether Google SSO is required.",
+        "operationId": "get_auth_config_api_auth_config_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthConfig"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Auth Config"
+      }
+    },
+    "/api/datasets": {
+      "get": {
+        "description": "List dataset names that have an ``output.db``.",
+        "operationId": "list_datasets_api_datasets_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Response List Datasets Api Datasets Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Datasets"
+      }
+    },
+    "/api/datasets/{dataset}/conversations": {
+      "get": {
+        "description": "Return one row per conversation/user for the review queue.\n\nGroups ``run_segment`` rows by conversation (segment count, distinct\ntopics), counts messages via the dataset adapter, and folds in review\nstate from gold.db.",
+        "operationId": "list_conversations_api_datasets__dataset__conversations_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConversationSummary"
+                  },
+                  "title": "Response List Conversations Api Datasets  Dataset  Conversations Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Conversations"
+      }
+    },
+    "/api/datasets/{dataset}/conversations/{conversation}": {
+      "get": {
+        "description": "Return a conversation's messages plus all its segments (boundary view).",
+        "operationId": "get_conversation_api_datasets__dataset__conversations__conversation__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "conversation",
+            "required": true,
+            "schema": {
+              "title": "Conversation",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Conversation"
+      }
+    },
+    "/api/datasets/{dataset}/conversations/{conversation}/boundaries": {
+      "post": {
+        "description": "REPLACE all gold_segments for a conversation with the posted spans.",
+        "operationId": "replace_boundaries_api_datasets__dataset__conversations__conversation__boundaries_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "conversation",
+            "required": true,
+            "schema": {
+              "title": "Conversation",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BoundaryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BoundaryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Replace Boundaries"
+      }
+    },
+    "/api/datasets/{dataset}/segments": {
+      "get": {
+        "description": "Return the review queue: run_segment rows joined with gold review state.\n\nFilters (all optional): ``status`` (``reviewed``/``unreviewed``), ``topic``\nexact match, ``max_confidence`` (keep segments at or below that confidence).",
+        "operationId": "list_segments_api_datasets__dataset__segments_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Topic"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_confidence",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Confidence"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SegmentSummary"
+                  },
+                  "title": "Response List Segments Api Datasets  Dataset  Segments Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Segments"
+      }
+    },
+    "/api/datasets/{dataset}/segments/{segment_id}": {
+      "get": {
+        "description": "Return a segment with its conversation messages, span, and siblings.",
+        "operationId": "get_segment_api_datasets__dataset__segments__segment_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "segment_id",
+            "required": true,
+            "schema": {
+              "title": "Segment Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SegmentDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Segment"
+      }
+    },
+    "/api/datasets/{dataset}/segments/{segment_id}/annotate": {
+      "delete": {
+        "description": "Clear a segment's gold annotation, reverting it to unannotated.\n\nDeletes the segment's relabel/confirm gold_segment row(s) + its review_state\nentry so undoing a first annotation reverts the segment to unreviewed.",
+        "operationId": "clear_segment_annotation_api_datasets__dataset__segments__segment_id__annotate_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "segment_id",
+            "required": true,
+            "schema": {
+              "title": "Segment Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClearAnnotationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Clear Segment Annotation"
+      },
+      "post": {
+        "description": "Write a gold_segment mirroring the base span with corrected labels.",
+        "operationId": "annotate_segment_api_datasets__dataset__segments__segment_id__annotate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "segment_id",
+            "required": true,
+            "schema": {
+              "title": "Segment Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnnotateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnotateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Annotate Segment"
+      }
+    },
+    "/api/datasets/{dataset}/stats": {
+      "get": {
+        "description": "Return review progress: totals and per-topic counts.",
+        "operationId": "get_stats_api_datasets__dataset__stats_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stats"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Stats"
+      }
+    },
+    "/api/datasets/{dataset}/taxonomy": {
+      "get": {
+        "description": "Return the dataset's user taxonomy from the metadata provider.",
+        "operationId": "get_taxonomy_api_datasets__dataset__taxonomy_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TaxonomyEntry"
+                  },
+                  "title": "Response Get Taxonomy Api Datasets  Dataset  Taxonomy Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Taxonomy"
+      }
+    }
+  }
+}

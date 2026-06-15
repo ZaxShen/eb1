@@ -1,6 +1,14 @@
 // Typed client for the annotation FastAPI backend. Shapes mirror
 // annotation/backend/models.py exactly. All paths go through the Vite
 // dev proxy at /api -> http://localhost:8000.
+//
+// Contract: the hand-written interfaces below are asserted assignable to the
+// generated OpenAPI schema (src/api/schema.d.ts, `npm run types:gen`) at the
+// bottom of this file, so a backend field rename becomes a TypeScript error.
+
+import type { components } from "./api/schema";
+
+type Schema = components["schemas"];
 
 export interface Message {
   index: number;
@@ -233,3 +241,22 @@ export const api = {
   getStats: (dataset: string) =>
     request<Stats>(`/datasets/${encodeURIComponent(dataset)}/stats`),
 };
+
+// Compile-time contract: each response type must stay assignable to the
+// generated backend schema. A renamed/removed backend field breaks `tsc`.
+type AssertAssignable<T extends U, U> = T;
+export type SchemaContract = [
+  AssertAssignable<Message, Schema["Message"]>,
+  AssertAssignable<SegmentSummary, Schema["SegmentSummary"]>,
+  AssertAssignable<SegmentDetail, Schema["SegmentDetail"]>,
+  AssertAssignable<GoldSegment, Schema["GoldSegment"]>,
+  AssertAssignable<ConversationSummary, Schema["ConversationSummary"]>,
+  AssertAssignable<ConversationView, Schema["ConversationView"]>,
+  AssertAssignable<TaxonomyEntry, Schema["TaxonomyEntry"]>,
+  AssertAssignable<AnnotateResponse, Schema["AnnotateResponse"]>,
+  AssertAssignable<ClearAnnotationResponse, Schema["ClearAnnotationResponse"]>,
+  AssertAssignable<BoundaryResponse, Schema["BoundaryResponse"]>,
+  AssertAssignable<AuthConfig, Schema["AuthConfig"]>,
+  AssertAssignable<Stats, Schema["Stats"]>,
+];
+
