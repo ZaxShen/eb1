@@ -1,0 +1,44 @@
+# Benchmark configuration — each [[run]] is one LLM comparison pass.
+# Usage: uv run python -m pipeline --benchmark <name> [--group-id <id>]
+#
+# All models write to eb1_benchmark_raw via eb1_benchmark_runs FK.
+# Each benchmark invocation creates a group (eb1_benchmark_groups),
+# with one run entry per model (eb1_benchmark_runs).
+#
+# user_sample controls the fraction of reviewed users to benchmark.
+# Only users with true_topic AND true_sub_topic set are eligible.
+# 1.0 = all reviewed users, 0.5 = random 50%, etc.
+#
+# Global defaults (temperature, base_url, user_prompt, bot_prompt)
+# apply to ALL runs. Override per-run if needed.
+#
+# pure_llm mode is encoded in the model name prefix "pure_llm_":
+# e.g. "pure_llm_openai/gpt-5.4" → pure_llm=true, model="openai/gpt-5.4"
+
+# Group metadata — stored in eb1_benchmark_groups (shared across all models)
+group_id        = "bench-with-baseline-2026-03-28"   # group name (override with --group-id)
+type            = "model_benchmark"      # e.g. 'model_benchmark', 'hyperparameter_search'
+objective       = "Compare 2 LLMs and baseline (pure LLM) with updated v3 prompt and fixed taxonomy"
+
+# Pipeline defaults — inherited by all [[run]] entries unless overridden
+user_sample     = 1.0           # fraction of reviewed users; 1.0 = all, 0.5 = random 50%
+user_prompt     = "v3"          # resolves to eb1_prompt_user_v3.md
+bot_prompt      = "v1"          # resolves to eb1_prompt_bot_v1.md
+temperature     = 0.0
+base_url        = "https://ai-gateway.vercel.sh/v1"
+cluster         = false
+
+[[run]]
+model   = "pure_llm_openai/gpt-5.4"
+summary = "OpenAI GPT-5.4 — current production model"
+
+[[run]]
+model   = "openai/gpt-5.2-chat"
+summary = "OpenAI GPT-5.2 Chat — lightweight, fast, cost-effective baseline"
+
+
+[[run]]
+model   = "openai/gpt-5.4"
+summary = "OpenAI GPT-5.4 — current production model"
+
+

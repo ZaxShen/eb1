@@ -1,0 +1,85 @@
+{
+  "generated_at": "2026-02-25T00:36:38.148778+00:00",
+  "summary": {
+    "total_segments": 43,
+    "total_segments_in_clusters": 37,
+    "noise_segments": 6,
+    "noise_ratio": 0.1395,
+    "total_clusters_labeled": 4,
+    "unique_topics_assigned": 2,
+    "new_topics_created_by_llm": 0
+  },
+  "topic_distribution": [
+    {
+      "topic": "match_discussion",
+      "cluster_count": 3,
+      "segment_count": 28,
+      "avg_confidence": 0.9763,
+      "sub_topics": [
+        "getting_to_know_match",
+        "ghosting and follow-through",
+        "compatibility and intentions"
+      ],
+      "generalizations": [
+        "Users are discussing their matches, sharing interests, and planning dates.",
+        "Users are discussing their feelings about being ghosted by matches on Acme, wondering what to do next, and evaluating compatibility.",
+        "Users are discussing their compatibility, intentions, and feelings about matches, with a focus on navigating relationships as seniors in college."
+      ]
+    },
+    {
+      "topic": "date_planning",
+      "cluster_count": 1,
+      "segment_count": 9,
+      "avg_confidence": 0.9244,
+      "sub_topics": [
+        "planning dates and activities"
+      ],
+      "generalizations": [
+        "Users are discussing planning dates, choosing activities, and coordinating logistics with their matches."
+      ]
+    }
+  ],
+  "new_topics": [],
+  "clusters": [
+    {
+      "cluster_id": 0,
+      "n_segments": 14,
+      "n_segments_to_llm": 14,
+      "cluster_confidence": 0.9726,
+      "topic": "match_discussion",
+      "sub_topic": "getting_to_know_match",
+      "generalization": "Users are discussing their matches, sharing interests, and planning dates.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 1,
+      "n_segments": 9,
+      "n_segments_to_llm": 9,
+      "cluster_confidence": 0.9244,
+      "topic": "date_planning",
+      "sub_topic": "planning dates and activities",
+      "generalization": "Users are discussing planning dates, choosing activities, and coordinating logistics with their matches.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 2,
+      "n_segments": 7,
+      "n_segments_to_llm": 7,
+      "cluster_confidence": 0.9858,
+      "topic": "match_discussion",
+      "sub_topic": "ghosting and follow-through",
+      "generalization": "Users are discussing their feelings about being ghosted by matches on Acme, wondering what to do next, and evaluating compatibility.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 3,
+      "n_segments": 7,
+      "n_segments_to_llm": 7,
+      "cluster_confidence": 0.9705,
+      "topic": "match_discussion",
+      "sub_topic": "compatibility and intentions",
+      "generalization": "Users are discussing their compatibility, intentions, and feelings about matches, with a focus on navigating relationships as seniors in college.",
+      "is_new_topic": false
+    }
+  ]
+}

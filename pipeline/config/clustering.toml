@@ -1,0 +1,11 @@
+[embedder]
+model      = "all-MiniLM-L6-v2"
+cache_dir  = ".cache/embeddings"
+batch_size = 64
+
+[clusterer]
+umap_n_components        = 10
+umap_n_neighbors         = 15    # global structure for ~5K segments
+umap_min_dist            = 0.05  # lower → tighter UMAP clusters → HDBSCAN splits topics more finely
+hdbscan_min_cluster_size = 50    # targets 30–80 topic clusters for ~5K segments
+hdbscan_min_samples      = 3     # slightly more conservative noise handling

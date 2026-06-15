@@ -1,0 +1,49 @@
+{
+  "log_type": "run_summary",
+  "generated_at": "2026-02-25T05:08:17.506631+00:00",
+  "summary": {
+    "total_segments": 14,
+    "unique_topics": 0,
+    "new_topics_count": 0,
+    "total_sub_topics": 0,
+    "hdbscan_noise": 0,
+    "noise_recovered": 0,
+    "noise_unclassified": 0,
+    "label_source_counts": {
+      "null": 14
+    }
+  },
+  "topic_distribution": [
+    {
+      "topic": "null",
+      "segment_count": 14,
+      "pct": 100.0,
+      "sub_topics": [],
+      "n_sub_topics": 0,
+      "label_sources": [],
+      "is_new_topic": false
+    }
+  ],
+  "new_topics": [],
+  "initial_taxonomy": [
+    "date_planning",
+    "emotional_support",
+    "event_inquiry",
+    "general_dating",
+    "ghosting_handling",
+    "icebreaker_ideas",
+    "match_discussion",
+    "profile_advice",
+    "relationship_advice",
+    "technical_support"
+  ],
+  "evaluation": {
+    "total_segments": 14,
+    "labeled_segments": 0,
+    "unlabeled_segments": 14,
+    "noise_ratio": 1.0,
+    "distinct_topics": 0,
+    "topic_distribution": {},
+    "low_confidence_count": 0
+  }
+}

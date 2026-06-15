@@ -1,0 +1,319 @@
+{
+  "log_type": "label_log",
+  "generated_at": "2026-02-28T00:18:50.261547+00:00",
+  "summary": {
+    "total_segments": 4910,
+    "total_segments_in_clusters": 3555,
+    "hdbscan_noise_segments": 1355,
+    "noise_ratio": 0.276,
+    "total_clusters_labeled": 24,
+    "unique_topics": 2,
+    "new_topics_count": 0
+  },
+  "topic_distribution": [
+    {
+      "topic": "match_discussion",
+      "cluster_count": 21,
+      "segment_count": 2933,
+      "avg_confidence": 0.8485,
+      "sub_topics": [
+        "General Match Discussion",
+        "Match Evaluation and Planning",
+        "Evaluating and Deciding on Matches",
+        "Match Selection and Planning",
+        "evaluating compatibility and matches",
+        "Evaluating and Choosing Matches",
+        "Dating Match Conversations",
+        "Evaluating Compatibility and Rejection",
+        "Match Evaluation and Rejection",
+        "Evaluating and Discussing Matches",
+        "requesting_match",
+        "Match Evaluation and Decision Making"
+      ],
+      "generalizations": [
+        "Users discussing matches, asking for advice on how to proceed with potential dates.",
+        "Users discussing matches, evaluating compatibility, and planning dates.",
+        "Users discuss their matches, evaluating compatibility, deciding whether to reach out, and managing expectations.",
+        "Users discussing matches, planning dates, and asking for advice on how to proceed with potential partners.",
+        "Users discuss their matches, evaluating compatibility, planning dates, and seeking advice on how to proceed.",
+        "Users discuss their matches, evaluating compatibility, and deciding whether to reach out.",
+        "Users discuss their matches, evaluating compatibility, planning dates, and seeking advice on how to proceed.",
+        "Users discussing their matches, asking for advice on how to proceed with potential dates.",
+        "Users discuss their matches, evaluating compatibility, and choosing whether to reach out or skip.",
+        "Users discussing their matches, asking for advice on how to proceed with potential dates.",
+        "Users discussing their matches, evaluating compatibility, and planning dates.",
+        "Users discussing matches, evaluating compatibility, and handling rejection.",
+        "Users discuss matches, evaluate compatibility, and deal with rejection.",
+        "Users discuss their feelings about specific matches, ask for advice on how to proceed, and evaluate compatibility.",
+        "Users are asking Acme to find them a date, indicating they want to initiate a match.",
+        "Users discussing matches, asking for advice on how to proceed with a match, and sharing their experiences.",
+        "Users discussing their matches, evaluating compatibility, and deciding whether to reach out or cancel dates.",
+        "Users discussing matches, evaluating compatibility, and dealing with rejection.",
+        "Users discussing their matches, evaluating compatibility, and deciding what to do next.",
+        "Users discuss matches, evaluating compatibility, planning dates, and handling rejections.",
+        "Users discussing their matches, evaluating compatibility, and planning dates."
+      ],
+      "is_new_topic": false
+    },
+    {
+      "topic": "general_dating",
+      "cluster_count": 3,
+      "segment_count": 622,
+      "avg_confidence": 0.8456,
+      "sub_topics": [
+        "General Dating Advice and Support",
+        "dating_advice_and_support",
+        "requesting_dates"
+      ],
+      "generalizations": [
+        "Users discuss various aspects of dating, including advice on profiles, matches, dates, relationships, and emotional support.",
+        "Users discuss various aspects of dating, including advice on profiles, matches, and relationships.",
+        "Users are asking for more dates and expressing interest in meeting new people."
+      ],
+      "is_new_topic": false
+    }
+  ],
+  "new_topics": [],
+  "clusters": [
+    {
+      "cluster_id": 4,
+      "n_segments": 451,
+      "n_segments_to_llm": 451,
+      "cluster_confidence": 0.7535,
+      "topic": "general_dating",
+      "sub_topic": "General Dating Advice and Support",
+      "generalization": "Users discuss various aspects of dating, including advice on profiles, matches, dates, relationships, and emotional support.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 3,
+      "n_segments": 318,
+      "n_segments_to_llm": 318,
+      "cluster_confidence": 0.8559,
+      "topic": "match_discussion",
+      "sub_topic": "General Match Discussion",
+      "generalization": "Users discussing matches, asking for advice on how to proceed with potential dates.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 12,
+      "n_segments": 194,
+      "n_segments_to_llm": 194,
+      "cluster_confidence": 0.7252,
+      "topic": "match_discussion",
+      "sub_topic": "Match Evaluation and Planning",
+      "generalization": "Users discussing matches, evaluating compatibility, and planning dates.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 23,
+      "n_segments": 189,
+      "n_segments_to_llm": 189,
+      "cluster_confidence": 0.8306,
+      "topic": "match_discussion",
+      "sub_topic": "Evaluating and Deciding on Matches",
+      "generalization": "Users discuss their matches, evaluating compatibility, deciding whether to reach out, and managing expectations.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 7,
+      "n_segments": 184,
+      "n_segments_to_llm": 184,
+      "cluster_confidence": 0.7218,
+      "topic": "match_discussion",
+      "sub_topic": "Match Selection and Planning",
+      "generalization": "Users discussing matches, planning dates, and asking for advice on how to proceed with potential partners.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 13,
+      "n_segments": 183,
+      "n_segments_to_llm": 183,
+      "cluster_confidence": 0.7206,
+      "topic": "match_discussion",
+      "sub_topic": "Match Evaluation and Planning",
+      "generalization": "Users discuss their matches, evaluating compatibility, planning dates, and seeking advice on how to proceed.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 20,
+      "n_segments": 178,
+      "n_segments_to_llm": 178,
+      "cluster_confidence": 0.9305,
+      "topic": "match_discussion",
+      "sub_topic": "evaluating compatibility and matches",
+      "generalization": "Users discuss their matches, evaluating compatibility, and deciding whether to reach out.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 22,
+      "n_segments": 170,
+      "n_segments_to_llm": 170,
+      "cluster_confidence": 0.95,
+      "topic": "match_discussion",
+      "sub_topic": "Match Evaluation and Planning",
+      "generalization": "Users discuss their matches, evaluating compatibility, planning dates, and seeking advice on how to proceed.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 17,
+      "n_segments": 164,
+      "n_segments_to_llm": 164,
+      "cluster_confidence": 0.9251,
+      "topic": "match_discussion",
+      "sub_topic": "General Match Discussion",
+      "generalization": "Users discussing their matches, asking for advice on how to proceed with potential dates.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 19,
+      "n_segments": 164,
+      "n_segments_to_llm": 164,
+      "cluster_confidence": 0.8832,
+      "topic": "match_discussion",
+      "sub_topic": "Evaluating and Choosing Matches",
+      "generalization": "Users discuss their matches, evaluating compatibility, and choosing whether to reach out or skip.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 6,
+      "n_segments": 158,
+      "n_segments_to_llm": 158,
+      "cluster_confidence": 0.5026,
+      "topic": "match_discussion",
+      "sub_topic": "Dating Match Conversations",
+      "generalization": "Users discussing their matches, asking for advice on how to proceed with potential dates.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 15,
+      "n_segments": 145,
+      "n_segments_to_llm": 145,
+      "cluster_confidence": 0.7598,
+      "topic": "match_discussion",
+      "sub_topic": "Match Evaluation and Planning",
+      "generalization": "Users discussing their matches, evaluating compatibility, and planning dates.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 21,
+      "n_segments": 128,
+      "n_segments_to_llm": 128,
+      "cluster_confidence": 0.9445,
+      "topic": "match_discussion",
+      "sub_topic": "Evaluating Compatibility and Rejection",
+      "generalization": "Users discussing matches, evaluating compatibility, and handling rejection.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 1,
+      "n_segments": 118,
+      "n_segments_to_llm": 118,
+      "cluster_confidence": 0.8735,
+      "topic": "match_discussion",
+      "sub_topic": "Match Evaluation and Rejection",
+      "generalization": "Users discuss matches, evaluate compatibility, and deal with rejection.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 11,
+      "n_segments": 110,
+      "n_segments_to_llm": 110,
+      "cluster_confidence": 0.8186,
+      "topic": "match_discussion",
+      "sub_topic": "Evaluating and Discussing Matches",
+      "generalization": "Users discuss their feelings about specific matches, ask for advice on how to proceed, and evaluate compatibility.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 10,
+      "n_segments": 107,
+      "n_segments_to_llm": 107,
+      "cluster_confidence": 0.9147,
+      "topic": "general_dating",
+      "sub_topic": "dating_advice_and_support",
+      "generalization": "Users discuss various aspects of dating, including advice on profiles, matches, and relationships.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 2,
+      "n_segments": 94,
+      "n_segments_to_llm": 94,
+      "cluster_confidence": 0.8868,
+      "topic": "match_discussion",
+      "sub_topic": "requesting_match",
+      "generalization": "Users are asking Acme to find them a date, indicating they want to initiate a match.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 9,
+      "n_segments": 87,
+      "n_segments_to_llm": 87,
+      "cluster_confidence": 0.8317,
+      "topic": "match_discussion",
+      "sub_topic": "General Match Discussion",
+      "generalization": "Users discussing matches, asking for advice on how to proceed with a match, and sharing their experiences.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 14,
+      "n_segments": 82,
+      "n_segments_to_llm": 82,
+      "cluster_confidence": 0.9009,
+      "topic": "match_discussion",
+      "sub_topic": "Match Evaluation and Decision Making",
+      "generalization": "Users discussing their matches, evaluating compatibility, and deciding whether to reach out or cancel dates.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 8,
+      "n_segments": 72,
+      "n_segments_to_llm": 72,
+      "cluster_confidence": 0.8892,
+      "topic": "match_discussion",
+      "sub_topic": "Match Evaluation and Rejection",
+      "generalization": "Users discussing matches, evaluating compatibility, and dealing with rejection.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 18,
+      "n_segments": 67,
+      "n_segments_to_llm": 67,
+      "cluster_confidence": 0.9998,
+      "topic": "match_discussion",
+      "sub_topic": "Evaluating and Discussing Matches",
+      "generalization": "Users discussing their matches, evaluating compatibility, and deciding what to do next.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 5,
+      "n_segments": 65,
+      "n_segments_to_llm": 65,
+      "cluster_confidence": 0.8844,
+      "topic": "match_discussion",
+      "sub_topic": "Match Evaluation and Planning",
+      "generalization": "Users discuss matches, evaluating compatibility, planning dates, and handling rejections.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 0,
+      "n_segments": 64,
+      "n_segments_to_llm": 64,
+      "cluster_confidence": 0.8686,
+      "topic": "general_dating",
+      "sub_topic": "requesting_dates",
+      "generalization": "Users are asking for more dates and expressing interest in meeting new people.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 16,
+      "n_segments": 63,
+      "n_segments_to_llm": 63,
+      "cluster_confidence": 0.9839,
+      "topic": "match_discussion",
+      "sub_topic": "Match Evaluation and Planning",
+      "generalization": "Users discussing their matches, evaluating compatibility, and planning dates.",
+      "is_new_topic": false
+    }
+  ]
+}

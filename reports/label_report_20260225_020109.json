@@ -1,0 +1,61 @@
+{
+  "generated_at": "2026-02-25T02:01:09.373232+00:00",
+  "summary": {
+    "total_segments": 338,
+    "total_segments_in_clusters": 338,
+    "noise_segments": 0,
+    "noise_ratio": 0.0,
+    "total_clusters_labeled": 2,
+    "unique_topics_assigned": 2,
+    "new_topics_created_by_llm": 0
+  },
+  "topic_distribution": [
+    {
+      "topic": "match_discussion",
+      "cluster_count": 1,
+      "segment_count": 324,
+      "avg_confidence": 1.0,
+      "sub_topics": [
+        "nervousness and compatibility"
+      ],
+      "generalizations": [
+        "Users are discussing their feelings about matches, considering whether to reach out, and evaluating compatibility."
+      ]
+    },
+    {
+      "topic": "technical_support",
+      "cluster_count": 1,
+      "segment_count": 14,
+      "avg_confidence": 0.8795,
+      "sub_topics": [
+        "email_verification_issues"
+      ],
+      "generalizations": [
+        "Users are experiencing issues with verifying their education email addresses on Acme, and seeking assistance from support."
+      ]
+    }
+  ],
+  "new_topics": [],
+  "clusters": [
+    {
+      "cluster_id": 1,
+      "n_segments": 324,
+      "n_segments_to_llm": 30,
+      "cluster_confidence": 1.0,
+      "topic": "match_discussion",
+      "sub_topic": "nervousness and compatibility",
+      "generalization": "Users are discussing their feelings about matches, considering whether to reach out, and evaluating compatibility.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 0,
+      "n_segments": 14,
+      "n_segments_to_llm": 14,
+      "cluster_confidence": 0.8795,
+      "topic": "technical_support",
+      "sub_topic": "email_verification_issues",
+      "generalization": "Users are experiencing issues with verifying their education email addresses on Acme, and seeking assistance from support.",
+      "is_new_topic": false
+    }
+  ]
+}

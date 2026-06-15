@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+dist/
+build/
+.venv/
+*.whl
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# Claude Code
+.claude/settings.local.json
+.claude/worktrees/
+
+# Environment (secrets — never commit)
+.env
+
+# Project
+backups/
+*.dump
+cluster_review.json
+
+# LaTeX build artifacts (under docs/papers/<slug>/)
+docs/papers/**/paper.pdf
+docs/papers/**/*.aux
+docs/papers/**/*.bbl
+docs/papers/**/*.blg
+docs/papers/**/*.log
+docs/papers/**/*.out
+docs/papers/**/*.toc
+docs/papers/**/*.fls
+docs/papers/**/*.fdb_latexmk
+docs/papers/**/*.synctex.gz
+
+# TMB plugin runtime state — never commit
+.claude/

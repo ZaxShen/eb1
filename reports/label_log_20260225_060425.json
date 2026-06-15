@@ -1,0 +1,53 @@
+{
+  "log_type": "label_log",
+  "generated_at": "2026-02-25T06:04:25.413004+00:00",
+  "summary": {
+    "total_segments": 13,
+    "total_segments_in_clusters": 13,
+    "hdbscan_noise_segments": 0,
+    "noise_ratio": 0.0,
+    "total_clusters_labeled": 2,
+    "unique_topics": 1,
+    "new_topics_count": 0
+  },
+  "topic_distribution": [
+    {
+      "topic": "match_discussion",
+      "cluster_count": 2,
+      "segment_count": 13,
+      "avg_confidence": 0.9195,
+      "sub_topics": [
+        "compatibility_concerns",
+        "cancelled_dates_concerns"
+      ],
+      "generalizations": [
+        "Users discussing compatibility concerns and uncertainty about reaching out to their matches.",
+        "Users discussing cancelled matches and expressing concerns about rescheduling or moving forward."
+      ],
+      "is_new_topic": false
+    }
+  ],
+  "new_topics": [],
+  "clusters": [
+    {
+      "cluster_id": 0,
+      "n_segments": 7,
+      "n_segments_to_llm": 7,
+      "cluster_confidence": 0.8391,
+      "topic": "match_discussion",
+      "sub_topic": "compatibility_concerns",
+      "generalization": "Users discussing compatibility concerns and uncertainty about reaching out to their matches.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 1,
+      "n_segments": 6,
+      "n_segments_to_llm": 6,
+      "cluster_confidence": 1.0,
+      "topic": "match_discussion",
+      "sub_topic": "cancelled_dates_concerns",
+      "generalization": "Users discussing cancelled matches and expressing concerns about rescheduling or moving forward.",
+      "is_new_topic": false
+    }
+  ]
+}

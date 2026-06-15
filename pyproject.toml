@@ -1,0 +1,47 @@
+[project]
+name = "eb1"
+version = "0.1.0"
+description = "Chat topic classification pipeline for eb1 matchmaking"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    # MongoDB (PROD reads)
+    "pymongo>=4.0",
+    # PostgreSQL (pipeline writes)
+    "psycopg[binary]>=3.1",
+    "psycopg-pool>=3.1",
+    # LLM
+    "openai>=1.0",
+    # Embeddings & Clustering (offline quality layer)
+    "numpy>=1.24",
+    "scikit-learn>=1.3",
+    "hdbscan>=0.8",
+    "umap-learn>=0.5",
+    "sentence-transformers>=3.0",
+    # Config & Utilities
+    "python-dotenv>=1.0",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "matplotlib>=3.10.8",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "black>=24.0",
+    "ruff>=0.4",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.black]
+line-length = 100
+target-version = ["py313"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

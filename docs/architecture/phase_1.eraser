@@ -1,0 +1,75 @@
+title eb1 — Phase 1: Bootstrap (Current): Bootstrap (Current)
+direction right
+
+// Source
+Chat Session [shape: oval, icon: message-circle, color: lightblue]
+
+// Node 2
+Segmentation [icon: scissors, color: purple] {
+  Segmenter Agent [icon: git-branch, color: purple]
+  chat_segments (topic = null) [icon: list, color: purple]
+}
+
+// Embed + Cluster
+Vectorization [icon: cpu, color: blue] {
+  Embedder [icon: code, color: blue]
+  UMAP + HDBSCAN [icon: hexagon, color: blue]
+}
+
+// Decision
+Noise Point? [shape: diamond, icon: alert-circle, color: orange]
+
+// One agent, two input modes
+Topic Classifier [icon: brain, color: green] {
+  Single Segment (noise path) [icon: tag, color: orange]
+  Full Cluster — O(k) calls [icon: tag, color: green]
+}
+
+Gibberish [shape: oval, icon: x-circle, color: gray]
+
+// Taxonomy check
+Taxonomy Flags [icon: layers, color: yellow] {
+  New Topic? [shape: diamond, icon: plus-circle, color: yellow]
+  New SubTopic? [shape: diamond, icon: plus, color: yellow]
+  Set Novelty Flags [icon: flag, color: yellow]
+}
+
+// Commit
+Commit [icon: database, color: teal] {
+  Bulk Write [icon: save, color: teal]
+  topic + subTopic [icon: check, color: teal]
+}
+
+// Graders
+Graders [icon: bar-chart-2, color: purple] {
+  Noise Ratio [icon: percent, color: purple]
+  Topic Distribution [icon: pie-chart, color: purple]
+  Review Needed? [shape: diamond, icon: alert-triangle, color: red]
+}
+
+// Exit points
+Human Review Queue [shape: oval, icon: users, color: red]
+Training Data [shape: oval, icon: trending-up, color: green]
+
+// Flow
+Chat Session > Segmenter Agent
+Segmenter Agent > chat_segmentss (topic = null)
+chat_segmentss (topic = null) > Embedder
+Embedder > UMAP + HDBSCAN
+UMAP + HDBSCAN > Noise Point?
+Noise Point? > Single Segment (noise path): Yes — clusterConfidence = null [color: orange]
+Noise Point? > Full Cluster — O(k) calls: No [color: green]
+Topic Classifier > Gibberish: No semantic content [color: gray]
+Topic Classifier > New Topic?: Topic assigned [color: green]
+Gibberish > Bulk Write
+New Topic? > Set Novelty Flags: Yes — auto-upsert to taxonomy with isConfirmed: false [color: yellow]
+New Topic? > New SubTopic?: No — existing topic [color: green]
+New SubTopic? > Set Novelty Flags: Yes — auto-upsert subtopic with isConfirmed: false [color: yellow]
+New SubTopic? > Bulk Write: No — known (topic, subTopic) pair [color: green]
+Set Novelty Flags > Bulk Write
+Bulk Write > topic + subTopic
+Bulk Write > Graders
+Noise Ratio > Topic Distribution
+Topic Distribution > Review Needed?
+Review Needed? > Human Review Queue: Unconfirmed taxonomy (P1/P2) OR min(cc, lc) < 0.6 (P3) [color: red]
+Review Needed? > Training Data: High confidence — auto-accept [color: green]

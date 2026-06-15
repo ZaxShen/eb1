@@ -1,0 +1,16 @@
+{
+  "log_type": "label_log",
+  "generated_at": "2026-02-25T05:08:17.496797+00:00",
+  "summary": {
+    "total_segments": 1,
+    "total_segments_in_clusters": 0,
+    "hdbscan_noise_segments": 1,
+    "noise_ratio": 1.0,
+    "total_clusters_labeled": 0,
+    "unique_topics": 0,
+    "new_topics_count": 0
+  },
+  "topic_distribution": [],
+  "new_topics": [],
+  "clusters": []
+}

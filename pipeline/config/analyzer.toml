@@ -1,0 +1,36 @@
+[analyzer]
+model             = "openai/gpt-5.4"
+prompt_version        = "latest"
+bot_prompt_version    = "bot_v1"    # prompt for bot-only chunks (no user engagement)
+temperature       = 0.0
+base_url          = "https://ai-gateway.vercel.sh/v1"  # empty = local Ollama
+drop_existing     = false     # set to true for fresh run; false allows resume after interruption
+drop_reviewed     = false     # DEPRECATED — reviewed segments are now immutable; this flag is ignored even if set to true
+concurrency       = 4         # parallel LLM calls
+benchmark_mode    = false     # when true, writes analyzerMeta to each segment for LLM comparison
+window_size       = 200       # max messages per LLM call; 0 = no windowing (send all)
+bot_gap_seconds   = 60        # gap threshold for splitting consecutive non-user messages into separate bot-only chunks
+user_window_days  = 3         # days after a user message to include in the LLM chunk
+
+[routing]
+cluster_confidence_threshold = 0.6   # offline quality: confidence threshold for HDBSCAN cluster membership
+template_match_threshold     = 0.75  # min difflib similarity for bot-only template matching
+
+[pipeline]
+user_limit = 0      # 0 = all users
+relabel    = false  # if true, re-classify existing segments without re-segmenting
+
+[collections]
+# Input collection names — match these to the source DB (PROD uses snake_case)
+input_user             = "users"
+input_chat             = "sms_chats"
+input_chat_message     = "sms_chat_messages"
+input_matching         = "matchings"
+# Input — PROD template collection
+input_message_template           = "message_templates"
+# Output collection names — written to the local DB
+output_chat_segment              = "sms_chat_segments"
+output_matching_signal           = "matching_signals"
+output_template_classification   = "message_template_classifications"
+# Taxonomy — single source of truth for topic/subtopic definitions
+output_chat_taxonomy             = "sms_chat_taxonomy"

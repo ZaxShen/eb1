@@ -1,0 +1,3794 @@
+{
+  "meta": {
+    "evaluated_at": "2026-03-28T21:29:08.881897+00:00",
+    "benchmark_name": "all",
+    "ground_truth_table": "sms_chat_segments",
+    "ground_truth_segments": 159,
+    "ground_truth_users": 11,
+    "jaccard_threshold": 0.3
+  },
+  "runs": {
+    "bench-2026-03-28::anthropic/claude-sonnet-4.6": {
+      "group_id": 1,
+      "group_name": "bench-2026-03-28",
+      "benchmark_run_id": 6,
+      "model": "anthropic/claude-sonnet-4.6",
+      "prompt_version": "v3",
+      "is_ground_truth_source": false,
+      "coverage": {
+        "total_segments": 159,
+        "gt_segments_evaluated": 159,
+        "matched": 152,
+        "unmatched": 7,
+        "match_rate": 0.956,
+        "avg_iou": 0.9842,
+        "segment_count_ratio": 1.0
+      },
+      "topic_accuracy": {
+        "correct": 139,
+        "total": 152,
+        "accuracy": 0.9145,
+        "per_topic": {
+          "post_match_inquiry": {
+            "tp": 20,
+            "fp": 3,
+            "fn": 0,
+            "precision": 0.8696,
+            "recall": 1.0,
+            "f1": 0.9302,
+            "support": 20
+          },
+          "requests_or_improvements": {
+            "tp": 5,
+            "fp": 6,
+            "fn": 2,
+            "precision": 0.4545,
+            "recall": 0.7143,
+            "f1": 0.5556,
+            "support": 7
+          },
+          "account_management": {
+            "tp": 8,
+            "fp": 2,
+            "fn": 0,
+            "precision": 0.8,
+            "recall": 1.0,
+            "f1": 0.8889,
+            "support": 8
+          },
+          "non_event_match_notification": {
+            "tp": 90,
+            "fp": 2,
+            "fn": 1,
+            "precision": 0.9783,
+            "recall": 0.989,
+            "f1": 0.9836,
+            "support": 91
+          },
+          "gibberish": {
+            "tp": 2,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 2
+          },
+          "technical_issues": {
+            "tp": 1,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 1
+          },
+          "status_notification": {
+            "tp": 7,
+            "fp": 0,
+            "fn": 4,
+            "precision": 1.0,
+            "recall": 0.6364,
+            "f1": 0.7778,
+            "support": 11
+          },
+          "pre_match_inquiry": {
+            "tp": 6,
+            "fp": 0,
+            "fn": 6,
+            "precision": 1.0,
+            "recall": 0.5,
+            "f1": 0.6667,
+            "support": 12
+          }
+        },
+        "confusion_matrix": {
+          "pre_match_inquiry": {
+            "pre_match_inquiry": 6,
+            "requests_or_improvements": 6
+          },
+          "requests_or_improvements": {
+            "requests_or_improvements": 5,
+            "post_match_inquiry": 2
+          },
+          "post_match_inquiry": {
+            "post_match_inquiry": 20
+          },
+          "account_management": {
+            "account_management": 8
+          },
+          "non_event_match_notification": {
+            "non_event_match_notification": 90,
+            "post_match_inquiry": 1
+          },
+          "status_notification": {
+            "status_notification": 7,
+            "account_management": 2,
+            "non_event_match_notification": 2
+          },
+          "gibberish": {
+            "gibberish": 2
+          },
+          "technical_issues": {
+            "technical_issues": 1
+          }
+        }
+      },
+      "subtopic_accuracy": {
+        "correct": 94,
+        "total": 152,
+        "accuracy": 0.6184
+      },
+      "confidence_calibration": {
+        "bins": [
+          {
+            "range": "[0.0, 0.3)",
+            "count": 0,
+            "accuracy": 0.0,
+            "avg_confidence": 0.15
+          },
+          {
+            "range": "[0.3, 0.6)",
+            "count": 0,
+            "accuracy": 0.0,
+            "avg_confidence": 0.44999999999999996
+          },
+          {
+            "range": "[0.6, 0.8)",
+            "count": 6,
+            "accuracy": 0.8333,
+            "avg_confidence": 0.6867
+          },
+          {
+            "range": "[0.8, 1.0]",
+            "count": 146,
+            "accuracy": 0.9178,
+            "avg_confidence": 0.9694
+          }
+        ],
+        "expected_calibration_error": 0.0554
+      },
+      "mismatches": [
+        {
+          "segment_id": "752",
+          "user_id": "679522c69ac774e614ebd68e",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "scheduling_reminder"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "acceptation_notification"
+          },
+          "summary": "User receives automated last-chance reminders urging them to schedule time with match Haoyang before the opportunity expires.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "773",
+          "user_id": "67a05569c6341b0445944915",
+          "predicted": {
+            "topic": "account_management",
+            "sub_topic": "pause_or_deactivate"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "User's account is paused and they are prompted to send a message to reactivate it.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "775",
+          "user_id": "67a05569c6341b0445944915",
+          "predicted": {
+            "topic": "account_management",
+            "sub_topic": "pause_confirmed_resume"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "System confirmed the user's account is already paused and no new dates will be sent, instructing them to say 'resume' when ready to reactivate.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "661",
+          "user_id": "6796b4ae9ac774e614ebd6dc",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User confirms they are ready to go on a new date and asks Acme to set them up again, providing their referral code.",
+          "label_confidence": 0.88,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "628",
+          "user_id": "679479bd8828dc12b603c2fd",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User wants more dates and is re-engaging with the matchmaking process.",
+          "label_confidence": 0.91,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "776",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User wants more dates and is re-engaging with the matchmaking process.",
+          "label_confidence": 0.91,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "778",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_availability_issue"
+          },
+          "ground_truth": {
+            "true_topic": "requests_or_improvements",
+            "true_sub_topic": "rematch_request"
+          },
+          "summary": "User reports that their match couldn't coordinate schedules because the match entered their availability incorrectly, and asks to be lined up with a new match.",
+          "label_confidence": 0.82,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "688",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_feedback"
+          },
+          "ground_truth": {
+            "true_topic": "requests_or_improvements",
+            "true_sub_topic": "rematch_request"
+          },
+          "summary": "User receives repeated match notifications and asks to be found a new match instead.",
+          "label_confidence": 0.75,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "705",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "non_event_match_notification",
+            "sub_topic": "match_drop_announcement"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "System sent automated messages notifying the user that Acme is back at UCSD and that a new match drop is coming on Wednesday around 7pm.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "630",
+          "user_id": "679aca4e9ac774e614ebd797",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User wants more dates and is re-engaging with the matchmaking process.",
+          "label_confidence": 0.91,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "631",
+          "user_id": "679aca4e9ac774e614ebd797",
+          "predicted": {
+            "topic": "non_event_match_notification",
+            "sub_topic": "match_drop_announcement"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "System sent automated messages notifying the user that Acme is back at UCSD and that a match date will be dropped on Wednesday around 7pm.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "669",
+          "user_id": "679d9c78fd73db4d48e80d3a",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User wants more dates and is re-engaging with the matchmaking process.",
+          "label_confidence": 0.91,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "629",
+          "user_id": "679da384fd73db4d48e80d52",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User wants more dates and is re-engaging with the matchmaking process.",
+          "label_confidence": 0.91,
+          "iou": 1.0
+        }
+      ],
+      "unmatched_segments": [
+        {
+          "gt_segment_id": "47",
+          "user_id": "679522c69ac774e614ebd68e",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "139",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "true_topic": "post_match_inquiry",
+          "true_sub_topic": "match_availability",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "62",
+          "user_id": "679833159ac774e614ebd71c",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "72",
+          "user_id": "679833159ac774e614ebd71c",
+          "true_topic": "complaints_or_support",
+          "true_sub_topic": "frustration",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "86",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "81",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "141",
+          "user_id": "679d9c78fd73db4d48e80d3a",
+          "true_topic": "post_match_inquiry",
+          "true_sub_topic": "match_candidate_info",
+          "best_iou": 0.0
+        }
+      ],
+      "user_engaged": {
+        "gt_segments": 57,
+        "matched": 50,
+        "match_rate": 0.8772,
+        "avg_iou": 0.9768,
+        "topic_accuracy": {
+          "correct": 42,
+          "total": 50,
+          "accuracy": 0.84,
+          "per_topic": {
+            "post_match_inquiry": {
+              "tp": 20,
+              "fp": 2,
+              "fn": 0,
+              "precision": 0.9091,
+              "recall": 1.0,
+              "f1": 0.9524,
+              "support": 20
+            },
+            "requests_or_improvements": {
+              "tp": 5,
+              "fp": 6,
+              "fn": 2,
+              "precision": 0.4545,
+              "recall": 0.7143,
+              "f1": 0.5556,
+              "support": 7
+            },
+            "account_management": {
+              "tp": 8,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 8
+            },
+            "gibberish": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 2
+            },
+            "technical_issues": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 1
+            },
+            "pre_match_inquiry": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 6,
+              "precision": 1.0,
+              "recall": 0.5,
+              "f1": 0.6667,
+              "support": 12
+            }
+          },
+          "confusion_matrix": {
+            "pre_match_inquiry": {
+              "pre_match_inquiry": 6,
+              "requests_or_improvements": 6
+            },
+            "requests_or_improvements": {
+              "requests_or_improvements": 5,
+              "post_match_inquiry": 2
+            },
+            "post_match_inquiry": {
+              "post_match_inquiry": 20
+            },
+            "account_management": {
+              "account_management": 8
+            },
+            "gibberish": {
+              "gibberish": 2
+            },
+            "technical_issues": {
+              "technical_issues": 1
+            }
+          }
+        },
+        "subtopic_accuracy": {
+          "correct": 31,
+          "total": 50,
+          "accuracy": 0.62
+        },
+        "confidence_calibration": {
+          "bins": [
+            {
+              "range": "[0.0, 0.3)",
+              "count": 0,
+              "accuracy": 0.0,
+              "avg_confidence": 0.15
+            },
+            {
+              "range": "[0.3, 0.6)",
+              "count": 0,
+              "accuracy": 0.0,
+              "avg_confidence": 0.44999999999999996
+            },
+            {
+              "range": "[0.6, 0.8)",
+              "count": 6,
+              "accuracy": 0.8333,
+              "avg_confidence": 0.6867
+            },
+            {
+              "range": "[0.8, 1.0]",
+              "count": 44,
+              "accuracy": 0.8409,
+              "avg_confidence": 0.8984
+            }
+          ],
+          "expected_calibration_error": 0.0682
+        }
+      }
+    },
+    "bench-2026-03-28::deepseek/deepseek-v3.2": {
+      "group_id": 1,
+      "group_name": "bench-2026-03-28",
+      "benchmark_run_id": 5,
+      "model": "deepseek/deepseek-v3.2",
+      "prompt_version": "v3",
+      "is_ground_truth_source": false,
+      "coverage": {
+        "total_segments": 158,
+        "gt_segments_evaluated": 159,
+        "matched": 152,
+        "unmatched": 7,
+        "match_rate": 0.956,
+        "avg_iou": 0.9737,
+        "segment_count_ratio": 0.9937
+      },
+      "topic_accuracy": {
+        "correct": 130,
+        "total": 152,
+        "accuracy": 0.8553,
+        "per_topic": {
+          "post_match_inquiry": {
+            "tp": 19,
+            "fp": 9,
+            "fn": 1,
+            "precision": 0.6786,
+            "recall": 0.95,
+            "f1": 0.7917,
+            "support": 20
+          },
+          "requests_or_improvements": {
+            "tp": 5,
+            "fp": 4,
+            "fn": 2,
+            "precision": 0.5556,
+            "recall": 0.7143,
+            "f1": 0.625,
+            "support": 7
+          },
+          "account_management": {
+            "tp": 6,
+            "fp": 3,
+            "fn": 2,
+            "precision": 0.6667,
+            "recall": 0.75,
+            "f1": 0.7059,
+            "support": 8
+          },
+          "non_event_match_notification": {
+            "tp": 82,
+            "fp": 4,
+            "fn": 8,
+            "precision": 0.9535,
+            "recall": 0.9111,
+            "f1": 0.9318,
+            "support": 90
+          },
+          "gibberish": {
+            "tp": 1,
+            "fp": 0,
+            "fn": 1,
+            "precision": 1.0,
+            "recall": 0.5,
+            "f1": 0.6667,
+            "support": 2
+          },
+          "complaints_or_support": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 1,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1
+          },
+          "technical_issues": {
+            "tp": 1,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 1
+          },
+          "status_notification": {
+            "tp": 5,
+            "fp": 0,
+            "fn": 6,
+            "precision": 1.0,
+            "recall": 0.4545,
+            "f1": 0.625,
+            "support": 11
+          },
+          "pre_match_inquiry": {
+            "tp": 11,
+            "fp": 2,
+            "fn": 1,
+            "precision": 0.8462,
+            "recall": 0.9167,
+            "f1": 0.88,
+            "support": 12
+          }
+        },
+        "confusion_matrix": {
+          "pre_match_inquiry": {
+            "pre_match_inquiry": 11,
+            "requests_or_improvements": 1
+          },
+          "requests_or_improvements": {
+            "requests_or_improvements": 5,
+            "post_match_inquiry": 2
+          },
+          "post_match_inquiry": {
+            "post_match_inquiry": 19,
+            "requests_or_improvements": 1
+          },
+          "account_management": {
+            "account_management": 6,
+            "post_match_inquiry": 1,
+            "pre_match_inquiry": 1
+          },
+          "non_event_match_notification": {
+            "non_event_match_notification": 82,
+            "post_match_inquiry": 6,
+            "requests_or_improvements": 2
+          },
+          "status_notification": {
+            "status_notification": 5,
+            "non_event_match_notification": 4,
+            "account_management": 2
+          },
+          "gibberish": {
+            "pre_match_inquiry": 1,
+            "gibberish": 1
+          },
+          "technical_issues": {
+            "technical_issues": 1
+          },
+          "complaints_or_support": {
+            "account_management": 1
+          }
+        }
+      },
+      "subtopic_accuracy": {
+        "correct": 83,
+        "total": 152,
+        "accuracy": 0.5461
+      },
+      "confidence_calibration": {
+        "bins": [
+          {
+            "range": "[0.0, 0.3)",
+            "count": 0,
+            "accuracy": 0.0,
+            "avg_confidence": 0.15
+          },
+          {
+            "range": "[0.3, 0.6)",
+            "count": 1,
+            "accuracy": 0.0,
+            "avg_confidence": 0.55
+          },
+          {
+            "range": "[0.6, 0.8)",
+            "count": 4,
+            "accuracy": 1.0,
+            "avg_confidence": 0.67
+          },
+          {
+            "range": "[0.8, 1.0]",
+            "count": 147,
+            "accuracy": 0.8571,
+            "avg_confidence": 0.9761
+          }
+        ],
+        "expected_calibration_error": 0.1274
+      },
+      "mismatches": [
+        {
+          "segment_id": "579",
+          "user_id": "679522c69ac774e614ebd68e",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "date_feedback"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "Automated system messages prompt the user for feedback on their last date experience and general thoughts on timing, vibe, and looks to improve future matches.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "581",
+          "user_id": "679522c69ac774e614ebd68e",
+          "predicted": {
+            "topic": "non_event_match_notification",
+            "sub_topic": "match_drop_announcement"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "Automated system messages announce that Acme is back at UCSD and notify the user that their date will be released on Wednesday around 7pm.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "592",
+          "user_id": "679522c69ac774e614ebd68e",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "date_feedback"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "Automated system messages prompt the user for feedback on why their last date did not happen, specifically asking about timing, looks, vibe, or icks, and state the system will take notes to improve the next match.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "624",
+          "user_id": "67a05569c6341b0445944915",
+          "predicted": {
+            "topic": "account_management",
+            "sub_topic": "pause_or_deactivate"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "User is informed their account is paused and is given instructions to reactivate it to continue receiving matches.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "625",
+          "user_id": "67a05569c6341b0445944915",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "scheduling_initiation"
+          },
+          "ground_truth": {
+            "true_topic": "account_management",
+            "true_sub_topic": "pause_or_deactivate"
+          },
+          "summary": "Automated system messages announce a new match has been found and prompt the user to check their availability via a provided link.",
+          "label_confidence": 1.0,
+          "iou": 0.5714
+        },
+        {
+          "segment_id": "627",
+          "user_id": "67a05569c6341b0445944915",
+          "predicted": {
+            "topic": "account_management",
+            "sub_topic": "pause_or_deactivate"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "Assistant confirms the user's account is already paused and provides instructions to resume when ready.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "501",
+          "user_id": "6796b4ae9ac774e614ebd6dc",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "feedback_collection"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "Automated system messages prompt the user to provide feedback on their previous date experience and share general preferences to inform future matchmaking.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "505",
+          "user_id": "6796b4ae9ac774e614ebd6dc",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User is ready to go on a date and provides their code to be set up, indicating they want to be re-entered into the matching pool.",
+          "label_confidence": 0.89,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "512",
+          "user_id": "6796b4ae9ac774e614ebd6dc",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "feedback_collection"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "Automated message checks in on the user's experience with their last match and asks for any preferences to inform the search for their next date.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "611",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "pre_match_inquiry",
+            "sub_topic": "match_status_inquiry"
+          },
+          "ground_truth": {
+            "true_topic": "gibberish",
+            "true_sub_topic": "random_test"
+          },
+          "summary": "User is reaching out to Acme, likely to continue the conversation about getting more dates.",
+          "label_confidence": 0.55,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "612",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_feedback"
+          },
+          "ground_truth": {
+            "true_topic": "requests_or_improvements",
+            "true_sub_topic": "rematch_request"
+          },
+          "summary": "User reports that their last match failed due to a scheduling issue with availability and requests a new match.",
+          "label_confidence": 0.85,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "614",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "non_event_match_notification",
+            "sub_topic": "match_drop_announcement"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "Automated messages announce that Acme is back at UCSD and notify the user that their date will drop on Wednesday around 7pm.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "619",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_feedback"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "Automated messages ask the user for feedback on why their last date did not happen, citing potential reasons like timing, vibe, or 'icks', and state the system will take notes to improve the next match.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "488",
+          "user_id": "679833159ac774e614ebd71c",
+          "predicted": {
+            "topic": "pre_match_inquiry",
+            "sub_topic": "match_status_inquiry"
+          },
+          "ground_truth": {
+            "true_topic": "account_management",
+            "true_sub_topic": "pause_or_deactivate"
+          },
+          "summary": "User receives an automated notification that Acme is back at their school and that a date will be released on Wednesday.",
+          "label_confidence": 1.0,
+          "iou": 0.4
+        },
+        {
+          "segment_id": "489",
+          "user_id": "679833159ac774e614ebd71c",
+          "predicted": {
+            "topic": "account_management",
+            "sub_topic": "pause_or_deactivate"
+          },
+          "ground_truth": {
+            "true_topic": "complaints_or_support",
+            "true_sub_topic": "frustration"
+          },
+          "summary": "User wants to stop matchmaking entirely because they are done searching and cannot find anyone.",
+          "label_confidence": 0.95,
+          "iou": 0.3333
+        },
+        {
+          "segment_id": "599",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_feedback_check"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "A Acme operator checks in on the user's experience with their most recent match and asks for feedback on their overall Acme journey, while also offering to arrange a new match.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "530",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_availability"
+          },
+          "ground_truth": {
+            "true_topic": "requests_or_improvements",
+            "true_sub_topic": "rematch_request"
+          },
+          "summary": "User receives a match notification and is prompted to add their availability.",
+          "label_confidence": 1.0,
+          "iou": 0.9
+        },
+        {
+          "segment_id": "546",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "date_feedback"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "Automated messages ask the user for feedback on why their last date did not happen, citing categories like timing, vibe, and looks, to improve future matches.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "548",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "non_event_match_notification",
+            "sub_topic": "match_drop_announcement"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "Automated messages announce that Acme is back at UCSD with details sent via email and notify the user that their date will be released on Wednesday around 7pm.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "554",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "preferences_sharing"
+          },
+          "ground_truth": {
+            "true_topic": "post_match_inquiry",
+            "true_sub_topic": "match_feedback"
+          },
+          "summary": "User explains their reason for rejecting the match is because the match shares a name with their parent, which makes them uncomfortable, and they want future matches with different names.",
+          "label_confidence": 0.89,
+          "iou": 0.6667
+        },
+        {
+          "segment_id": "560",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "date_feedback"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "Automated messages ask the user for feedback on why their last date did not happen, citing categories like timing, looks, vibe, and icks, to improve future matches.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "473",
+          "user_id": "679aca4e9ac774e614ebd797",
+          "predicted": {
+            "topic": "non_event_match_notification",
+            "sub_topic": "match_drop_announcement"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "Automated messages announce Acme's return to UCSD and notify the user of an upcoming date drop scheduled for Wednesday around 7pm.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        }
+      ],
+      "unmatched_segments": [
+        {
+          "gt_segment_id": "47",
+          "user_id": "679522c69ac774e614ebd68e",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "56",
+          "user_id": "679522c69ac774e614ebd68e",
+          "true_topic": "non_event_match_notification",
+          "true_sub_topic": "acceptation_notification",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "139",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "true_topic": "post_match_inquiry",
+          "true_sub_topic": "match_availability",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "62",
+          "user_id": "679833159ac774e614ebd71c",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "86",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "81",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "141",
+          "user_id": "679d9c78fd73db4d48e80d3a",
+          "true_topic": "post_match_inquiry",
+          "true_sub_topic": "match_candidate_info",
+          "best_iou": 0.0
+        }
+      ],
+      "user_engaged": {
+        "gt_segments": 57,
+        "matched": 51,
+        "match_rate": 0.8947,
+        "avg_iou": 0.9217,
+        "topic_accuracy": {
+          "correct": 43,
+          "total": 51,
+          "accuracy": 0.8431,
+          "per_topic": {
+            "post_match_inquiry": {
+              "tp": 19,
+              "fp": 3,
+              "fn": 1,
+              "precision": 0.8636,
+              "recall": 0.95,
+              "f1": 0.9048,
+              "support": 20
+            },
+            "requests_or_improvements": {
+              "tp": 5,
+              "fp": 2,
+              "fn": 2,
+              "precision": 0.7143,
+              "recall": 0.7143,
+              "f1": 0.7143,
+              "support": 7
+            },
+            "account_management": {
+              "tp": 6,
+              "fp": 1,
+              "fn": 2,
+              "precision": 0.8571,
+              "recall": 0.75,
+              "f1": 0.8,
+              "support": 8
+            },
+            "gibberish": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.5,
+              "f1": 0.6667,
+              "support": 2
+            },
+            "complaints_or_support": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 1
+            },
+            "technical_issues": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 1
+            },
+            "pre_match_inquiry": {
+              "tp": 11,
+              "fp": 2,
+              "fn": 1,
+              "precision": 0.8462,
+              "recall": 0.9167,
+              "f1": 0.88,
+              "support": 12
+            }
+          },
+          "confusion_matrix": {
+            "pre_match_inquiry": {
+              "pre_match_inquiry": 11,
+              "requests_or_improvements": 1
+            },
+            "requests_or_improvements": {
+              "requests_or_improvements": 5,
+              "post_match_inquiry": 2
+            },
+            "post_match_inquiry": {
+              "post_match_inquiry": 19,
+              "requests_or_improvements": 1
+            },
+            "account_management": {
+              "account_management": 6,
+              "post_match_inquiry": 1,
+              "pre_match_inquiry": 1
+            },
+            "gibberish": {
+              "pre_match_inquiry": 1,
+              "gibberish": 1
+            },
+            "technical_issues": {
+              "technical_issues": 1
+            },
+            "complaints_or_support": {
+              "account_management": 1
+            }
+          }
+        },
+        "subtopic_accuracy": {
+          "correct": 30,
+          "total": 51,
+          "accuracy": 0.5882
+        },
+        "confidence_calibration": {
+          "bins": [
+            {
+              "range": "[0.0, 0.3)",
+              "count": 0,
+              "accuracy": 0.0,
+              "avg_confidence": 0.15
+            },
+            {
+              "range": "[0.3, 0.6)",
+              "count": 1,
+              "accuracy": 0.0,
+              "avg_confidence": 0.55
+            },
+            {
+              "range": "[0.6, 0.8)",
+              "count": 4,
+              "accuracy": 1.0,
+              "avg_confidence": 0.67
+            },
+            {
+              "range": "[0.8, 1.0]",
+              "count": 46,
+              "accuracy": 0.8478,
+              "avg_confidence": 0.9235
+            }
+          ],
+          "expected_calibration_error": 0.1049
+        }
+      }
+    },
+    "bench-2026-03-28::openai/gpt-5.2-chat": {
+      "group_id": 1,
+      "group_name": "bench-2026-03-28",
+      "benchmark_run_id": 1,
+      "model": "openai/gpt-5.2-chat",
+      "prompt_version": "v3",
+      "is_ground_truth_source": false,
+      "coverage": {
+        "total_segments": 156,
+        "gt_segments_evaluated": 159,
+        "matched": 152,
+        "unmatched": 7,
+        "match_rate": 0.956,
+        "avg_iou": 0.9845,
+        "segment_count_ratio": 0.9811
+      },
+      "topic_accuracy": {
+        "correct": 139,
+        "total": 152,
+        "accuracy": 0.9145,
+        "per_topic": {
+          "post_match_inquiry": {
+            "tp": 18,
+            "fp": 4,
+            "fn": 2,
+            "precision": 0.8182,
+            "recall": 0.9,
+            "f1": 0.8571,
+            "support": 20
+          },
+          "requests_or_improvements": {
+            "tp": 5,
+            "fp": 2,
+            "fn": 2,
+            "precision": 0.7143,
+            "recall": 0.7143,
+            "f1": 0.7143,
+            "support": 7
+          },
+          "account_management": {
+            "tp": 8,
+            "fp": 2,
+            "fn": 0,
+            "precision": 0.8,
+            "recall": 1.0,
+            "f1": 0.8889,
+            "support": 8
+          },
+          "non_event_match_notification": {
+            "tp": 89,
+            "fp": 3,
+            "fn": 2,
+            "precision": 0.9674,
+            "recall": 0.978,
+            "f1": 0.9727,
+            "support": 91
+          },
+          "gibberish": {
+            "tp": 1,
+            "fp": 0,
+            "fn": 1,
+            "precision": 1.0,
+            "recall": 0.5,
+            "f1": 0.6667,
+            "support": 2
+          },
+          "technical_issues": {
+            "tp": 1,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 1
+          },
+          "status_notification": {
+            "tp": 6,
+            "fp": 0,
+            "fn": 5,
+            "precision": 1.0,
+            "recall": 0.5455,
+            "f1": 0.7059,
+            "support": 11
+          },
+          "pre_match_inquiry": {
+            "tp": 11,
+            "fp": 2,
+            "fn": 1,
+            "precision": 0.8462,
+            "recall": 0.9167,
+            "f1": 0.88,
+            "support": 12
+          }
+        },
+        "confusion_matrix": {
+          "pre_match_inquiry": {
+            "pre_match_inquiry": 11,
+            "requests_or_improvements": 1
+          },
+          "requests_or_improvements": {
+            "requests_or_improvements": 5,
+            "post_match_inquiry": 2
+          },
+          "post_match_inquiry": {
+            "post_match_inquiry": 18,
+            "pre_match_inquiry": 1,
+            "requests_or_improvements": 1
+          },
+          "account_management": {
+            "account_management": 8
+          },
+          "non_event_match_notification": {
+            "non_event_match_notification": 89,
+            "post_match_inquiry": 2
+          },
+          "status_notification": {
+            "status_notification": 6,
+            "account_management": 2,
+            "non_event_match_notification": 3
+          },
+          "gibberish": {
+            "pre_match_inquiry": 1,
+            "gibberish": 1
+          },
+          "technical_issues": {
+            "technical_issues": 1
+          }
+        }
+      },
+      "subtopic_accuracy": {
+        "correct": 105,
+        "total": 152,
+        "accuracy": 0.6908
+      },
+      "confidence_calibration": {
+        "bins": [
+          {
+            "range": "[0.0, 0.3)",
+            "count": 0,
+            "accuracy": 0.0,
+            "avg_confidence": 0.15
+          },
+          {
+            "range": "[0.3, 0.6)",
+            "count": 0,
+            "accuracy": 0.0,
+            "avg_confidence": 0.44999999999999996
+          },
+          {
+            "range": "[0.6, 0.8)",
+            "count": 5,
+            "accuracy": 0.6,
+            "avg_confidence": 0.658
+          },
+          {
+            "range": "[0.8, 1.0]",
+            "count": 147,
+            "accuracy": 0.9252,
+            "avg_confidence": 0.9815
+          }
+        ],
+        "expected_calibration_error": 0.0564
+      },
+      "mismatches": [
+        {
+          "segment_id": "116",
+          "user_id": "679522c69ac774e614ebd68e",
+          "predicted": {
+            "topic": "pre_match_inquiry",
+            "sub_topic": "match_status_inquiry"
+          },
+          "ground_truth": {
+            "true_topic": "post_match_inquiry",
+            "true_sub_topic": "match_availability"
+          },
+          "summary": "User understands they are in waiting mode and expresses that they are looking forward to their next match.",
+          "label_confidence": 0.87,
+          "iou": 0.7
+        },
+        {
+          "segment_id": "124",
+          "user_id": "679522c69ac774e614ebd68e",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "scheduling_reminder"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "acceptation_notification"
+          },
+          "summary": "User receives repeated reminders that Haoyang has already picked a time and is urged to submit their availability before the match expires.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "131",
+          "user_id": "67a05569c6341b0445944915",
+          "predicted": {
+            "topic": "account_management",
+            "sub_topic": "pause_or_deactivate"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "User is informed that their account is paused and that they need to send a specific message to resume receiving matches.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "133",
+          "user_id": "67a05569c6341b0445944915",
+          "predicted": {
+            "topic": "account_management",
+            "sub_topic": "pause_or_deactivate"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "System confirms that the user’s account is already paused, ensuring no new dates will be sent, and instructs them to say \"resume\" when they want to start receiving matches again.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "34",
+          "user_id": "6796b4ae9ac774e614ebd6dc",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User says they’re ready to go on a date again and asks to be set up, providing their code to reactivate matching.",
+          "label_confidence": 0.96,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "135",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "pre_match_inquiry",
+            "sub_topic": "match_status_inquiry"
+          },
+          "ground_truth": {
+            "true_topic": "gibberish",
+            "true_sub_topic": "random_test"
+          },
+          "summary": "User pings Acme, likely seeking attention or an update on their matchmaking status.",
+          "label_confidence": 0.62,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "136",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_feedback"
+          },
+          "ground_truth": {
+            "true_topic": "requests_or_improvements",
+            "true_sub_topic": "rematch_request"
+          },
+          "summary": "User says their last match entered availability incorrectly so they couldn’t align schedules, and asks to be lined up with the next match.",
+          "label_confidence": 0.9,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "138",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "non_event_match_notification",
+            "sub_topic": "match_drop_announcement"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "System notified the user that Acme has returned to UCSD and announced that their next date match will be released Wednesday around 7pm.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "146",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_feedback_follow_up"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "Team checks in on how the user’s last match is going, asks whether they are still talking or want a new match lined up, and requests feedback on their overall Acme experience.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "60",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_feedback"
+          },
+          "ground_truth": {
+            "true_topic": "requests_or_improvements",
+            "true_sub_topic": "rematch_request"
+          },
+          "summary": "User asks to be matched with someone new instead of proceeding with the current assigned match.",
+          "label_confidence": 0.91,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "68",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "preferences_sharing"
+          },
+          "ground_truth": {
+            "true_topic": "post_match_inquiry",
+            "true_sub_topic": "match_feedback"
+          },
+          "summary": "User says the last date didn’t happen because of his looks and asks if they can update their preferences to improve future matches.",
+          "label_confidence": 0.71,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "77",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "non_event_match_notification",
+            "sub_topic": "scheduling_initiation"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "Automated messages informed the user that Acme is back at UCSD and announced that their new date will be released on Wednesday around 7pm, building anticipation for the upcoming match.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "4",
+          "user_id": "679aca4e9ac774e614ebd797",
+          "predicted": {
+            "topic": "non_event_match_notification",
+            "sub_topic": "match_drop_announcement"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "Automated messages announced Acme’s return to UCSD and informed the user that their weekly match will be released Wednesday around 7pm.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        }
+      ],
+      "unmatched_segments": [
+        {
+          "gt_segment_id": "47",
+          "user_id": "679522c69ac774e614ebd68e",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "139",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "true_topic": "post_match_inquiry",
+          "true_sub_topic": "match_availability",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "62",
+          "user_id": "679833159ac774e614ebd71c",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "72",
+          "user_id": "679833159ac774e614ebd71c",
+          "true_topic": "complaints_or_support",
+          "true_sub_topic": "frustration",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "86",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "81",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "141",
+          "user_id": "679d9c78fd73db4d48e80d3a",
+          "true_topic": "post_match_inquiry",
+          "true_sub_topic": "match_candidate_info",
+          "best_iou": 0.0
+        }
+      ],
+      "user_engaged": {
+        "gt_segments": 57,
+        "matched": 50,
+        "match_rate": 0.8772,
+        "avg_iou": 0.963,
+        "topic_accuracy": {
+          "correct": 44,
+          "total": 50,
+          "accuracy": 0.88,
+          "per_topic": {
+            "post_match_inquiry": {
+              "tp": 18,
+              "fp": 2,
+              "fn": 2,
+              "precision": 0.9,
+              "recall": 0.9,
+              "f1": 0.9,
+              "support": 20
+            },
+            "requests_or_improvements": {
+              "tp": 5,
+              "fp": 2,
+              "fn": 2,
+              "precision": 0.7143,
+              "recall": 0.7143,
+              "f1": 0.7143,
+              "support": 7
+            },
+            "account_management": {
+              "tp": 8,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 8
+            },
+            "gibberish": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.5,
+              "f1": 0.6667,
+              "support": 2
+            },
+            "technical_issues": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 1
+            },
+            "pre_match_inquiry": {
+              "tp": 11,
+              "fp": 2,
+              "fn": 1,
+              "precision": 0.8462,
+              "recall": 0.9167,
+              "f1": 0.88,
+              "support": 12
+            }
+          },
+          "confusion_matrix": {
+            "pre_match_inquiry": {
+              "pre_match_inquiry": 11,
+              "requests_or_improvements": 1
+            },
+            "requests_or_improvements": {
+              "requests_or_improvements": 5,
+              "post_match_inquiry": 2
+            },
+            "post_match_inquiry": {
+              "post_match_inquiry": 18,
+              "pre_match_inquiry": 1,
+              "requests_or_improvements": 1
+            },
+            "account_management": {
+              "account_management": 8
+            },
+            "gibberish": {
+              "pre_match_inquiry": 1,
+              "gibberish": 1
+            },
+            "technical_issues": {
+              "technical_issues": 1
+            }
+          }
+        },
+        "subtopic_accuracy": {
+          "correct": 35,
+          "total": 50,
+          "accuracy": 0.7
+        },
+        "confidence_calibration": {
+          "bins": [
+            {
+              "range": "[0.0, 0.3)",
+              "count": 0,
+              "accuracy": 0.0,
+              "avg_confidence": 0.15
+            },
+            {
+              "range": "[0.3, 0.6)",
+              "count": 0,
+              "accuracy": 0.0,
+              "avg_confidence": 0.44999999999999996
+            },
+            {
+              "range": "[0.6, 0.8)",
+              "count": 5,
+              "accuracy": 0.6,
+              "avg_confidence": 0.658
+            },
+            {
+              "range": "[0.8, 1.0]",
+              "count": 45,
+              "accuracy": 0.9111,
+              "avg_confidence": 0.9396
+            }
+          ],
+          "expected_calibration_error": 0.0314
+        }
+      }
+    },
+    "bench-2026-03-28::openai/gpt-5.4": {
+      "group_id": 1,
+      "group_name": "bench-2026-03-28",
+      "benchmark_run_id": 4,
+      "model": "openai/gpt-5.4",
+      "prompt_version": "v3",
+      "is_ground_truth_source": false,
+      "coverage": {
+        "total_segments": 165,
+        "gt_segments_evaluated": 159,
+        "matched": 154,
+        "unmatched": 5,
+        "match_rate": 0.9686,
+        "avg_iou": 0.9624,
+        "segment_count_ratio": 1.0377
+      },
+      "topic_accuracy": {
+        "correct": 137,
+        "total": 154,
+        "accuracy": 0.8896,
+        "per_topic": {
+          "post_match_inquiry": {
+            "tp": 21,
+            "fp": 3,
+            "fn": 0,
+            "precision": 0.875,
+            "recall": 1.0,
+            "f1": 0.9333,
+            "support": 21
+          },
+          "requests_or_improvements": {
+            "tp": 8,
+            "fp": 11,
+            "fn": 0,
+            "precision": 0.4211,
+            "recall": 1.0,
+            "f1": 0.5926,
+            "support": 8
+          },
+          "account_management": {
+            "tp": 5,
+            "fp": 2,
+            "fn": 3,
+            "precision": 0.7143,
+            "recall": 0.625,
+            "f1": 0.6667,
+            "support": 8
+          },
+          "non_event_match_notification": {
+            "tp": 88,
+            "fp": 1,
+            "fn": 3,
+            "precision": 0.9888,
+            "recall": 0.967,
+            "f1": 0.9778,
+            "support": 91
+          },
+          "gibberish": {
+            "tp": 2,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 2
+          },
+          "technical_issues": {
+            "tp": 1,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 1
+          },
+          "status_notification": {
+            "tp": 8,
+            "fp": 0,
+            "fn": 3,
+            "precision": 1.0,
+            "recall": 0.7273,
+            "f1": 0.8421,
+            "support": 11
+          },
+          "pre_match_inquiry": {
+            "tp": 4,
+            "fp": 0,
+            "fn": 8,
+            "precision": 1.0,
+            "recall": 0.3333,
+            "f1": 0.5,
+            "support": 12
+          }
+        },
+        "confusion_matrix": {
+          "pre_match_inquiry": {
+            "pre_match_inquiry": 4,
+            "requests_or_improvements": 8
+          },
+          "requests_or_improvements": {
+            "requests_or_improvements": 8
+          },
+          "post_match_inquiry": {
+            "post_match_inquiry": 21
+          },
+          "account_management": {
+            "account_management": 5,
+            "post_match_inquiry": 2,
+            "requests_or_improvements": 1
+          },
+          "non_event_match_notification": {
+            "non_event_match_notification": 88,
+            "post_match_inquiry": 1,
+            "requests_or_improvements": 2
+          },
+          "status_notification": {
+            "status_notification": 8,
+            "account_management": 2,
+            "non_event_match_notification": 1
+          },
+          "gibberish": {
+            "gibberish": 2
+          },
+          "technical_issues": {
+            "technical_issues": 1
+          }
+        }
+      },
+      "subtopic_accuracy": {
+        "correct": 104,
+        "total": 154,
+        "accuracy": 0.6753
+      },
+      "confidence_calibration": {
+        "bins": [
+          {
+            "range": "[0.0, 0.3)",
+            "count": 0,
+            "accuracy": 0.0,
+            "avg_confidence": 0.15
+          },
+          {
+            "range": "[0.3, 0.6)",
+            "count": 1,
+            "accuracy": 1.0,
+            "avg_confidence": 0.42
+          },
+          {
+            "range": "[0.6, 0.8)",
+            "count": 7,
+            "accuracy": 0.8571,
+            "avg_confidence": 0.7057
+          },
+          {
+            "range": "[0.8, 1.0]",
+            "count": 146,
+            "accuracy": 0.8904,
+            "avg_confidence": 0.9794
+          }
+        ],
+        "expected_calibration_error": 0.095
+      },
+      "mismatches": [
+        {
+          "segment_id": "433",
+          "user_id": "679522c69ac774e614ebd68e",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "scheduling_reminder"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "acceptation_notification"
+          },
+          "summary": "User is being reminded to submit availability if they still want to meet Haoyang.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "466",
+          "user_id": "67a05569c6341b0445944915",
+          "predicted": {
+            "topic": "account_management",
+            "sub_topic": "pause_or_deactivate"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "User is informed that their account is paused and would need to send a resume request to start receiving matches again.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "467",
+          "user_id": "67a05569c6341b0445944915",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_feedback"
+          },
+          "ground_truth": {
+            "true_topic": "account_management",
+            "true_sub_topic": "pause_or_deactivate"
+          },
+          "summary": "User receives a new match notification and immediately signals they do not want to continue with it by texting STOP.",
+          "label_confidence": 0.95,
+          "iou": 0.7143
+        },
+        {
+          "segment_id": "469",
+          "user_id": "67a05569c6341b0445944915",
+          "predicted": {
+            "topic": "account_management",
+            "sub_topic": "pause_confirmation"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "System confirms the user's account is already paused, says no new dates will be sent, and tells them to say resume when they want matching to start again.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "325",
+          "user_id": "6796b4ae9ac774e614ebd6dc",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User wants more dates and is rejoining the matching pool to receive new matches.",
+          "label_confidence": 0.87,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "338",
+          "user_id": "6796b4ae9ac774e614ebd6dc",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User wants to be set up on a new date and asks to be reactivated for matching again.",
+          "label_confidence": 0.97,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "305",
+          "user_id": "679479bd8828dc12b603c2fd",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User wants more dates and is rejoining the matchmaking process.",
+          "label_confidence": 0.84,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "436",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User wants more dates and is rejoining the matchmaking process.",
+          "label_confidence": 0.9,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "441",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "non_event_match_notification",
+            "sub_topic": "match_drop_announcement"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "Automated messages announced Acme's return at UCSD and told the user that date drops happen this Wednesday around 7pm.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "311",
+          "user_id": "679833159ac774e614ebd71c",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User wants more dates and is rejoining the matchmaking process.",
+          "label_confidence": 0.95,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "447",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User wants more dates and is rejoining the matchmaking process.",
+          "label_confidence": 0.9,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "449",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "Team followed up on the user's most recent match status and asked whether to line up another match, while also requesting feedback on their Acme experience so far.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "361",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User wants more dates and is rejoining the matchmaking process.",
+          "label_confidence": 0.89,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "366",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_feedback"
+          },
+          "ground_truth": {
+            "true_topic": "account_management",
+            "true_sub_topic": "update_bio"
+          },
+          "summary": "User wants a better match after deciding the current one is not a fit, and is being asked what did not click.",
+          "label_confidence": 1.0,
+          "iou": 0.4286
+        },
+        {
+          "segment_id": "374",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "preferences_sharing"
+          },
+          "ground_truth": {
+            "true_topic": "account_management",
+            "true_sub_topic": "update_bio"
+          },
+          "summary": "User wants to update their preferences for future matches after deciding looks were an issue.",
+          "label_confidence": 0.68,
+          "iou": 0.5
+        },
+        {
+          "segment_id": "346",
+          "user_id": "679d9c78fd73db4d48e80d3a",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User wants more dates and is rejoining the matchmaking process.",
+          "label_confidence": 0.9,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "347",
+          "user_id": "679d9c78fd73db4d48e80d3a",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "reject_notification"
+          },
+          "summary": "System notified the user that their current match was closed because the other person is not moving forward, confirmed they are back in the matching pool, and asked whether to keep or adjust preferences for the next round.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        }
+      ],
+      "unmatched_segments": [
+        {
+          "gt_segment_id": "47",
+          "user_id": "679522c69ac774e614ebd68e",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "72",
+          "user_id": "679833159ac774e614ebd71c",
+          "true_topic": "complaints_or_support",
+          "true_sub_topic": "frustration",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "86",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "81",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "141",
+          "user_id": "679d9c78fd73db4d48e80d3a",
+          "true_topic": "post_match_inquiry",
+          "true_sub_topic": "match_candidate_info",
+          "best_iou": 0.0
+        }
+      ],
+      "user_engaged": {
+        "gt_segments": 57,
+        "matched": 52,
+        "match_rate": 0.9123,
+        "avg_iou": 0.9175,
+        "topic_accuracy": {
+          "correct": 41,
+          "total": 52,
+          "accuracy": 0.7885,
+          "per_topic": {
+            "post_match_inquiry": {
+              "tp": 21,
+              "fp": 2,
+              "fn": 0,
+              "precision": 0.913,
+              "recall": 1.0,
+              "f1": 0.9545,
+              "support": 21
+            },
+            "requests_or_improvements": {
+              "tp": 8,
+              "fp": 9,
+              "fn": 0,
+              "precision": 0.4706,
+              "recall": 1.0,
+              "f1": 0.64,
+              "support": 8
+            },
+            "account_management": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 3,
+              "precision": 1.0,
+              "recall": 0.625,
+              "f1": 0.7692,
+              "support": 8
+            },
+            "gibberish": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 2
+            },
+            "technical_issues": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 1
+            },
+            "pre_match_inquiry": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 8,
+              "precision": 1.0,
+              "recall": 0.3333,
+              "f1": 0.5,
+              "support": 12
+            }
+          },
+          "confusion_matrix": {
+            "pre_match_inquiry": {
+              "pre_match_inquiry": 4,
+              "requests_or_improvements": 8
+            },
+            "requests_or_improvements": {
+              "requests_or_improvements": 8
+            },
+            "post_match_inquiry": {
+              "post_match_inquiry": 21
+            },
+            "account_management": {
+              "account_management": 5,
+              "post_match_inquiry": 2,
+              "requests_or_improvements": 1
+            },
+            "gibberish": {
+              "gibberish": 2
+            },
+            "technical_issues": {
+              "technical_issues": 1
+            }
+          }
+        },
+        "subtopic_accuracy": {
+          "correct": 31,
+          "total": 52,
+          "accuracy": 0.5962
+        },
+        "confidence_calibration": {
+          "bins": [
+            {
+              "range": "[0.0, 0.3)",
+              "count": 0,
+              "accuracy": 0.0,
+              "avg_confidence": 0.15
+            },
+            {
+              "range": "[0.3, 0.6)",
+              "count": 1,
+              "accuracy": 1.0,
+              "avg_confidence": 0.42
+            },
+            {
+              "range": "[0.6, 0.8)",
+              "count": 7,
+              "accuracy": 0.8571,
+              "avg_confidence": 0.7057
+            },
+            {
+              "range": "[0.8, 1.0]",
+              "count": 44,
+              "accuracy": 0.7727,
+              "avg_confidence": 0.9316
+            }
+          ],
+          "expected_calibration_error": 0.166
+        }
+      }
+    },
+    "bench-2026-03-28::openai/gpt-5.4-mini": {
+      "group_id": 1,
+      "group_name": "bench-2026-03-28",
+      "benchmark_run_id": 3,
+      "model": "openai/gpt-5.4-mini",
+      "prompt_version": "v3",
+      "is_ground_truth_source": false,
+      "coverage": {
+        "total_segments": 148,
+        "gt_segments_evaluated": 159,
+        "matched": 144,
+        "unmatched": 15,
+        "match_rate": 0.9057,
+        "avg_iou": 0.9723,
+        "segment_count_ratio": 0.9308
+      },
+      "topic_accuracy": {
+        "correct": 126,
+        "total": 144,
+        "accuracy": 0.875,
+        "per_topic": {
+          "non_event_onboarding": {
+            "tp": 0,
+            "fp": 2,
+            "fn": 0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 0
+          },
+          "non_event_match_notification": {
+            "tp": 84,
+            "fp": 2,
+            "fn": 6,
+            "precision": 0.9767,
+            "recall": 0.9333,
+            "f1": 0.9545,
+            "support": 90
+          },
+          "complaints_or_support": {
+            "tp": 0,
+            "fp": 1,
+            "fn": 0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 0
+          },
+          "pre_match_inquiry": {
+            "tp": 10,
+            "fp": 1,
+            "fn": 2,
+            "precision": 0.9091,
+            "recall": 0.8333,
+            "f1": 0.8696,
+            "support": 12
+          },
+          "post_match_inquiry": {
+            "tp": 17,
+            "fp": 4,
+            "fn": 3,
+            "precision": 0.8095,
+            "recall": 0.85,
+            "f1": 0.8293,
+            "support": 20
+          },
+          "requests_or_improvements": {
+            "tp": 3,
+            "fp": 6,
+            "fn": 1,
+            "precision": 0.3333,
+            "recall": 0.75,
+            "f1": 0.4615,
+            "support": 4
+          },
+          "account_management": {
+            "tp": 6,
+            "fp": 1,
+            "fn": 0,
+            "precision": 0.8571,
+            "recall": 1.0,
+            "f1": 0.9231,
+            "support": 6
+          },
+          "event_inquiry": {
+            "tp": 0,
+            "fp": 1,
+            "fn": 0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 0
+          },
+          "gibberish": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 1,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1
+          },
+          "status_notification": {
+            "tp": 6,
+            "fp": 0,
+            "fn": 5,
+            "precision": 1.0,
+            "recall": 0.5455,
+            "f1": 0.7059,
+            "support": 11
+          }
+        },
+        "confusion_matrix": {
+          "pre_match_inquiry": {
+            "requests_or_improvements": 2,
+            "pre_match_inquiry": 10
+          },
+          "post_match_inquiry": {
+            "post_match_inquiry": 17,
+            "complaints_or_support": 1,
+            "event_inquiry": 1,
+            "requests_or_improvements": 1
+          },
+          "account_management": {
+            "account_management": 6
+          },
+          "non_event_match_notification": {
+            "non_event_match_notification": 84,
+            "requests_or_improvements": 3,
+            "post_match_inquiry": 3
+          },
+          "status_notification": {
+            "status_notification": 6,
+            "non_event_match_notification": 2,
+            "account_management": 1,
+            "non_event_onboarding": 2
+          },
+          "requests_or_improvements": {
+            "requests_or_improvements": 3,
+            "post_match_inquiry": 1
+          },
+          "gibberish": {
+            "pre_match_inquiry": 1
+          }
+        }
+      },
+      "subtopic_accuracy": {
+        "correct": 85,
+        "total": 144,
+        "accuracy": 0.5903
+      },
+      "confidence_calibration": {
+        "bins": [
+          {
+            "range": "[0.0, 0.3)",
+            "count": 0,
+            "accuracy": 0.0,
+            "avg_confidence": 0.15
+          },
+          {
+            "range": "[0.3, 0.6)",
+            "count": 0,
+            "accuracy": 0.0,
+            "avg_confidence": 0.44999999999999996
+          },
+          {
+            "range": "[0.6, 0.8)",
+            "count": 2,
+            "accuracy": 0.5,
+            "avg_confidence": 0.755
+          },
+          {
+            "range": "[0.8, 1.0]",
+            "count": 142,
+            "accuracy": 0.8803,
+            "avg_confidence": 0.9877
+          }
+        ],
+        "expected_calibration_error": 0.1095
+      },
+      "mismatches": [
+        {
+          "segment_id": "243",
+          "user_id": "679522c69ac774e614ebd68e",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "preferences_sharing"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User wants more dates and shares a preference for tall guys over 6'1\" to improve future matches.",
+          "label_confidence": 0.98,
+          "iou": 0.7778
+        },
+        {
+          "segment_id": "253",
+          "user_id": "679522c69ac774e614ebd68e",
+          "predicted": {
+            "topic": "complaints_or_support",
+            "sub_topic": "personal_sharing"
+          },
+          "ground_truth": {
+            "true_topic": "post_match_inquiry",
+            "true_sub_topic": "date_feedback"
+          },
+          "summary": "User says their last match is going well and reacts warmly to being told to keep Acme updated.",
+          "label_confidence": 0.94,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "261",
+          "user_id": "679522c69ac774e614ebd68e",
+          "predicted": {
+            "topic": "non_event_match_notification",
+            "sub_topic": "match_drop_announcement"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "Automated messages welcomed Kerry back to UCSD and notified them that their date would be sent that Wednesday around 7pm. The system encouraged them to get excited and check details in email.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "300",
+          "user_id": "67a05569c6341b0445944915",
+          "predicted": {
+            "topic": "event_inquiry",
+            "sub_topic": "event_logistics"
+          },
+          "ground_truth": {
+            "true_topic": "post_match_inquiry",
+            "true_sub_topic": "match_availability"
+          },
+          "summary": "User confirms they can see the date plan image and is acknowledging the confirmed date details.",
+          "label_confidence": 0.73,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "302",
+          "user_id": "67a05569c6341b0445944915",
+          "predicted": {
+            "topic": "account_management",
+            "sub_topic": "pause_or_deactivate"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "User is informed that their account is paused and can be reactivated by texting a command.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "200",
+          "user_id": "6796b4ae9ac774e614ebd6dc",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "preferences_sharing"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "Automated messages asked for feedback about timing, vibe, looks, and why the last date did not happen. The system framed this as notes to improve future matches.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "204",
+          "user_id": "6796b4ae9ac774e614ebd6dc",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "rematch_request"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User wants to rejoin the matching process and get set up on a date again.",
+          "label_confidence": 0.97,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "289",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "pre_match_inquiry",
+            "sub_topic": "match_status_inquiry"
+          },
+          "ground_truth": {
+            "true_topic": "gibberish",
+            "true_sub_topic": "random_test"
+          },
+          "summary": "User is checking in on their matching status and wants to know what happens next.",
+          "label_confidence": 0.9,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "290",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_availability"
+          },
+          "ground_truth": {
+            "true_topic": "requests_or_improvements",
+            "true_sub_topic": "rematch_request"
+          },
+          "summary": "User says their last match did not work out because the other person entered availability incorrectly, and they want to be matched again.",
+          "label_confidence": 0.92,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "292",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "non_event_match_notification",
+            "sub_topic": "match_drop_announcement"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "Automated messages welcomed the recipient back to Acme at UCSD and said their date drop is coming Wednesday around 7pm. The messages directed them to check email for details and to get excited for the upcoming matches.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "297",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_follow_up"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "System followed up about why the last date did not happen and asked for the cause so it could take notes for the next match. It specifically prompted for details like timing, vibe, or icks.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "278",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_feedback"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "Team asked for an update on the user's last match and whether they should line up another one. They also requested overall feedback on the Acme experience so far.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "223",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "preferences_sharing"
+          },
+          "ground_truth": {
+            "true_topic": "post_match_inquiry",
+            "true_sub_topic": "match_feedback"
+          },
+          "summary": "User says the last date did not happen because of the person's looks and wants to update their preferences, then logs in to make account changes.",
+          "label_confidence": 0.83,
+          "iou": 0.4
+        },
+        {
+          "segment_id": "229",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "preferences_sharing"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "Automated messages asked for feedback on why the last date did not happen so the system can improve future matches. It prompted the recipient to share notes about timing, vibe, looks, and anything else relevant.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "231",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "non_event_onboarding",
+            "sub_topic": "bot_greetings"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "Automated message welcomed Anastasia back to UCSD and pointed her to details in her email. It served as a non-event onboarding or re-entry notice for the campus return.",
+          "label_confidence": 1.0,
+          "iou": 0.5
+        },
+        {
+          "segment_id": "242",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "requests_or_improvements",
+            "sub_topic": "preferences_sharing"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "Automated messages asked for feedback on why the last date did not happen and prompted the recipient to share factors like timing, looks, vibe, or icks. The system said it would take notes to improve the next match.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "160",
+          "user_id": "679aca4e9ac774e614ebd797",
+          "predicted": {
+            "topic": "non_event_onboarding",
+            "sub_topic": "bot_greetings"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "Automated welcome message told Nolan Acme is back at UCSD and directed him to details in email. It then announced that date drops will go out Wednesday around 7pm.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "186",
+          "user_id": "679d9c78fd73db4d48e80d3a",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_feedback"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "Automated message asked for feedback on why the last date did not happen and invited notes on timing, vibe, or icks so the next match can be improved.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        }
+      ],
+      "unmatched_segments": [
+        {
+          "gt_segment_id": "11",
+          "user_id": "679522c69ac774e614ebd68e",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "21",
+          "user_id": "679522c69ac774e614ebd68e",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "better_match_advice",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "47",
+          "user_id": "679522c69ac774e614ebd68e",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "56",
+          "user_id": "679522c69ac774e614ebd68e",
+          "true_topic": "non_event_match_notification",
+          "true_sub_topic": "acceptation_notification",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "57",
+          "user_id": "679522c69ac774e614ebd68e",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "139",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "true_topic": "post_match_inquiry",
+          "true_sub_topic": "match_availability",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "62",
+          "user_id": "679833159ac774e614ebd71c",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "70",
+          "user_id": "679833159ac774e614ebd71c",
+          "true_topic": "technical_issues",
+          "true_sub_topic": "message_not_received",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "71",
+          "user_id": "679833159ac774e614ebd71c",
+          "true_topic": "account_management",
+          "true_sub_topic": "pause_or_deactivate",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "72",
+          "user_id": "679833159ac774e614ebd71c",
+          "true_topic": "complaints_or_support",
+          "true_sub_topic": "frustration",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "86",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "81",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "84",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "true_topic": "gibberish",
+          "true_sub_topic": "random_test",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "93",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "true_topic": "account_management",
+          "true_sub_topic": "update_bio",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "141",
+          "user_id": "679d9c78fd73db4d48e80d3a",
+          "true_topic": "post_match_inquiry",
+          "true_sub_topic": "match_candidate_info",
+          "best_iou": 0.0
+        }
+      ],
+      "user_engaged": {
+        "gt_segments": 57,
+        "matched": 43,
+        "match_rate": 0.7544,
+        "avg_iou": 0.9397,
+        "topic_accuracy": {
+          "correct": 36,
+          "total": 43,
+          "accuracy": 0.8372,
+          "per_topic": {
+            "requests_or_improvements": {
+              "tp": 3,
+              "fp": 3,
+              "fn": 1,
+              "precision": 0.5,
+              "recall": 0.75,
+              "f1": 0.6,
+              "support": 4
+            },
+            "post_match_inquiry": {
+              "tp": 17,
+              "fp": 1,
+              "fn": 3,
+              "precision": 0.9444,
+              "recall": 0.85,
+              "f1": 0.8947,
+              "support": 20
+            },
+            "account_management": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 6
+            },
+            "event_inquiry": {
+              "tp": 0,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 0
+            },
+            "gibberish": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 1
+            },
+            "complaints_or_support": {
+              "tp": 0,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 0
+            },
+            "pre_match_inquiry": {
+              "tp": 10,
+              "fp": 1,
+              "fn": 2,
+              "precision": 0.9091,
+              "recall": 0.8333,
+              "f1": 0.8696,
+              "support": 12
+            }
+          },
+          "confusion_matrix": {
+            "pre_match_inquiry": {
+              "requests_or_improvements": 2,
+              "pre_match_inquiry": 10
+            },
+            "post_match_inquiry": {
+              "post_match_inquiry": 17,
+              "complaints_or_support": 1,
+              "event_inquiry": 1,
+              "requests_or_improvements": 1
+            },
+            "account_management": {
+              "account_management": 6
+            },
+            "requests_or_improvements": {
+              "requests_or_improvements": 3,
+              "post_match_inquiry": 1
+            },
+            "gibberish": {
+              "pre_match_inquiry": 1
+            }
+          }
+        },
+        "subtopic_accuracy": {
+          "correct": 26,
+          "total": 43,
+          "accuracy": 0.6047
+        },
+        "confidence_calibration": {
+          "bins": [
+            {
+              "range": "[0.0, 0.3)",
+              "count": 0,
+              "accuracy": 0.0,
+              "avg_confidence": 0.15
+            },
+            {
+              "range": "[0.3, 0.6)",
+              "count": 0,
+              "accuracy": 0.0,
+              "avg_confidence": 0.44999999999999996
+            },
+            {
+              "range": "[0.6, 0.8)",
+              "count": 2,
+              "accuracy": 0.5,
+              "avg_confidence": 0.755
+            },
+            {
+              "range": "[0.8, 1.0]",
+              "count": 41,
+              "accuracy": 0.8537,
+              "avg_confidence": 0.9573
+            }
+          ],
+          "expected_calibration_error": 0.1106
+        }
+      }
+    },
+    "bench-2026-03-28::xai/grok-3": {
+      "group_id": 1,
+      "group_name": "bench-2026-03-28",
+      "benchmark_run_id": 7,
+      "model": "xai/grok-3",
+      "prompt_version": "v3",
+      "is_ground_truth_source": false,
+      "coverage": {
+        "total_segments": 157,
+        "gt_segments_evaluated": 159,
+        "matched": 151,
+        "unmatched": 8,
+        "match_rate": 0.9497,
+        "avg_iou": 0.9693,
+        "segment_count_ratio": 0.9874
+      },
+      "topic_accuracy": {
+        "correct": 136,
+        "total": 151,
+        "accuracy": 0.9007,
+        "per_topic": {
+          "post_match_inquiry": {
+            "tp": 20,
+            "fp": 6,
+            "fn": 0,
+            "precision": 0.7692,
+            "recall": 1.0,
+            "f1": 0.8696,
+            "support": 20
+          },
+          "requests_or_improvements": {
+            "tp": 4,
+            "fp": 0,
+            "fn": 3,
+            "precision": 1.0,
+            "recall": 0.5714,
+            "f1": 0.7273,
+            "support": 7
+          },
+          "account_management": {
+            "tp": 6,
+            "fp": 3,
+            "fn": 2,
+            "precision": 0.6667,
+            "recall": 0.75,
+            "f1": 0.7059,
+            "support": 8
+          },
+          "non_event_match_notification": {
+            "tp": 89,
+            "fp": 4,
+            "fn": 1,
+            "precision": 0.957,
+            "recall": 0.9889,
+            "f1": 0.9727,
+            "support": 90
+          },
+          "gibberish": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 1,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1
+          },
+          "complaints_or_support": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 1,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 1
+          },
+          "technical_issues": {
+            "tp": 1,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 1
+          },
+          "status_notification": {
+            "tp": 5,
+            "fp": 0,
+            "fn": 6,
+            "precision": 1.0,
+            "recall": 0.4545,
+            "f1": 0.625,
+            "support": 11
+          },
+          "pre_match_inquiry": {
+            "tp": 11,
+            "fp": 2,
+            "fn": 1,
+            "precision": 0.8462,
+            "recall": 0.9167,
+            "f1": 0.88,
+            "support": 12
+          }
+        },
+        "confusion_matrix": {
+          "pre_match_inquiry": {
+            "pre_match_inquiry": 11,
+            "post_match_inquiry": 1
+          },
+          "requests_or_improvements": {
+            "requests_or_improvements": 4,
+            "post_match_inquiry": 3
+          },
+          "post_match_inquiry": {
+            "post_match_inquiry": 20
+          },
+          "account_management": {
+            "account_management": 6,
+            "post_match_inquiry": 1,
+            "pre_match_inquiry": 1
+          },
+          "non_event_match_notification": {
+            "non_event_match_notification": 89,
+            "post_match_inquiry": 1
+          },
+          "status_notification": {
+            "status_notification": 5,
+            "non_event_match_notification": 4,
+            "account_management": 2
+          },
+          "gibberish": {
+            "pre_match_inquiry": 1
+          },
+          "technical_issues": {
+            "technical_issues": 1
+          },
+          "complaints_or_support": {
+            "account_management": 1
+          }
+        }
+      },
+      "subtopic_accuracy": {
+        "correct": 80,
+        "total": 151,
+        "accuracy": 0.5298
+      },
+      "confidence_calibration": {
+        "bins": [
+          {
+            "range": "[0.0, 0.3)",
+            "count": 0,
+            "accuracy": 0.0,
+            "avg_confidence": 0.15
+          },
+          {
+            "range": "[0.3, 0.6)",
+            "count": 0,
+            "accuracy": 0.0,
+            "avg_confidence": 0.44999999999999996
+          },
+          {
+            "range": "[0.6, 0.8)",
+            "count": 3,
+            "accuracy": 0.6667,
+            "avg_confidence": 0.6767
+          },
+          {
+            "range": "[0.8, 1.0]",
+            "count": 148,
+            "accuracy": 0.9054,
+            "avg_confidence": 0.975
+          }
+        ],
+        "expected_calibration_error": 0.0684
+      },
+      "mismatches": [
+        {
+          "segment_id": "865",
+          "user_id": "679522c69ac774e614ebd68e",
+          "predicted": {
+            "topic": "non_event_match_notification",
+            "sub_topic": "match_drop_announcement"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "System notified Kerry of Acme's return at UCSD with details sent via email and announced a date drop scheduled for Wednesday around 7pm.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "940",
+          "user_id": "67a05569c6341b0445944915",
+          "predicted": {
+            "topic": "account_management",
+            "sub_topic": "pause_or_deactivate"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "User is informed that their account is paused and needs to send a specific message to reactivate it for continued matchmaking.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "941",
+          "user_id": "67a05569c6341b0445944915",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "scheduling_initiation"
+          },
+          "ground_truth": {
+            "true_topic": "account_management",
+            "true_sub_topic": "pause_or_deactivate"
+          },
+          "summary": "User is notified of a new match and prompted to find time to meet Moana.",
+          "label_confidence": 1.0,
+          "iou": 0.5714
+        },
+        {
+          "segment_id": "943",
+          "user_id": "67a05569c6341b0445944915",
+          "predicted": {
+            "topic": "account_management",
+            "sub_topic": "pause_or_deactivate"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "System confirms that the user's account is paused and informs them that no new dates will be sent until they request to resume.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "811",
+          "user_id": "6796b4ae9ac774e614ebd6dc",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "date_feedback"
+          },
+          "ground_truth": {
+            "true_topic": "requests_or_improvements",
+            "true_sub_topic": "preferences_sharing"
+          },
+          "summary": "User explains that they were not attracted to their previous match and expresses a preference for people of color.",
+          "label_confidence": 0.92,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "820",
+          "user_id": "6796b4ae9ac774e614ebd6dc",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "date_feedback"
+          },
+          "ground_truth": {
+            "true_topic": "pre_match_inquiry",
+            "true_sub_topic": "match_status_inquiry"
+          },
+          "summary": "User is asked for an update on their last match and feedback on their overall Acme experience.",
+          "label_confidence": 1.0,
+          "iou": 0.4
+        },
+        {
+          "segment_id": "913",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "pre_match_inquiry",
+            "sub_topic": "match_status_inquiry"
+          },
+          "ground_truth": {
+            "true_topic": "gibberish",
+            "true_sub_topic": "random_test"
+          },
+          "summary": "User initiates contact with Acme, likely to check in or start a conversation.",
+          "label_confidence": 0.65,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "914",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_feedback"
+          },
+          "ground_truth": {
+            "true_topic": "requests_or_improvements",
+            "true_sub_topic": "rematch_request"
+          },
+          "summary": "User reports that their last match did not work out due to scheduling issues and requests a new match.",
+          "label_confidence": 0.92,
+          "iou": 0.6667
+        },
+        {
+          "segment_id": "917",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "predicted": {
+            "topic": "non_event_match_notification",
+            "sub_topic": "match_drop_announcement"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "System notified Param that Acme is back at UCSD with details sent via email and announced that a new date will drop on Wednesday around 7pm.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "804",
+          "user_id": "679833159ac774e614ebd71c",
+          "predicted": {
+            "topic": "pre_match_inquiry",
+            "sub_topic": "match_status_inquiry"
+          },
+          "ground_truth": {
+            "true_topic": "account_management",
+            "true_sub_topic": "pause_or_deactivate"
+          },
+          "summary": "User is notified about Acme's return at UCSD and informed that a date will drop on Wednesday around 7pm.",
+          "label_confidence": 1.0,
+          "iou": 0.4
+        },
+        {
+          "segment_id": "805",
+          "user_id": "679833159ac774e614ebd71c",
+          "predicted": {
+            "topic": "account_management",
+            "sub_topic": "pause_or_deactivate"
+          },
+          "ground_truth": {
+            "true_topic": "complaints_or_support",
+            "true_sub_topic": "frustration"
+          },
+          "summary": "User requests to stop matchmaking as they are done searching for a date and feel unable to find anyone.",
+          "label_confidence": 0.95,
+          "iou": 0.3333
+        },
+        {
+          "segment_id": "925",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_status_check"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "match_follow_up_notification"
+          },
+          "summary": "System checks in on the user's last match status and offers to arrange the next one.",
+          "label_confidence": 1.0,
+          "iou": 0.5
+        },
+        {
+          "segment_id": "883",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "match_availability"
+          },
+          "ground_truth": {
+            "true_topic": "requests_or_improvements",
+            "true_sub_topic": "rematch_request"
+          },
+          "summary": "User receives notifications about a match and is prompted to add their availability.",
+          "label_confidence": 1.0,
+          "iou": 0.9
+        },
+        {
+          "segment_id": "901",
+          "user_id": "679bf02fa017c1f3ec097237",
+          "predicted": {
+            "topic": "non_event_match_notification",
+            "sub_topic": "match_drop_announcement"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "System sent automated messages notifying the user that Acme is back at UCSD with details in their email and announcing that their date drops on Wednesday around 7pm.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        },
+        {
+          "segment_id": "790",
+          "user_id": "679aca4e9ac774e614ebd797",
+          "predicted": {
+            "topic": "non_event_match_notification",
+            "sub_topic": "match_drop_announcement"
+          },
+          "ground_truth": {
+            "true_topic": "status_notification",
+            "true_sub_topic": "match_reengage_notification"
+          },
+          "summary": "System notified Nolan of Acme's return to UCSD with details sent via email and announced a date drop scheduled for Wednesday at 7pm.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        }
+      ],
+      "unmatched_segments": [
+        {
+          "gt_segment_id": "47",
+          "user_id": "679522c69ac774e614ebd68e",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "56",
+          "user_id": "679522c69ac774e614ebd68e",
+          "true_topic": "non_event_match_notification",
+          "true_sub_topic": "acceptation_notification",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "139",
+          "user_id": "679eccac3ee43a4f1be03b7e",
+          "true_topic": "post_match_inquiry",
+          "true_sub_topic": "match_availability",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "62",
+          "user_id": "679833159ac774e614ebd71c",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "86",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "81",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "84",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "true_topic": "gibberish",
+          "true_sub_topic": "random_test",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "141",
+          "user_id": "679d9c78fd73db4d48e80d3a",
+          "true_topic": "post_match_inquiry",
+          "true_sub_topic": "match_candidate_info",
+          "best_iou": 0.0
+        }
+      ],
+      "user_engaged": {
+        "gt_segments": 57,
+        "matched": 50,
+        "match_rate": 0.8772,
+        "avg_iou": 0.9173,
+        "topic_accuracy": {
+          "correct": 42,
+          "total": 50,
+          "accuracy": 0.84,
+          "per_topic": {
+            "post_match_inquiry": {
+              "tp": 20,
+              "fp": 5,
+              "fn": 0,
+              "precision": 0.8,
+              "recall": 1.0,
+              "f1": 0.8889,
+              "support": 20
+            },
+            "requests_or_improvements": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 3,
+              "precision": 1.0,
+              "recall": 0.5714,
+              "f1": 0.7273,
+              "support": 7
+            },
+            "account_management": {
+              "tp": 6,
+              "fp": 1,
+              "fn": 2,
+              "precision": 0.8571,
+              "recall": 0.75,
+              "f1": 0.8,
+              "support": 8
+            },
+            "gibberish": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 1
+            },
+            "complaints_or_support": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "support": 1
+            },
+            "technical_issues": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 1
+            },
+            "pre_match_inquiry": {
+              "tp": 11,
+              "fp": 2,
+              "fn": 1,
+              "precision": 0.8462,
+              "recall": 0.9167,
+              "f1": 0.88,
+              "support": 12
+            }
+          },
+          "confusion_matrix": {
+            "pre_match_inquiry": {
+              "pre_match_inquiry": 11,
+              "post_match_inquiry": 1
+            },
+            "requests_or_improvements": {
+              "requests_or_improvements": 4,
+              "post_match_inquiry": 3
+            },
+            "post_match_inquiry": {
+              "post_match_inquiry": 20
+            },
+            "account_management": {
+              "account_management": 6,
+              "post_match_inquiry": 1,
+              "pre_match_inquiry": 1
+            },
+            "gibberish": {
+              "pre_match_inquiry": 1
+            },
+            "technical_issues": {
+              "technical_issues": 1
+            },
+            "complaints_or_support": {
+              "account_management": 1
+            }
+          }
+        },
+        "subtopic_accuracy": {
+          "correct": 31,
+          "total": 50,
+          "accuracy": 0.62
+        },
+        "confidence_calibration": {
+          "bins": [
+            {
+              "range": "[0.0, 0.3)",
+              "count": 0,
+              "accuracy": 0.0,
+              "avg_confidence": 0.15
+            },
+            {
+              "range": "[0.3, 0.6)",
+              "count": 0,
+              "accuracy": 0.0,
+              "avg_confidence": 0.44999999999999996
+            },
+            {
+              "range": "[0.6, 0.8)",
+              "count": 3,
+              "accuracy": 0.6667,
+              "avg_confidence": 0.6767
+            },
+            {
+              "range": "[0.8, 1.0]",
+              "count": 47,
+              "accuracy": 0.8511,
+              "avg_confidence": 0.9213
+            }
+          ],
+          "expected_calibration_error": 0.0666
+        }
+      }
+    }
+  },
+  "leaderboard": [
+    {
+      "run_id": "",
+      "model": "openai/gpt-5.2-chat",
+      "topic_accuracy": 0.9145,
+      "subtopic_accuracy": 0.6908,
+      "avg_iou": 0.9845,
+      "match_rate": 0.956,
+      "segment_count_ratio": 0.9811,
+      "ece": 0.0564,
+      "reviewed_segments": 159,
+      "rank": 1
+    },
+    {
+      "run_id": "",
+      "model": "anthropic/claude-sonnet-4.6",
+      "topic_accuracy": 0.9145,
+      "subtopic_accuracy": 0.6184,
+      "avg_iou": 0.9842,
+      "match_rate": 0.956,
+      "segment_count_ratio": 1.0,
+      "ece": 0.0554,
+      "reviewed_segments": 159,
+      "rank": 2
+    },
+    {
+      "run_id": "",
+      "model": "xai/grok-3",
+      "topic_accuracy": 0.9007,
+      "subtopic_accuracy": 0.5298,
+      "avg_iou": 0.9693,
+      "match_rate": 0.9497,
+      "segment_count_ratio": 0.9874,
+      "ece": 0.0684,
+      "reviewed_segments": 159,
+      "rank": 3
+    },
+    {
+      "run_id": "",
+      "model": "openai/gpt-5.4",
+      "topic_accuracy": 0.8896,
+      "subtopic_accuracy": 0.6753,
+      "avg_iou": 0.9624,
+      "match_rate": 0.9686,
+      "segment_count_ratio": 1.0377,
+      "ece": 0.095,
+      "reviewed_segments": 159,
+      "rank": 4
+    },
+    {
+      "run_id": "",
+      "model": "openai/gpt-5.4-mini",
+      "topic_accuracy": 0.875,
+      "subtopic_accuracy": 0.5903,
+      "avg_iou": 0.9723,
+      "match_rate": 0.9057,
+      "segment_count_ratio": 0.9308,
+      "ece": 0.1095,
+      "reviewed_segments": 159,
+      "rank": 5
+    },
+    {
+      "run_id": "",
+      "model": "deepseek/deepseek-v3.2",
+      "topic_accuracy": 0.8553,
+      "subtopic_accuracy": 0.5461,
+      "avg_iou": 0.9737,
+      "match_rate": 0.956,
+      "segment_count_ratio": 0.9937,
+      "ece": 0.1274,
+      "reviewed_segments": 159,
+      "rank": 6
+    }
+  ],
+  "leaderboard_user_engaged": [
+    {
+      "run_id": "",
+      "model": "openai/gpt-5.2-chat",
+      "topic_accuracy": 0.88,
+      "subtopic_accuracy": 0.7,
+      "avg_iou": 0.963,
+      "match_rate": 0.8772,
+      "ece": 0.0314,
+      "reviewed_segments": 57,
+      "rank": 1
+    },
+    {
+      "run_id": "",
+      "model": "deepseek/deepseek-v3.2",
+      "topic_accuracy": 0.8431,
+      "subtopic_accuracy": 0.5882,
+      "avg_iou": 0.9217,
+      "match_rate": 0.8947,
+      "ece": 0.1049,
+      "reviewed_segments": 57,
+      "rank": 2
+    },
+    {
+      "run_id": "",
+      "model": "anthropic/claude-sonnet-4.6",
+      "topic_accuracy": 0.84,
+      "subtopic_accuracy": 0.62,
+      "avg_iou": 0.9768,
+      "match_rate": 0.8772,
+      "ece": 0.0682,
+      "reviewed_segments": 57,
+      "rank": 3
+    },
+    {
+      "run_id": "",
+      "model": "xai/grok-3",
+      "topic_accuracy": 0.84,
+      "subtopic_accuracy": 0.62,
+      "avg_iou": 0.9173,
+      "match_rate": 0.8772,
+      "ece": 0.0666,
+      "reviewed_segments": 57,
+      "rank": 4
+    },
+    {
+      "run_id": "",
+      "model": "openai/gpt-5.4-mini",
+      "topic_accuracy": 0.8372,
+      "subtopic_accuracy": 0.6047,
+      "avg_iou": 0.9397,
+      "match_rate": 0.7544,
+      "ece": 0.1106,
+      "reviewed_segments": 57,
+      "rank": 5
+    },
+    {
+      "run_id": "",
+      "model": "openai/gpt-5.4",
+      "topic_accuracy": 0.7885,
+      "subtopic_accuracy": 0.5962,
+      "avg_iou": 0.9175,
+      "match_rate": 0.9123,
+      "ece": 0.166,
+      "reviewed_segments": 57,
+      "rank": 6
+    }
+  ]
+}

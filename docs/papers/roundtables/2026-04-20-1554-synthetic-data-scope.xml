@@ -1,0 +1,214 @@
+<roundtable>
+  <meta>
+    <topic>Synthetic-data corpus + eb1 paper scope: venue, refactor budget, evaluation rigor, timeline</topic>
+    <date>2026-04-20</date>
+    <mode>debate</mode>
+    <participants>academic-paper-writer, academic-peer-reviewer, CTO</participants>
+    <decision_maker>CEO</decision_maker>
+    <rounds_run>2</rounds_run>
+    <rounds_skipped>Round 3 skipped — convergence sufficient; remaining deltas are parameter-level, not paradigm-level. Founder input is the actual bottleneck.</rounds_skipped>
+  </meta>
+
+  <summary>
+    Two rounds of debate between academic-paper-writer, academic-peer-reviewer, and CTO converged on one workshop paper at NLP4ConvAI 2026 (October submission, NOT July), with the eb1 pipeline refactored to domain-neutral TOML config before any paper-usable benchmark runs. All three agents agree: (1) every headline number currently in the draft (F1=0.952, topic_accuracy=0.9145, 3x cost, 130K-3M context) must be struck and replaced with post-refactor synthetic-corpus numbers; (2) refactor is critical-path and gates both the open-source release and zero-mention compliance; (3) circular-evaluation defense (generator/annotator/SUT model-family separation + public-real-corpus structural alignment + honest scoping) is the single cleanest rejection vector and is non-negotiable; (4) long-context baseline (1M-context closed model end-to-end) is mandatory; (5) ACL-main 2026 is out of scope — ACL 2027 is the realistic main-conference target. Remaining tensions are parameter-level: human-gold n (150 vs 200 vs 300), domain count/weighting (1+2-thin vs 2-full+spot-check vs 3-equal), and whether to pay external annotators/template authors (~$3.3K total) or burn co-author hours. Founder input is needed on 5 load-bearing tradeoffs before the Architect writes a BLUEPRINT.
+  </summary>
+
+  <rounds>
+    <round n="1" label="Opening Positions">
+      <agent name="academic-paper-writer" role="Draft Author">
+        <position>One paper at NLP4ConvAI 2026 workshop. Single primary domain (customer support) with 10% appendix each of scheduling + companion/wellness. Drop session-less property from scope. Contribution 3 (dual-path routing for boilerplate bot traffic) is the paper's moat and drives venue fit.</position>
+        <evidence>Workshop tier matches available calendar; dual-path routing is where eb1 differentiates from pure-LLM baselines; multi-domain ablation can live in appendix without a third full synthetic corpus.</evidence>
+      </agent>
+      <agent name="academic-peer-reviewer" role="Rigor Guardian">
+        <position>Circular evaluation is the rejection vector. Minimum viable defense: (1) M_gen != M_ann != M_sut across 3 model families, (2) human gold n&gt;=300 kappa&gt;=0.7, (3) structural-property alignment vs &gt;=1 public real corpus, (4) explicitly scoped claim. 3-domain minimum at equal weight. Full reproducibility package (Datasheet + Data Statement + ethics + license + prompts + pinned deps + held-out split). Long-context baseline required. F1=0.952 and 130K-3M numbers must go.</position>
+        <evidence>Post-2023 ACL venues reject on reproducibility package absence alone; ACL 2024 ARR meta-reviewers cite "single-domain insufficient" as override even at 3/3/4 reviewer split; "authors did not compare to obvious alternative" (long-context frontier model) is a clean-rejection vector in systems-vs-LLM papers.</evidence>
+      </agent>
+      <agent name="cto" role="Technical-Accuracy Guardian">
+        <position>Three-tier architecture description in the draft is structurally accurate; three draft claims are FALSE or OVERSTATED (single-LLM-call-per-user-window, F1=0.952, 130K-3M context). Code has 3 HARD BLOCKERS for open-source release: pool_taxonomy hardcoded pool names, user_v3 prompt with 9 grep hits of prior operational domain, deterministic_rules hardcoded scheduling keywords. Refactor ~14-22h (inside original 30% budget). Synthetic generator net-new ~40-60h.</position>
+        <evidence>Direct source-code read of pool_taxonomy.py, deterministic_rules.py, eb1_prompt_user_v3.md, eb1_prompt_bot_v1.md, segmenter.py; reports/benchmark_eval_all_20260328_212908/report.json confirms top row is topic_accuracy=0.9145 subtopic_accuracy=0.6908 with NO 0.952 anywhere and NO pure_llm baseline row.</evidence>
+      </agent>
+    </round>
+
+    <round n="2" label="Response to Other Agents">
+      <agent name="academic-paper-writer" role="Draft Author">
+        <position>Revised: one workshop paper at NLP4ConvAI 2026 (OCTOBER submission, not July) on a TWO-domain synthetic corpus (customer support + coding assistance) with a 150-CMLU human-labeled gold slice and scoped claims. Contribution reframed as "taxonomy of chatbot structural properties + segmentation method robust to them," moat = cost-per-CMLU under template dominance (not raw accuracy over 1M-context frontier). Budget 55% corpus / 25% refactor / 20% evaluation+reproducibility. Drop session-less. Circular-evaluation defense (M_gen/M_ann/M_sut + real-corpus alignment) is non-negotiable.</position>
+        <responses>
+          <response to="academic-peer-reviewer" type="refine">3-domain minimum -&gt; 2 full domains (customer-support 1.2K convs + coding-assistance 1.2K convs) + WildChat spot-check (~200 convs). Rejects chitchat as third because no template dominance means can't ablate Contribution 3.</response>
+          <response to="academic-peer-reviewer" type="refine">Human gold -&gt; n=150 kappa&gt;=0.7, 2 annotators, dual-domain split 75/75. n=300 at kappa&gt;=0.7 = ~60-80h annotation + ~$2.5K paid OR 3 weeks co-author time; workshop tier defensible.</response>
+          <response to="academic-peer-reviewer" type="agree">Long-context baseline: Claude Sonnet 4.5 1M-context end-to-end, single call per user-window. eb1 will almost certainly LOSE on raw accuracy. Defensible win: cost-per-CMLU + latency. Report all three axes honestly. If no &gt;=2x win on cost OR latency with non-overlapping CIs, pivot to corpus-only paper at LREC-COLING 2026.</response>
+          <response to="academic-peer-reviewer" type="agree">Reproducibility package ~35 author hours, fits 20% evaluation+repro budget. Non-negotiable.</response>
+          <response to="cto" type="concede">F1=0.952, 3x, 130K-3M all go. topic_accuracy=0.9145 also cannot appear (wrong domain). All headline numbers from NEW synthetic runs only.</response>
+          <response to="cto" type="agree">Refactor is HARD blocker. Critical path reordered (refactor -&gt; corpus -&gt; evaluation). Budget shifts 70/30 -&gt; 55/25/20.</response>
+          <response to="cto" type="refine">P3 ablation: Either synthetic-pool registration inside the 3h pool_taxonomy TOML-ification (~2h extra) OR P3 moved to limitations. Prefers former.</response>
+        </responses>
+        <revised-scope>Two full synthetic domains (customer-support 1.2K, coding-assistance 1.2K), WildChat ~200 structural alignment spot-check, human gold n=150 kappa&gt;=0.7 (75/75 split), four noise properties (drop session-less/unbounded-stream), Claude Sonnet 4.5 1M-context baseline end-to-end, cost+latency+accuracy triple-axis reporting, full reproducibility package (Datasheet, Data Statement, ethics, prompts, ODC-BY or CC-BY-4.0 pending ToS), CMLU-vs-prior-segmentation comparison table, paired bootstrap CIs on every headline number.</revised-scope>
+        <revised-venue>NLP4ConvAI 2026 primary (OCTOBER submission). SIGDIAL 2026 backup. ACL Findings / EMNLP main OUT OF SCOPE given timeline. LREC-COLING 2026 explicit fallback for corpus-only paper if eb1 loses cost/latency battle.</revised-venue>
+        <what-i-cut-first>(1) third full synthetic domain — cut first, replaced by WildChat spot-check; (2) human gold 150-&gt;300 expansion — cut second; (3) P3 ablation if 2h pool-registration slot slips — moved to appendix; (4) multi-topic drift as dedicated method component — already planned as corpus characteristic only. NEVER cut: M_gen/M_ann/M_sut separation, reproducibility package, long-context baseline, refactor.</what-i-cut-first>
+      </agent>
+
+      <agent name="academic-peer-reviewer" role="Rigor Guardian">
+        <position>Concedes 3-domain equal-weight floor for NLP4ConvAI workshop tier ONLY IF paper scoped as "method demonstrated on customer-support synthetic dialogues with structural properties P; cross-domain generalization established by robustness study on D_2/D_3." For ACL-main, 3 equal-weight domains remain floor. Non-negotiables at ANY tier: (a) M_gen != M_ann != M_sut family separation, (b) human gold n&gt;=200 kappa&gt;=0.6 on primary, (c) structural alignment vs &gt;=1 public real corpus, (d) honest scoping paragraph. CTO's 14-22h source-refactor ADDS risk, not subtracts: pipeline domain-coupled 4 weeks before release invites "did the generator leak domain-specialist features?" — requires explicit ablation. If forced to pick ONE artifact, human-labeled gold is load-bearing.</position>
+        <responses>
+          <response to="academic-paper-writer" type="refine">Single-primary + appendix is ACCEPTABLE AT WORKSHOP ONLY IF (1) appendix is 10% of EVALUATION budget not corpus — &gt;=100 convs each, human-spot-check on 30 subsample per domain, F1 reported separately per domain + one-line gap interpretation; (2) title and abstract MUST NOT say "chatbot conversations" — must say "customer-support chatbot conversations with robustness evidence on scheduling and companion domains." ACL-main: no refine, 3 equal-weight or scope claim to one domain in title.</response>
+          <response to="academic-paper-writer" type="rebut">Dual-path routing is a pipeline-engineering choice, NOT a research contribution, unless ablation runs. Need eb1-with-dual-path vs eb1-single-path on same synthetic corpus. &lt;3 F1 points OR &lt;20% cost delta = implementation detail and Reviewer 2 says so. &gt;=5 F1 AND &gt;=30% cost = genuine moat deserves Section 4. Without ablation it's a systems description paper, NLP4ConvAI accepts, ACL-main rejects.</response>
+          <response to="academic-paper-writer" type="agree">LLM template realism: FAQ-scrape + 50-seed hybrid strictly dominates pure-LLM generation on realism. Paid co-authors for bot-turn templates worth it — ~20h at $40/h = $800 for 200 templates. Cheaper than re-submission cycle. Seeds released with corpus under same license.</response>
+          <response to="cto" type="agree">"Single LLM call per user-window" is BLOCK-level fabrication risk. Must be fixed in prose before any submission. Rewrite to accurately describe windowed chunking, OR request SWE simplify. Option (a) cheaper and honest.</response>
+          <response to="cto" type="agree">Strike F1=0.952 / 0.9145 / 3x / 130K-3M. Every headline number in submitted paper must come from synthetic-corpus evaluation run executed AFTER refactor. Paper has ZERO valid benchmark numbers today. Synthetic eval run IS the paper.</response>
+          <response to="cto" type="refine">DO NOT refactor P3 for this paper. Drop P3 ablation from claim set, state in Limitations: "Pool-level filtering (P3) is domain-conditioned in the reference implementation; evaluated only on customer-support domain, cannot be cleanly ablated on scheduling/companion in this release." Honest, costs zero SWE, reviewers accept limitations they cannot attack.</response>
+          <response to="cto" type="refine">14-22h refactor feasibility: feasible on hours, risky on verification. Require refactor lands &gt;=6 weeks before submission, pytest suite green, 50-conversation synthetic sample manually inspected by paper-writer for residual domain leakage. If refactor lands &lt;4 weeks out, pull submission to next cycle. Rushed refactors produce "this was clearly hacked together" reviewer comments.</response>
+        </responses>
+        <reproducibility-cost-table>Workshop tier total: 66 author hours (n=150 gold at 40h + 26h artifacts). ACL-main tier total: 143 author hours (n=300 gold at 90h + 53h artifacts). Non-negotiable at both tiers: Datasheet, Data Statement, ethics, license+ToS, generation prompts verbatim, pinned deps + one-command reproduction, held-out split.</reproducibility-cost-table>
+        <priority-rank>If team can only execute ONE before deadline: (1) human-labeled gold set (without it, F1 numbers mean nothing and paper has no defensible core claim); (2) long-context baseline (without it, "authors did not compare to obvious alternative" = clean rejection); (3) reproducibility package (Datasheet + Data Statement + prompts gate submission at post-2023 ACL venues); (4) 3-domain corpus (highest cost, lowest marginal value if scoping honest).</priority-rank>
+        <workshop-vs-acl-main-deltas>
+          (1) M_gen != M_ann != M_sut: min 2 families workshop, 3 at ACL-main.
+          (2) Human gold: workshop n=150 kappa&gt;=0.6 single-domain; ACL-main n=300 kappa&gt;=0.7 primary + n=100 each secondary.
+          (3) Structural-property alignment: workshop 1 public corpus on 3/5 axes; ACL-main 2 public corpora on 4/5 axes within 1 sigma.
+          (4) Scoped claim: non-negotiable both tiers.
+          (5) Long-context baseline: ONE enough at workshop, TWO at ACL-main. INSIST on GPT-4.1 (default reviewer mental model; Claude-only reads as cherry-picking). Matched prompt-engineering effort HARD requirement at both — single cleanest rejection vector in systems-vs-LLM comparison papers. Budget 8h baseline prompt engineering; document iterations in appendix.
+        </workshop-vs-acl-main-deltas>
+      </agent>
+
+      <agent name="cto" role="Technical-Accuracy Guardian">
+        <position>Refactor is NOT cheap anymore — peer-reviewer's asks push Phase-2 SWE cost into ~190-260 hours, an order of magnitude above the original 14-22h floor. Paper-writer's "workshop + one primary + 2 thin appendix" is the only scope fitting realistic calendar; peer-reviewer's three-equal-domain + full baseline package is correct for ACL-main but cannot ship before late-summer 2026. Refactor gates both synthetic generator and paper-usable re-benchmark. Existing pure_llm flag (segmenter.py:323-369) is real but partial — benchmark_eval.py does NOT record tokens, cost, or latency; no long-context closed/open baseline wired. Recommend: NLP4ConvAI workshop with Phase-1 scope, ACL-main as stretch contingent on Phase-2 slip risk.</position>
+        <responses>
+          <response to="academic-paper-writer" type="agree">1 primary + 2 thin appendix: incremental generator cost per additional domain is mostly prompt-engineering + audit, not new infra. Primary ~35-45h + each thin +8-12h if capped at ~300 convs skip full human-relabel. Total ~55-70h vs ~95-130h for 3 full.</response>
+          <response to="academic-paper-writer" type="refine">Contribution 3 moat framing: architecture matches segmenter.py:370-543 (pre-segmenter splits bot_only vs user_engaged chunks -&gt; separate prompts). But "dual-prompt LLM analyzer" reads as simultaneous dual calls; reality is path-routed one-prompt-per-chunk. Bot-only chunks use deterministic bypass (label_confidence=1.0, no sentiment). Frame: "LLM path for user-engaged, deterministic path for bot-only" — same moat, more defensible.</response>
+          <response to="academic-paper-writer" type="rebut">Cannot hand-wave circular evaluation with framing. Peer-reviewer is right. Without &gt;=1 public-real-corpus alignment + human gold n&gt;=300 kappa&gt;=0.7, we eat a Reject. Workshop tolerance higher but non-zero.</response>
+          <response to="academic-peer-reviewer" type="refine">3-equal-domain floor: defensible for main-conf, cost-prohibitive at current timeline. 3 equal-weight full ~= 95-130h generator + 3x human label (900 labels). Counter: one primary (customer-support n&gt;=300 human-labeled) + two structural-robustness appendix (n~=100 each auto-graded). Meets generalization bar without 3x labeling cost.</response>
+          <response to="academic-peer-reviewer" type="concede">Long-context baseline required. cfg.pure_llm flag (segmenter.py:323-369) handles pipeline switch — pointing at 1M-context model is config change not code. But benchmark_eval.py does NOT record tokens/cost/wall-clock (grep confirms zero token/latency fields). Cost/latency instrumentation NET-NEW ~12-16h. Open-weights +8-12h assuming llm_client.py supports.</response>
+          <response to="academic-peer-reviewer" type="agree">Reproducibility package mostly cheap on engineering side: uv.lock exists (deps pinned). One-command repro ~4-6h. Held-out split net-new ~8-12h (benchmark_eval.py has no train/val/test partition). Datasheet+Data Statement ~6-8h writing (paper-writer not SWE). License + prompts-verbatim = paperwork not engineering.</response>
+        </responses>
+        <new-swe-estimates>
+          Phase 1 (workshop) total ~95-130h. Phase 2 (ACL-main) total ~190-260h. Breakdown: Refactor 14-22h CRITICAL PATH; Synthetic generator 55-70h (1 primary + 2 thin) or 95-130h (3 full) CRITICAL PATH; Benchmark re-run with pure_llm 4-6h; Long-context baseline 6-10h (Phase 1) / 10-14h (Phase 2); Open-weights long-context +12-18h Phase 2 only; Cost/latency instrumentation 12-16h CRITICAL PATH for Phase 2; Human-labeling tooling 30-45h Phase 2 only; Pinned deps + one-command repro 4-6h; Held-out split 8-12h Phase 2 only.
+        </new-swe-estimates>
+        <critical-path>
+          Week 1-2 (NOW -&gt; 2026-05-04): Refactor sprint (14-22h). pool_taxonomy + deterministic_rules TOML-ification MUST ship first. Smoke gate: domain-stripped e2e on existing fixture.
+          Week 2-4 (2026-04-27 -&gt; 2026-05-18): Parallelize (a) generator primary domain 35-45h, (b) cost/latency instrumentation 12-16h, (c) long-context baseline config wiring 6-10h.
+          Week 5-6 (2026-05-18 -&gt; 2026-06-01): Two thin appendix domains 16-24h + first full benchmark re-run with pure_llm + long-context baselines. First complete experimental table ~2026-06-01 (workshop-sufficient).
+          Week 7-10 (2026-06-01 -&gt; 2026-06-29): Phase 2 stretch — human-labeling tooling + annotator recruitment + gold collection + held-out split + open-weights baseline. Earliest full peer-reviewer package ~2026-06-29; realistically 2026-07-15.
+          NLP4ConvAI 2026 (typical early-July deadline for late-summer event): Phase 1 achievable with ~3 weeks buffer. ACL 2026 main: MISSED. ACL 2027 main is realistic main-conf target.
+        </critical-path>
+        <hard-blockers>
+          pool_taxonomy.py:22-65 hardcoded pool/slug map — ~3h TOML;
+          deterministic_rules.py:26-37 hardcoded scheduling keywords/slugs — ~4h TOML;
+          eb1_prompt_user_v3.md 9 grep hits — ~6h rewrite;
+          eb1_prompt_bot_v1.md same pattern simpler — ~3h;
+          Cost/latency instrumentation absent — ~12-16h;
+          No pipeline/labeling/ module — ~30-45h if Phase 2;
+          templates/classifier.py:142 _SYSTEM_PROMPT domain name — ~2h;
+          segmenter.py:86-91 _BOT_TO_USER_REMAP 2 domain slugs — ~1h TOML.
+        </hard-blockers>
+      </agent>
+    </round>
+  </rounds>
+
+  <convergence>
+    <point>One workshop paper, not multiple papers. NLP4ConvAI 2026 primary target, SIGDIAL 2026 backup.</point>
+    <point>Every headline number currently in the draft is invalid: F1=0.952, topic_accuracy=0.9145, 3x cost, 130K-3M context. All struck. No submission numbers until post-refactor synthetic benchmark re-run lands.</point>
+    <point>Refactor is critical path and blocks both open-source release and paper-usable numbers. Hard blockers: pool_taxonomy (~3h), deterministic_rules (~4h), user_v3 prompt (~6h), bot_v1 prompt (~3h), classifier _SYSTEM_PROMPT (~2h), segmenter _BOT_TO_USER_REMAP (~1h). Total ~14-22h, landable within 2 weeks.</point>
+    <point>Circular-evaluation defense is non-negotiable: generator/annotator/SUT must use different model families; structural properties of synthetic corpus must align with &gt;=1 public real corpus; paper claim must be explicitly scoped ("customer-support chatbot conversations with robustness evidence on D_2") not "chatbot conversations" broadly.</point>
+    <point>Long-context baseline is mandatory. Claude Sonnet 4.5 1M-context end-to-end, single call per user-window. Honest triple-axis reporting (accuracy + cost + latency). eb1 likely loses accuracy; win must come from cost-per-CMLU and/or latency with non-overlapping CIs.</point>
+    <point>Reproducibility package is mandatory: Datasheet for Datasets, Data Statement, ethics statement, license + ToS verification, generation prompts verbatim, pinned deps (uv.lock exists), one-command reproduction, held-out split.</point>
+    <point>"Single LLM call per user-window" claim must be rewritten in prose to accurately describe windowed chunking + path routing (bot-only deterministic, user-engaged LLM). Fixing prose is cheaper and more honest than fixing code.</point>
+    <point>P3 ablation NOT refactored for this paper — moved to Limitations as honest domain-conditioning disclosure.</point>
+    <point>Cost/latency instrumentation is net-new in benchmark_eval.py (~12-16h) and is critical path for any "beats on cost/latency" claim.</point>
+    <point>Submission timeline: NLP4ConvAI 2026 OCTOBER, not July. ACL 2026 main MISSED. ACL 2027 main is realistic main-conf target if Phase 2 completes.</point>
+    <point>If refactor lands &lt;4 weeks before submission, pull submission to next cycle.</point>
+  </convergence>
+
+  <tensions>
+    <tension id="T1">
+      <description>Human-gold label count and kappa threshold</description>
+      <side_a agent="academic-paper-writer">n=150 kappa&gt;=0.7, dual-domain 75/75 split, ~40-50h co-author annotation, workshop-defensible.</side_a>
+      <side_b agent="academic-peer-reviewer">n=200 kappa&gt;=0.6 on primary (minimum for workshop), n=300 kappa&gt;=0.7 (ACL-main floor); human gold is the single most load-bearing artifact because every F1 reviewer complaint routes through it.</side_b>
+      <side_c agent="cto">One primary domain n&gt;=300 human-labeled + two appendix n~=100 auto-graded; if labeling tooling built in Phase 2, 30-45h net-new.</side_c>
+      <resolution>Defer to Founder (Question 2). CEO leaning toward n=200 kappa&gt;=0.6 on customer-support primary only (peer-reviewer floor, not paper-writer floor) + n=30 spot-check per secondary domain. Rationale: paper-writer's 150 is below peer-reviewer's workshop floor and reviewer is correct that human gold is load-bearing; 300 requires external annotation budget Founder has not approved; 200 is the smallest number that survives Reviewer 2 without requiring a paid budget.</resolution>
+    </tension>
+
+    <tension id="T2">
+      <description>Domain count and weighting in the synthetic corpus</description>
+      <side_a agent="academic-paper-writer">2 full domains (customer-support 1.2K + coding-assistance 1.2K) + WildChat ~200 structural spot-check. Chitchat rejected because no template dominance.</side_a>
+      <side_b agent="academic-peer-reviewer">3 domains with honest scoping ("method demonstrated on D_1, robustness study on D_2/D_3"), appendix domains &gt;=100 convs each with human spot-check on 30 subsample per secondary. Or scope title to single domain.</side_b>
+      <side_c agent="cto">1 primary full (customer-support) + 2 thin appendix (scheduling + companion ~300 convs each); cheapest scope that plausibly satisfies generalization bar. 55-70h generator total.</side_c>
+      <resolution>Defer to Founder (Question 3). CEO leaning toward CTO's 1 primary + 2 thin appendix — but with a twist: the 2 thin appendix domains should be chosen to STRESS different structural properties (e.g., coding-assistance for multi-turn code-block noise, companion-wellness for long-horizon sentiment drift), not to pad domain count. This gives peer-reviewer the robustness evidence at half the generator cost. Title must be scoped per peer-reviewer's language.</resolution>
+    </tension>
+
+    <tension id="T3">
+      <description>Contribution 3 (dual-path / path-routed segmentation) ablation requirement</description>
+      <side_a agent="academic-paper-writer">Path-routing is the paper's moat (cost-per-CMLU under template dominance).</side_a>
+      <side_b agent="academic-peer-reviewer">Without an explicit eb1-with-path-routing vs eb1-single-path ablation on the same synthetic corpus, it's a systems description. &lt;3 F1 or &lt;20% cost delta = implementation detail.</side_b>
+      <side_c agent="cto">Framing should be "LLM path for user-engaged, deterministic path for bot-only" (matches segmenter.py:370-543), not "dual-prompt analyzer." Ablation is a config-flag experiment, ~2-4h run time on top of existing benchmark.</side_c>
+      <resolution>RESOLVED by CEO. Run the ablation — CTO confirms it's cheap (config flag, not new code), and peer-reviewer is right that without it the moat claim is systems-engineering not research. Paper-writer accepts this implicitly (agreed refactor takes ~2h pool-registration inside taxonomy TOML). Ablation table goes in Section 4, not appendix.</resolution>
+    </tension>
+
+    <tension id="T4">
+      <description>Whether to pay external annotators/template authors or burn co-author hours</description>
+      <side_a agent="academic-paper-writer">150 gold at 40-50h co-author time; keeps cost near zero, timeline tighter.</side_a>
+      <side_b agent="academic-peer-reviewer">Paid template authors ~$800 (20h @ $40/h for 200 bot-turn templates, cheaper than re-submission cycle); n=300 gold could be ~$2.5K paid.</side_b>
+      <side_c agent="cto">Not CTO's call — depends on budget authority.</side_c>
+      <resolution>Defer to Founder (Question 4). CEO leaning toward paying for templates ($800) but NOT annotation (co-authors do n=200). Rationale: template realism is the input to every downstream number and cannot be redone cheaply once corpus is generated; annotation can be co-author labor and the quality gain from paid annotators is marginal at n=200.</resolution>
+    </tension>
+
+    <tension id="T5">
+      <description>ACL 2027 main as Phase 2 target vs corpus-only LREC-COLING 2026 fallback</description>
+      <side_a agent="academic-paper-writer">LREC-COLING 2026 corpus-only fallback if eb1 loses cost/latency battle against long-context baseline.</side_a>
+      <side_b agent="academic-peer-reviewer">ACL-main 2027 requires 3 equal-weight domains + n=300 kappa&gt;=0.7 + 2 public-real-corpus alignment + 2 long-context baselines incl. GPT-4.1 — roughly 2x the Phase 1 cost.</side_b>
+      <side_c agent="cto">Phase 2 total ~190-260h. Earliest ready ~2026-07-15. ACL 2027 main deadline is Feb 2027; realistic if Phase 1 lands cleanly.</side_c>
+      <resolution>Defer to Founder (Question 5). CEO leaning toward: commit only to Phase 1 (workshop) now; treat Phase 2 (ACL-main 2027) as a GO/NO-GO decision at the 2026-06-01 gate when first benchmark table lands. If eb1 wins on cost+latency with non-overlapping CIs, go. If not, pivot to corpus-only LREC-COLING 2026 and use the engineering hours elsewhere.</resolution>
+    </tension>
+
+    <tension id="T6">
+      <description>Which long-context baseline model(s) to include</description>
+      <side_a agent="academic-paper-writer">Claude Sonnet 4.5 1M-context primary (one baseline sufficient at workshop tier).</side_a>
+      <side_b agent="academic-peer-reviewer">INSIST on GPT-4.1 (default reviewer mental model; Claude-only reads as cherry-picking). 1 baseline OK at workshop, 2 at ACL-main. Open-weights (Llama-3.1 / Qwen-2.5) at ACL-main.</side_b>
+      <side_c agent="cto">Both closed-model baselines configurable via cfg.pure_llm; open-weights requires llm_client.py support check (+8-12h if needed).</side_c>
+      <resolution>RESOLVED by CEO. At workshop tier, run BOTH Claude Sonnet 4.5 AND GPT-4.1 as long-context baselines. Peer-reviewer is right that Claude-only is cherry-picking. Cost is cheap (config change + ~6-10h benchmark_eval wiring is one-time). Open-weights baseline deferred to Phase 2.</resolution>
+    </tension>
+  </tensions>
+
+  <recommendation>
+    Greenlight Phase 1 (NLP4ConvAI 2026 workshop, October submission) immediately. Kick off refactor sprint this week — Architect writes task XMLs for the 6 hard blockers (pool_taxonomy, deterministic_rules, user_v3 prompt, bot_v1 prompt, classifier _SYSTEM_PROMPT, segmenter _BOT_TO_USER_REMAP) totaling 14-22h; SWE implements with gate of domain-stripped e2e on existing fixture before any synthetic-corpus work begins.
+
+    Scope lock: 1 primary domain (customer-support 1.2K convs, human gold n=200 kappa&gt;=0.6) + 2 thin appendix domains (coding-assistance and companion-wellness, ~300 convs each, auto-graded with n=30 human spot-check per secondary) + WildChat structural alignment spot-check on 1 public real corpus. Paper title and abstract scoped to "customer-support chatbot conversations with cross-domain robustness evidence." F1=0.952 / 0.9145 / 3x / 130K-3M all struck from draft on next paper-writer session — precondition for any further draft work.
+
+    Mandatory artifacts: generator/annotator/SUT model-family separation (3 families), Claude Sonnet 4.5 AND GPT-4.1 long-context baselines end-to-end, cost+latency+accuracy triple-axis reporting with paired bootstrap CIs, Datasheet for Datasets, Data Statement, ethics statement, license + ToS verification, generation prompts verbatim in appendix, pinned deps (uv.lock), one-command reproduction, held-out split, Contribution 3 path-routed vs single-path ablation in Section 4.
+
+    Critical-path checkpoints: refactor complete by 2026-05-04; primary-domain corpus + instrumentation + baselines wired by 2026-05-18; thin appendix corpora + first benchmark re-run by 2026-06-01 (this is the Phase 1 / Phase 2 GO/NO-GO gate); submission draft locked by early September; 3-week reviewer-buffer before NLP4ConvAI October deadline. If refactor slips past 2026-05-11 (1 week late), pull scope to 1 primary + 1 thin appendix. If refactor slips past 2026-05-18 (2 weeks late), pull submission to next cycle.
+
+    Phase 2 (ACL-main 2027) is NOT committed now. Decision at 2026-06-01 gate based on whether eb1 wins on cost+latency against both long-context baselines with non-overlapping 95% CIs. If no, pivot to LREC-COLING 2026 corpus-only submission.
+
+    What we are sacrificing: main-conference ACL 2026 prestige (timeline forecloses it), session-less/unbounded-stream property (dropped from scope), P3 pool-level filtering ablation (moved to Limitations), third full synthetic domain (replaced by WildChat spot-check). What we are buying: one defensible workshop paper + an open-source synthetic corpus + a refactored pipeline that satisfies the Founder's zero-mention constraint + an EB-1 exhibit showing original methodological contribution with reproducible artifacts.
+  </recommendation>
+
+  <questions>
+    <question id="1">
+      <text>Confirm: target NLP4ConvAI 2026 OCTOBER workshop submission (SIGDIAL 2026 backup), with ACL-main 2026 out of scope and ACL 2027 main held as a Phase 2 stretch contingent on the 2026-06-01 benchmark gate. Do you accept this timeline, or do you want us to attempt the July 2026 NLP4ConvAI cycle (all three agents assess July as infeasible once the refactor and reproducibility package are priced in)?</text>
+      <context>Paper-writer Round 2 moved from July to October explicitly. Peer-reviewer requires refactor to land &gt;=6 weeks before submission (July deadline implies refactor done by mid-May — tight but possible). CTO's critical path shows first benchmark table ~2026-06-01 with 3-week buffer available only for October. CEO recommends October; asking because the Founder's original ask implied a faster timeline and we owe you the explicit tradeoff.</context>
+      <answer></answer>
+    </question>
+
+    <question id="2">
+      <text>Human-gold annotation target: n=150 (paper-writer), n=200 (peer-reviewer workshop floor, CEO recommendation), or n=300 (peer-reviewer ACL-main floor)? Kappa threshold 0.6 or 0.7? And are co-authors annotating, or are we budgeting ~$2.5K for paid annotators?</text>
+      <context>Peer-reviewer ranks human gold as the #1 load-bearing artifact — every F1 reviewer complaint routes through it. Paper-writer's 150 is below peer-reviewer's stated workshop floor of 200. n=200 at kappa&gt;=0.6 is ~50-60 co-author hours for 2 annotators; n=300 at kappa&gt;=0.7 is ~80-90 hours OR ~$2.5K paid. CEO recommends n=200 kappa&gt;=0.6 on customer-support primary + n=30 spot-check per secondary, co-authors annotating. This is the smallest defensible number for workshop tier.</context>
+      <answer></answer>
+    </question>
+
+    <question id="3">
+      <text>Synthetic corpus domain structure: (a) 2 full domains at 1.2K convs each + WildChat spot-check (paper-writer); (b) 3 equal-weight domains (peer-reviewer); or (c) 1 primary at 1.2K + 2 thin appendix at ~300 each (CTO, CEO recommendation)? Confirm that "coding-assistance" and "companion-wellness" are acceptable as the two appendix domains, chosen to stress DIFFERENT structural properties (multi-turn code blocks vs long-horizon sentiment drift).</text>
+      <context>This is the single biggest driver of generator SWE cost: 55-70h (option c) vs ~90-110h (option a) vs 95-130h (option b). CTO's option c gets us peer-reviewer's generalization evidence at roughly half option b's cost, if domain selection is principled rather than count-padding. Title will be scoped to "customer-support chatbot conversations with robustness evidence on coding-assistance and companion-wellness domains" regardless of which option you pick. Are those two secondary domains acceptable, or do you have other preferences (e.g., scheduling-assistant, educational tutoring)?</text>
+      <answer></answer>
+    </question>
+
+    <question id="4">
+      <text>Budget authority: approve ~$800 for paid template authors (20h @ $40/h for 200 realistic bot-turn templates)? Approve or decline paid annotators ($2.5K at n=300)? Approve or decline paid reviewer-round external proofread ($200-400)?</text>
+      <context>Peer-reviewer argues paid template authors strictly dominates pure-LLM generation on realism and is cheaper than a re-submission cycle. CEO agrees on templates ($800). CEO leans against paid annotation if you accept Question 2's n=200 answer (co-authors cover it). No agent proposed external proofread — CEO flags it because paper-writer Round 2 did not budget for it and workshop-tier proofreading is typically a weekend of co-author time; flagging only in case you want an external polish pass before submission.</context>
+      <answer></answer>
+    </question>
+
+    <question id="5">
+      <text>Phase 2 (ACL-main 2027) commitment: (a) commit now to Phase 2 scope (3 equal domains + n=300 gold + 2 public corpora + 2 long-context baselines + open-weights baseline, ~190-260 SWE hours on top of Phase 1); (b) defer commitment to the 2026-06-01 benchmark gate (CEO recommendation); (c) explicitly decline Phase 2 and aim workshop-only this cycle?</text>
+      <context>The 2026-06-01 gate is when we learn whether eb1 wins on cost+latency against long-context baselines with non-overlapping 95% CIs. If yes, ACL-main 2027 is viable and high-value. If no, pouring 100+ additional SWE hours into Phase 2 yields a paper that loses all three axes. Option (b) gives us 6 weeks to stay in Phase 1 mode, then decide with data. Option (a) locks scope now — useful if you want to parallelize Phase 2 prep with Phase 1 execution, risky if the benchmark comes back flat. Option (c) is the "one paper and move on to EB-1 exhibits" path.</text>
+      <answer></answer>
+    </question>
+  </questions>
+</roundtable>

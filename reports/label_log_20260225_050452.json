@@ -1,0 +1,53 @@
+{
+  "log_type": "label_log",
+  "generated_at": "2026-02-25T05:04:52.633754+00:00",
+  "summary": {
+    "total_segments": 14,
+    "total_segments_in_clusters": 13,
+    "hdbscan_noise_segments": 1,
+    "noise_ratio": 0.0714,
+    "total_clusters_labeled": 2,
+    "unique_topics": 1,
+    "new_topics_count": 0
+  },
+  "topic_distribution": [
+    {
+      "topic": "match_discussion",
+      "cluster_count": 2,
+      "segment_count": 13,
+      "avg_confidence": 0.9378,
+      "sub_topics": [
+        "post-match communication",
+        "evaluating_match_potential"
+      ],
+      "generalizations": [
+        "Users are discussing and trying to understand why their matches cancelled plans, rescheduling, and communicating with each other after a match.",
+        "Users discussing their feelings about a match, evaluating compatibility, and deciding how to proceed."
+      ],
+      "is_new_topic": false
+    }
+  ],
+  "new_topics": [],
+  "clusters": [
+    {
+      "cluster_id": 1,
+      "n_segments": 7,
+      "n_segments_to_llm": 7,
+      "cluster_confidence": 0.9455,
+      "topic": "match_discussion",
+      "sub_topic": "post-match communication",
+      "generalization": "Users are discussing and trying to understand why their matches cancelled plans, rescheduling, and communicating with each other after a match.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 0,
+      "n_segments": 6,
+      "n_segments_to_llm": 6,
+      "cluster_confidence": 0.93,
+      "topic": "match_discussion",
+      "sub_topic": "evaluating_match_potential",
+      "generalization": "Users discussing their feelings about a match, evaluating compatibility, and deciding how to proceed.",
+      "is_new_topic": false
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+title eb1 — Analyzer Architecture
+direction right
+
+// ── Sources ──────────────────────────────────────────────────────────────────
+
+Chat Container [shape: oval, icon: message-circle, color: lightblue] {
+  sms_chats (1 per user) [icon: inbox, color: lightblue]
+  sms_chat_messages (N per chat) [icon: message-square, color: lightblue]
+}
+
+Latest Segments [shape: oval, icon: archive, color: lightblue] {
+  Previous sms_chat_segments (summaries) [icon: file-text, color: lightblue]
+}
+
+Taxonomy [shape: oval, icon: book, color: yellow] {
+  taxonomy.yaml [icon: file-text, color: yellow]
+}
+
+// ── Analyzer — single LLM call per user per window ──────────────────────────
+
+Analyzer [icon: brain, color: purple] {
+  One LLM call does all [icon: zap, color: purple]
+  Segment [icon: git-branch, color: purple] {
+    Assign new messages to latest segments [icon: corner-down-right, color: purple]
+    Create new segments (non-contiguous or multi-topic OK) [icon: plus-circle, color: purple]
+  }
+  Summarize [icon: edit-3, color: purple] {
+    Create or update summary per segment [icon: align-left, color: purple]
+  }
+  Classify [icon: tag, color: purple] {
+    topic + subTopic from taxonomy [icon: bookmark, color: purple]
+    sentiment [icon: heart, color: purple]
+    labelConfidence [icon: percent, color: purple]
+  }
+}
+
+// ── Windowing (backfill only) ────────────────────────────────────────────────
+
+Windowing [icon: columns, color: gray] {
+  Backfill: ~200 messages per window [icon: layers, color: gray]
+  Incremental: 1 window (new messages only) [icon: skip-forward, color: gray]
+  Summaries carry context across windows [icon: repeat, color: gray]
+}
+
+// ── Commit — write fully populated segments ──────────────────────────────────
+
+Commit [icon: database, color: teal] {
+  sms_chat_segments [icon: save, color: teal] {
+    chatMessages(ids) + summary [icon: list, color: teal]
+    topic + subTopic + sentiment [icon: check, color: teal]
+    labelConfidence [icon: flag, color: teal]
+    chatStartedAt + chatEndedAt [icon: clock, color: teal]
+  }
+}
+
+// ── Validate — deterministic graders ─────────────────────────────────────────
+
+Validate [icon: shield, color: red] {
+  G0.x Data Integrity [icon: check-circle, color: red]
+  G1.x Segmentation Quality [icon: bar-chart, color: red]
+  Non-contiguous OK. shared messages OK [icon: info, color: red]
+}
+
+// ── Evaluate ─────────────────────────────────────────────────────────────────
+
+Evaluate [icon: bar-chart-2, color: green] {
+  Topic Distribution [icon: pie-chart, color: green]
+  Confidence Metrics [icon: percent, color: green]
+  Taxonomy Novelty [icon: plus-circle, color: green]
+  Gibberish Rate [icon: x-circle, color: gray]
+  Review Routing [shape: diamond, icon: git-merge, color: orange]
+}
+
+// ── Exit points ──────────────────────────────────────────────────────────────
+
+Human Review Queue [shape: oval, icon: users, color: red]
+Training Data [shape: oval, icon: trending-up, color: green]
+
+// ── Offline Quality (periodic, not every run) ────────────────────────────────
+
+Offline Quality [icon: cpu, color: blue] {
+  Embed Summaries [icon: code, color: blue] {
+    Sentence embedding model [icon: zap, color: blue]
+  }
+  UMAP + HDBSCAN [icon: hexagon, color: blue] {
+    Cluster purity validation [icon: target, color: blue]
+    clusterConfidence as second opinion [icon: percent, color: blue]
+  }
+  Taxonomy Discovery [icon: search, color: blue] {
+    Do clusters suggest missing topics? [icon: plus, color: blue]
+  }
+}
+
+// ── Flow ─────────────────────────────────────────────────────────────────────
+
+// Inputs to Analyzer
+Chat Container > Analyzer: New messages (window or incremental)
+Latest Segments > Analyzer: Previous summaries as context
+Taxonomy > Analyzer: Known topics + subtopics
+
+// Windowing feeds Analyzer
+Windowing > Analyzer: Controls window size [color: gray, style: dashed]
+
+// Analyzer to Commit (all segments including gibberish)
+Analyzer > sms_chat_segments: Fully populated segments (including gibberish)
+
+// Validate
+sms_chat_segments > G0.x Data Integrity
+G0.x Data Integrity > G1.x Segmentation Quality
+
+// Evaluate
+G1.x Segmentation Quality > Topic Distribution
+Topic Distribution > Confidence Metrics
+Confidence Metrics > Taxonomy Novelty
+Taxonomy Novelty > Gibberish Rate
+Gibberish Rate > Review Routing
+
+// Routing
+Review Routing > Human Review Queue: Unconfirmed taxonomy (P1/P2) OR low labelConfidence (P3) [color: red]
+Review Routing > Training Data: labelConfidence >= 0.6 AND confirmed taxonomy — auto-accept [color: green]
+
+// Human review feedback loop
+Human Review Queue > sms_chat_segments: trueTopic + trueSubTopic corrections [color: red, style: dashed]
+
+// Offline quality (separate, periodic)
+sms_chat_segments > Embed Summaries: All summaries [color: blue, style: dashed]
+Embed Summaries > UMAP + HDBSCAN [color: blue, style: dashed]
+UMAP + HDBSCAN > Taxonomy Discovery [color: blue, style: dashed]
+
+// Offline feedback loop — discovered topics feed back into taxonomy
+Taxonomy Discovery > Taxonomy: New confirmed topics [color: blue, style: dashed]

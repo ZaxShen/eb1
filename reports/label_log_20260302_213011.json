@@ -1,0 +1,64 @@
+{
+  "log_type": "label_log",
+  "generated_at": "2026-03-02T21:30:11.805680+00:00",
+  "summary": {
+    "total_segments": 19,
+    "total_segments_in_clusters": 19,
+    "hdbscan_noise_segments": 0,
+    "noise_ratio": 0.0,
+    "total_clusters_labeled": 2,
+    "unique_topics": 2,
+    "new_topics_count": 0
+  },
+  "topic_distribution": [
+    {
+      "topic": "match_status",
+      "cluster_count": 1,
+      "segment_count": 12,
+      "avg_confidence": 0.9987,
+      "sub_topics": [
+        "account_pause_request"
+      ],
+      "generalizations": [
+        "Users want to pause their account due to issues with matches or scheduling."
+      ],
+      "is_new_topic": false
+    },
+    {
+      "topic": "match_feedback",
+      "cluster_count": 1,
+      "segment_count": 7,
+      "avg_confidence": 1.0,
+      "sub_topics": [
+        "dislike_match_reasons"
+      ],
+      "generalizations": [
+        "Users discussing why they don't like their current match and asking for new matches."
+      ],
+      "is_new_topic": false
+    }
+  ],
+  "new_topics": [],
+  "clusters": [
+    {
+      "cluster_id": 1,
+      "n_segments": 12,
+      "n_segments_to_llm": 12,
+      "cluster_confidence": 0.9987,
+      "topic": "match_status",
+      "sub_topic": "account_pause_request",
+      "generalization": "Users want to pause their account due to issues with matches or scheduling.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 0,
+      "n_segments": 7,
+      "n_segments_to_llm": 7,
+      "cluster_confidence": 1.0,
+      "topic": "match_feedback",
+      "sub_topic": "dislike_match_reasons",
+      "generalization": "Users discussing why they don't like their current match and asking for new matches.",
+      "is_new_topic": false
+    }
+  ]
+}

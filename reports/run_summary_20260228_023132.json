@@ -1,0 +1,71 @@
+{
+  "log_type": "run_summary",
+  "generated_at": "2026-02-28T02:31:32.769411+00:00",
+  "summary": {
+    "total_segments": 17,
+    "unique_topics": 2,
+    "new_topics_count": 0,
+    "total_sub_topics": 11,
+    "hdbscan_noise": 17,
+    "noise_recovered": 17,
+    "noise_unclassified": 0
+  },
+  "topic_distribution": [
+    {
+      "topic": "match_discussion",
+      "segment_count": 14,
+      "pct": 82.4,
+      "sub_topics": [
+        "declining_match",
+        "evaluating compatibility",
+        "evaluating compatibility and preferences",
+        "evaluation of match compatibility",
+        "expressing dislike about match",
+        "expressing enthusiasm, seeking dates",
+        "expressing interest in matches",
+        "preference adjustment",
+        "preference for Asian match",
+        "preference for tall guys"
+      ],
+      "n_sub_topics": 10,
+      "is_new_topic": false
+    },
+    {
+      "topic": "general_dating",
+      "segment_count": 3,
+      "pct": 17.6,
+      "sub_topics": [
+        "seeking more dates"
+      ],
+      "n_sub_topics": 1,
+      "is_new_topic": false
+    }
+  ],
+  "new_topics": [],
+  "initial_taxonomy": [
+    "date_planning",
+    "emotional_support",
+    "event_inquiry",
+    "general_dating",
+    "ghosting_handling",
+    "icebreaker_ideas",
+    "match_discussion",
+    "profile_advice",
+    "relationship_advice",
+    "technical_support"
+  ],
+  "evaluation": {
+    "total_segments": 17,
+    "labeled_segments": 17,
+    "unlabeled_segments": 0,
+    "noise_ratio": 1.0,
+    "distinct_topics": 2,
+    "topic_distribution": {
+      "match_discussion": 14,
+      "general_dating": 3
+    },
+    "low_confidence_count": 17,
+    "new_topic_count": 0,
+    "new_subtopic_count": 17
+  }
+}

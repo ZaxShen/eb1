@@ -1,0 +1,174 @@
+<roundtable>
+  <meta>
+    <topic>Public vs synthetic evaluation corpora for eb1 — closure under Founder reframe (eb1 = LLM memory system under long-context drift)</topic>
+    <date>2026-04-20</date>
+    <mode>debate-then-reframe-synthesis</mode>
+    <participants>academic-paper-writer, academic-peer-reviewer, CTO</participants>
+    <decision_maker>CEO</decision_maker>
+  </meta>
+
+  <summary>
+    Round 1 produced consensus on Path C (public primary + synthetic complement) but under the old framing of "eb1 as better dialogue segmentation." The Founder then reframed the contribution at the root: eb1 is a structured memory system for LLMs operating under long-context topic drift (400K–800K+ token user↔LLM conversations), and segmentation F1 is instrumental, not terminal. This reframe dissolves roughly half of peer-reviewer's Round 1 construct-validity floor, rules out all user-user corpora (TIAGE, SAMSum, DialogSum) and short task-oriented corpora (MultiWOZ, Doc2Dial), and promotes WildChat / LMSYS-Chat-1M from spot-check to primary. Round 2 cross-rebuttal was skipped — debating the old frame wasted budget. CEO closes with: primary = one of WildChat or LMSYS (license call open), secondary = SuperDialseg for gold-backed segmentation F1 as instrumental metric, synthetic module demoted to narrow P1/P3/P4 appendix ablation, refactor blockers unchanged, venue = NLP4ConvAI 2026 (Oct submission, this year, no slippage).
+  </summary>
+
+  <rounds>
+    <round n="1" label="Opening Positions — pre-reframe">
+      <agent name="academic-paper-writer" role="Draft Author">
+        <position>
+          Path C: one primary public corpus + one synthetic complement. Public primary is load-bearing for venue credibility and EB-1 legibility; synthetic is kept only to demonstrate eb1-native capabilities the public data cannot exercise (dual-path routing, deterministic bypass P1/P3/P4). Statistical floor = 2 corpora x 2 SUT models for workshop, 3x3 for ARR. Primary candidate ranking (pre-reframe): SuperDialseg > TIAGE > MultiWOZ. ShareGPT / WildChat as spot-check only because no gold segmentation labels.
+        </position>
+        <evidence>
+          src: docs/eb1_BENEFITS.md establishes CMLU + dual-path + deterministic bypasses as three claimed contributions. Reviewers at NLP4ConvAI demand at least one gold-labeled public benchmark to anchor F1 claims; synthetic-only submissions historically rejected. EB-1 adjudicator 8 CFR 204.5(h)(3)(v) needs externally-legible corpus ("evaluated on publicly available benchmark X") — synthetic-only fails that bar. Venue fit: NLP4ConvAI accepts mixed-methods but requires a public anchor.
+        </evidence>
+      </agent>
+
+      <agent name="academic-peer-reviewer" role="Rigor Gate">
+        <position>
+          Path C acceptable ONLY if a concatenation-protocol floor is met. Floor items: (a) published concatenation algorithm with seed-controlled reproducibility; (b) topic-boundary injection protocol that does not leak boundary signal to eb1; (c) control condition showing eb1 does not simply detect the concatenation artifact; (d) comparison on the source corpus WITHOUT concatenation to show eb1 does not degrade short-dialogue performance; (e) human-in-loop validation (n>=200, kappa>=0.6) on the concatenated segment boundaries; (f) explicit construct-validity section addressing "are we just measuring ability to detect our own concatenation seam?" Additional universal floor: datasheet, license compatibility, prompts versioned, deps pinned, held-out split frozen before tuning. Statistical: 2x2 minimum workshop, 3x3 for main conference. Without floor (a)-(f), verdict is REJECT regardless of F1 gains.
+        </position>
+        <evidence>
+          src: Bender & Friedman 2018 datasheets; Gururangan et al. 2018 artifact-detection benchmarks; Recasens et al. 2013 on dataset-construction leakage. Precedent at NLP4ConvAI 2024-2025: two submissions using concatenation-based long-dialogue protocols rejected with Reviewer #2 citing "the model may be learning the concatenation procedure, not dialogue structure." Construct-validity risk is the single highest rejection driver in dialogue benchmarking.
+        </evidence>
+      </agent>
+
+      <agent name="CTO" role="Technical-Accuracy Guardian">
+        <position>
+          Path C technically feasible but gated on three findings. (1) Trap analysis: TIAGE, SAMSum, DialogSum are user-user — applying eb1's user-bot dual-path routing to them misrepresents the method; MultiWOZ and Doc2Dial are too short / document-grounded to stress the drift claim. SuperDialseg is the only tractable gold-labeled user-bot option under the current pipeline contract. (2) P1/P3/P4 non-portability: the deterministic bypasses (timestamp-gap P1, topic-continuation P3, intent-classifier P4) depend on metadata fields and classifier heads that only exist in the synthetic simulator; they will NOT run on any public corpus without re-instrumentation. Keep synthetic module for these specifically. (3) Code-coupling refactor blockers UNCHANGED from 2026-04-20-1554 roundtable: pool_taxonomy.py hardcodes simulator taxonomy IDs; deterministic_rules.py imports simulator-only metadata keys; eb1_prompt_user_v3.md references simulator persona tokens; _BOT_TO_USER_REMAP in segmenter assumes simulator bot-role labels. Estimated refactor: 14-22h for open-source-able Path C, additional 30-40h for the narrow synthetic-retention module. Total SWE envelope 44-62h; must land before 2026-05-04 to preserve NLP4ConvAI Oct submission.
+        </position>
+        <evidence>
+          src: pipeline/analyzer/pool_taxonomy.py lines 18-44 (hardcoded taxonomy); pipeline/analyzer/deterministic_rules.py imports from synthetic/simulator_metadata.py; pipeline/prompts/eb1_prompt_user_v3.md L12 persona tokens; pipeline/segmenter/core.py _BOT_TO_USER_REMAP L207. src: tests/analyzer/test_pool_taxonomy.py reveals simulator-only fixture dependency. src: reports/2026-Q1-benchmark/ logs show P1/P3/P4 firing rates dependent on simulator-only fields `topic_continuation_hint` and `intent_pred_logits` that do not exist in any public corpus metadata.
+        </evidence>
+      </agent>
+    </round>
+
+    <!-- Round 2 was deliberately skipped. -->
+    <round_skipped reason="Founder reframe at 2026-04-20T16:00 shifted the paper's terminal claim from 'better dialogue segmentation' to 'reliable LLM memory under long-context topic drift.' Cross-rebuttal on segmentation-framing positions would have burned budget defending a frame that is no longer the claim. CEO synthesized directly from Round 1 evidence, reshaped through the new framing." />
+  </rounds>
+
+  <convergence>
+    <point>Path C (public primary + synthetic complement) is the architecturally correct shape. All three agents endorsed this in Round 1 and the reframe does not disturb the shape — only the weights.</point>
+    <point>P1/P3/P4 deterministic bypasses are non-portable to any public corpus. They remain synthetic-only and must be retained via a narrow appendix-ablation module. This is a CTO technical finding, unchallenged by writer or reviewer.</point>
+    <point>SuperDialseg is the only gold-labeled user-bot dialogue corpus tractable under the current pipeline contract. TIAGE, SAMSum, DialogSum, MultiWOZ, Doc2Dial are all ruled out (user-user, too-short, or document-grounded traps).</point>
+    <point>EB-1 legibility under 8 CFR 204.5(h)(3)(v) strictly prefers public corpora over synthetic. Adjudicators are not required to evaluate custom simulators; they recognize named public benchmarks. Path C satisfies; synthetic-only would not.</point>
+    <point>Code-coupling refactor is a hard blocker: pool_taxonomy.py, deterministic_rules.py, eb1_prompt_user_v3.md persona tokens, and _BOT_TO_USER_REMAP in segmenter all encode simulator-specific assumptions. Refactor must land by 2026-05-04 for NLP4ConvAI October submission to remain viable.</point>
+    <point>Statistical floor unchanged: 2 corpora x 2 SUT models for workshop submission, 3 x 3 for any ARR / main-conference ambition.</point>
+    <point>Reproducibility floor unchanged: datasheet, license declaration, versioned prompts, pinned deps, held-out split frozen before any tuning.</point>
+  </convergence>
+
+  <reframe>
+    <statement_of_new_claim>
+      eb1 is a structured memory system for LLMs operating under long-context topic drift. The failure mode it addresses: when an LLM is given a 400K-800K+ token conversation history, it degrades at retrieving and reasoning about earlier content — summary hallucination, topic conflation on user return, silent dropping of prior commitments. eb1 decomposes the raw conversation into CMLUs (Conversational Memory-Local Units): topically atomic, dual-path-routed (user intent vs bot boilerplate) memory units that the LLM queries as structured memory rather than re-scanning raw context. CMLU + dual-path routing + Hungarian-matching deduplication are the MECHANISM. Reliable LLM memory under long-horizon drift is the CLAIM.
+    </statement_of_new_claim>
+
+    <implication area="baselines">
+      The natural baseline is long-context LLMs (Claude Sonnet 4.5 1M, GPT-4.1 1M) WITHOUT structured memory, operating on raw conversation tokens. This is already in scope from the prior roundtable. Secondary baselines: vanilla RAG over raw turns; sliding-window summarization; MemGPT-style hierarchical memory. eb1 competes on a memory task, not a segmentation task.
+    </implication>
+
+    <implication area="metrics">
+      Primary metric: retrieval / reasoning accuracy on earlier-turn content under deep context — given a conversation of length N turns (or K tokens), can the SUT correctly answer a targeted question about turn K/4? Secondary: hallucination rate on earlier-turn content; topic-continuity accuracy when user returns to an earlier thread; cross-session fact consistency. Segmentation F1 (via SuperDialseg gold labels) becomes an INSTRUMENTAL metric — evidence that the underlying CMLU decomposition is structurally sound — not a terminal metric.
+    </implication>
+
+    <implication area="datasets">
+      User-user corpora (TIAGE, SAMSum, DialogSum) are OUT — they do not exercise the user↔LLM memory failure mode. Short task-oriented corpora (MultiWOZ, Doc2Dial) are OUT — they do not stress long-horizon drift. Real long-form user↔LLM corpora (WildChat, LMSYS-Chat-1M, ShareGPT) become PRIMARY candidates — they contain naturally long, naturally drifting conversations with no contrived concatenation required. SuperDialseg stays as SECONDARY — it gives gold-backed segmentation F1 as the instrumental bridge from "does eb1 decompose correctly" to "does correct decomposition produce reliable memory."
+    </implication>
+
+    <implication area="peer_review_floor">
+      Peer-reviewer Round 1 floor items (a)-(e) (concatenation protocol reproducibility, topic-boundary leakage, artifact-detection control, short-dialogue non-regression, human-in-loop segment validation) apply ONLY if we use a concatenation construction. Under WildChat / LMSYS primary, those items dissolve — the long-drifting conversation is native, not fabricated. Floor item (f) (construct-validity) also dissolves at the dataset layer but REAPPEARS in new form: construct-validity of the memory task itself — do our probe questions measure memory retrieval, or some confound? That is a new obligation on the paper-writer, to be met by pre-registered probe-generation protocol + inter-annotator agreement on probe quality.
+    </implication>
+
+    <implication area="synthetic_module">
+      The synthetic module is DEMOTED from load-bearing to appendix-only. It exists to run P1/P3/P4 deterministic-bypass ablations, which are an orthogonal efficiency contribution (cost / latency reduction at inference time), not the memory-quality claim. CTO's 30-40h synthetic-retention effort becomes discretionary — if Phase 1 scope admits it, include; if timeline tightens, defer to Phase 2.
+    </implication>
+
+    <implication area="eb1">
+      Significantly upgraded. "eb1 improves LLM memory reliability on public real-world LLM-chat corpora (WildChat / LMSYS-Chat-1M)" is dramatically more legible to an 8 CFR 204.5(h)(3)(v) adjudicator than "eb1 improves dialogue segmentation on TIAGE." The former intersects the current long-context-LLM-reliability research wave; the latter is a niche subfield claim. EB-1 Original Contribution exhibit gains a clean one-sentence thesis.
+    </implication>
+  </reframe>
+
+  <tensions>
+    <tension>
+      <description>Primary corpus choice under the reframe: WildChat vs LMSYS-Chat-1M.</description>
+      <side_a agent="academic-paper-writer">WildChat has richer metadata (toxicity labels, country, turn counts) which supports cleaner probe-question generation and filtering for truly long conversations.</side_a>
+      <side_b agent="academic-peer-reviewer">LMSYS-Chat-1M has cleaner ToS / license for academic redistribution of derived artifacts and is the more-cited corpus in 2025 long-context work, reducing novelty-contest risk with concurrent submissions.</side_b>
+      <resolution>CEO defers to Founder — this is a license + accessibility call, not a technical one. Both corpora satisfy the memory-framing requirements. Tentative lean: LMSYS for submission-safety, WildChat as fallback if LMSYS filtering yields insufficient long-session samples. Recorded as Q1 to Founder.</resolution>
+    </tension>
+
+    <tension>
+      <description>Whether SuperDialseg stays as secondary corpus or is dropped to simplify scope.</description>
+      <side_a agent="academic-paper-writer">Keep SuperDialseg — gold-labeled segmentation F1 is the only instrumental bridge that proves the CMLU decomposition is structurally sound and not merely retrieval-pumped by some confound in WildChat.</side_a>
+      <side_b agent="CTO">Drop SuperDialseg — adds a second pipeline configuration (user-bot task-oriented dialogue schema) that re-surfaces part of the refactor burden and may not fit the memory-framing narrative cleanly. Instrumental-metric role can be served by self-consistency checks on the primary corpus.</side_b>
+      <resolution>CEO KEEPS SuperDialseg as secondary but downgrades it to a single-table sanity check in the paper (not a parallel full evaluation). Rationale: losing the gold-labeled anchor entirely weakens the reviewer-floor defense that "eb1's decomposition is correct, not just convenient." The cost of one additional config is bounded (SuperDialseg is already in the refactor scope). Flagged as Q2 to Founder with CEO lean = KEEP.</resolution>
+    </tension>
+
+    <tension>
+      <description>Whether P1/P3/P4 efficiency ablation is Phase 1 scope or deferred to Phase 2.</description>
+      <side_a agent="CTO">Defer to Phase 2. The 30-40h synthetic-retention refactor is no longer load-bearing for the core memory claim. Phase 1 budget (44-62h total, must land by 2026-05-04) is already tight for the primary track.</side_a>
+      <side_b agent="academic-paper-writer">Include in Phase 1 appendix. Three-contribution narrative (CMLU + dual-path + deterministic bypasses) is stronger than two-contribution for workshop reviewers and for EB-1 Original Contribution framing. Without P1/P3/P4 numbers the efficiency story is an empty promise.</side_b>
+      <resolution>CEO defers to Founder — this is a budget-vs-narrative tradeoff the CEO should not unilaterally make when the refactor window is already tight. CEO lean: DEFER P1/P3/P4 to Phase 2 and ship Phase 1 with two contributions (CMLU + dual-path) grounded on public corpora. Flagged as Q3.</resolution>
+    </tension>
+
+    <tension>
+      <description>Gold labels for the memory task on WildChat / LMSYS — human annotation subset vs LLM-as-judge.</description>
+      <side_a agent="academic-peer-reviewer">Human annotation n>=200 with kappa>=0.6 on probe-question correctness. LLM-as-judge for a task that evaluates LLM memory is circular — the judge LLM has the same failure modes as the SUT LLM under long context, which is literally what we claim to fix. This is the single largest rigor risk under the reframe.</side_a>
+      <side_b agent="academic-paper-writer">Hybrid: human-annotated dev set (n=100-200) for calibration + LLM-as-judge on test set (n=1-2K) with explicit circularity-tax disclosure in Limitations. Pure human annotation at test-set scale is infeasible in Phase 1 budget.</side_b>
+      <resolution>CEO sides with writer's hybrid on feasibility but stiffens the calibration step: human dev set n=200 with kappa>=0.6 (matches existing roundtable standard); LLM-as-judge on test set MUST use a judge model in a DIFFERENT architecture family from any SUT (if SUTs are Claude + GPT, judge must be Gemini or Llama-3-70B-instruct); circularity disclosure mandatory in Limitations. Flagged as Q4 to Founder — cost approval for annotation (estimate $800-1500) is required.</resolution>
+    </tension>
+
+    <tension>
+      <description>Construct-validity of the memory task itself (reframe implication).</description>
+      <side_a agent="academic-peer-reviewer">Even with natural long conversations, probe-question generation is a new construct-validity surface. How do we know our probes measure memory retrieval vs surface-pattern matching? Needs pre-registered probe protocol and inter-annotator agreement on probe difficulty/quality.</side_a>
+      <side_b agent="academic-paper-writer">Acknowledged; can be addressed via stratified probe sampling (factual / temporal / commitment / preference categories) + ablation showing baseline LLMs succeed on shallow probes and fail on deep probes, proving the construct discriminates.</side_b>
+      <resolution>CEO accepts writer's plan as sufficient for workshop venue, insufficient for ARR. Pre-registered probe protocol to be drafted by academic-paper-writer during refactor window and peer-reviewed before test-set freeze.</resolution>
+    </tension>
+  </tensions>
+
+  <recommendation>
+    <primary_corpus>ONE of WildChat or LMSYS-Chat-1M (Founder call, Q1). Filter for sessions >=50 turns or >=30K tokens to ensure the long-context memory failure mode is actually exercised. Frozen held-out test split created BEFORE any eb1 tuning.</primary_corpus>
+    <secondary_corpus>SuperDialseg retained as instrumental segmentation-F1 sanity check, single-table treatment only. Exists to rebut "decomposition is convenient, not correct."</secondary_corpus>
+    <synthetic_scope>Narrow P1/P3/P4 efficiency-ablation module, DEMOTED to appendix. Phase-1 inclusion is Founder call (Q3); CEO lean = defer to Phase 2.</synthetic_scope>
+    <baselines>Claude Sonnet 4.5 (1M context) + GPT-4.1 (1M context) as memory-free long-context baselines. Optional: vanilla RAG-over-turns, sliding-window summarization. Matches prior-roundtable commitment.</baselines>
+    <metrics>Primary: probe-answer accuracy on earlier-turn content at deep context depths (bucketed by probe position). Secondary: hallucination rate on earlier content, topic-continuity on user return. Instrumental: SuperDialseg segmentation F1.</metrics>
+    <gold_labels>Hybrid — human-annotated calibration set n=200 kappa>=0.6 on WildChat/LMSYS subset, LLM-as-judge (different-family model) on test set, circularity-tax disclosure in Limitations. Subject to Q4 approval.</gold_labels>
+    <refactor_plan>Unchanged from 2026-04-20-1554: pool_taxonomy.py decoupling, deterministic_rules.py import surgery, eb1_prompt_user_v3.md persona detokenization, _BOT_TO_USER_REMAP generalization. Estimate 14-22h for memory-claim path. P1/P3/P4 synthetic-retention (+30-40h) is conditional on Q3.</refactor_plan>
+    <timeline>
+      Refactor: 2026-04-20 -> 2026-05-04 (hard).
+      Primary corpus ingestion + probe-protocol pre-registration: 2026-05-04 -> 2026-05-18.
+      Baselines + instrumentation: 2026-05-18 -> 2026-06-01.
+      Benchmark gate: 2026-06-01.
+      Peer-review loop to WEAK_ACCEPT: 2026-06-01 -> 2026-09-15.
+      NLP4ConvAI 2026 submission lock: early October 2026. NO slippage.
+    </timeline>
+    <swe_envelope>Phase-1 core = 14-22h refactor + ~20-28h instrumentation/probe-generation = 34-50h. With Q3=include, add 30-40h for synthetic-retention = 64-90h. CEO recommends Q3=defer to stay in the 34-50h envelope and preserve the Oct lock.</swe_envelope>
+    <tradeoffs_acknowledged>
+      (1) Dropping P1/P3/P4 from Phase 1 sacrifices the efficiency contribution narrative. CEO judgment: memory-quality claim is the strategic win; efficiency is defensible as Phase 2. (2) LLM-as-judge on test set incurs circularity tax. CEO judgment: different-architecture-family judge + disclosure is the bounded cost; pure human annotation is infeasible in timeline. (3) SuperDialseg retention costs some refactor burden. CEO judgment: losing the gold-labeled anchor would hand peer reviewers a free rejection vector.
+    </tradeoffs_acknowledged>
+  </recommendation>
+
+  <questions>
+    <question id="1">
+      <text>Primary corpus: WildChat or LMSYS-Chat-1M?</text>
+      <context>Both are real user↔LLM, both have naturally long drifting conversations, both lack segmentation gold labels. WildChat has richer metadata (better for probe-filtering); LMSYS has cleaner academic-redistribution ToS and more citations in 2025 long-context work (safer on novelty-contest with concurrent submissions). CEO tentative lean = LMSYS for submission-safety, WildChat fallback if LMSYS filtering yields too few long-session samples. Founder must decide before refactor starts (need corpus schema locked by 2026-05-04).</context>
+      <answer></answer>
+    </question>
+    <question id="2">
+      <text>Keep SuperDialseg as secondary corpus (single-table segmentation-F1 sanity check), or drop it to simplify scope?</text>
+      <context>Writer + CEO say KEEP — it is the only gold-labeled anchor that rebuts "eb1's decomposition is convenient, not correct." CTO argues DROP — adds a second pipeline configuration and some refactor burden. CEO lean = KEEP with downgraded treatment (one table, not parallel evaluation). Cost of keeping is bounded because SuperDialseg is already in the refactor scope.</context>
+      <answer></answer>
+    </question>
+    <question id="3">
+      <text>Include P1/P3/P4 deterministic-bypass efficiency ablation in Phase 1 (NLP4ConvAI Oct submission), or defer to Phase 2?</text>
+      <context>Include = three-contribution narrative (stronger for reviewers + EB-1) but +30-40h SWE load, total envelope ~64-90h, pressures the May 4 refactor deadline. Defer = two-contribution narrative (CMLU + dual-path) with tighter 34-50h envelope and safer timeline. CEO lean = DEFER to protect the Oct lock. Founder must weigh narrative ambition vs deadline risk.</context>
+      <answer></answer>
+    </question>
+    <question id="4">
+      <text>Gold-label budget approval: commission human annotation on WildChat/LMSYS subset (n=200, kappa>=0.6, est. $800-1500) with LLM-as-judge on test set (different-family judge model) and circularity-tax disclosure in Limitations?</text>
+      <context>Pure human annotation at test-set scale (n=1-2K) is infeasible in Phase 1 budget/timeline. Pure LLM-as-judge is circular (judging LLM memory with an LLM that has the same long-context failure mode). Peer-reviewer flagged circularity as the single largest rigor risk under the reframe. The hybrid with different-architecture-family judge is the bounded-cost defense. Approval blocks probe-protocol pre-registration.</context>
+      <answer></answer>
+    </question>
+    <question id="5">
+      <text>Confirmation: does Founder endorse the demotion of segmentation F1 from terminal metric to instrumental metric, and accept that Phase 1 submission will lead with memory-task accuracy as the headline number?</text>
+      <context>The reframe is material enough that the paper's headline table, abstract, and title all change. If the Founder wants segmentation F1 to remain the headline (with memory as secondary), the recommendation inverts and the baselines / metrics / corpus choice all shift back toward the pre-reframe plan. CEO reads the Founder's message as unambiguous endorsement of memory-as-terminal, but given the magnitude of the shift, CEO requests explicit confirmation before the academic-paper-writer re-drafts the abstract.</context>
+      <answer></answer>
+    </question>
+  </questions>
+</roundtable>

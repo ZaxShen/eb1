@@ -1,0 +1,377 @@
+{
+  "meta": {
+    "evaluated_at": "2026-03-28T19:47:17.177118+00:00",
+    "benchmark_name": "all",
+    "ground_truth_table": "sms_chat_segments",
+    "ground_truth_segments": 90,
+    "ground_truth_users": 5,
+    "jaccard_threshold": 0.3
+  },
+  "runs": {
+    "bench-2026-03-28::openai/gpt-5.2-chat": {
+      "run_id": "bench-2026-03-28",
+      "config_id": 1,
+      "model": "openai/gpt-5.2-chat",
+      "prompt_version": "eb1_prompt_user_v3",
+      "is_ground_truth_source": false,
+      "coverage": {
+        "total_segments": 84,
+        "gt_segments_evaluated": 90,
+        "matched": 84,
+        "unmatched": 6,
+        "match_rate": 0.9333,
+        "avg_iou": 0.9864,
+        "segment_count_ratio": 0.9333
+      },
+      "topic_accuracy": {
+        "correct": 83,
+        "total": 84,
+        "accuracy": 0.9881,
+        "per_topic": {
+          "non_event_match_notification": {
+            "tp": 49,
+            "fp": 0,
+            "fn": 1,
+            "precision": 1.0,
+            "recall": 0.98,
+            "f1": 0.9899,
+            "support": 50
+          },
+          "status_notification": {
+            "tp": 4,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 4
+          },
+          "pre_match_inquiry": {
+            "tp": 6,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 6
+          },
+          "technical_issues": {
+            "tp": 1,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 1
+          },
+          "post_match_inquiry": {
+            "tp": 14,
+            "fp": 1,
+            "fn": 0,
+            "precision": 0.9333,
+            "recall": 1.0,
+            "f1": 0.9655,
+            "support": 14
+          },
+          "requests_or_improvements": {
+            "tp": 5,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 5
+          },
+          "account_management": {
+            "tp": 3,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 3
+          },
+          "gibberish": {
+            "tp": 1,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "support": 1
+          }
+        },
+        "confusion_matrix": {
+          "pre_match_inquiry": {
+            "pre_match_inquiry": 6
+          },
+          "non_event_match_notification": {
+            "non_event_match_notification": 49,
+            "post_match_inquiry": 1
+          },
+          "requests_or_improvements": {
+            "requests_or_improvements": 5
+          },
+          "post_match_inquiry": {
+            "post_match_inquiry": 14
+          },
+          "account_management": {
+            "account_management": 3
+          },
+          "status_notification": {
+            "status_notification": 4
+          },
+          "gibberish": {
+            "gibberish": 1
+          },
+          "technical_issues": {
+            "technical_issues": 1
+          }
+        }
+      },
+      "subtopic_accuracy": {
+        "correct": 67,
+        "total": 84,
+        "accuracy": 0.7976
+      },
+      "confidence_calibration": {
+        "bins": [
+          {
+            "range": "[0.0, 0.3)",
+            "count": 0,
+            "accuracy": 0.0,
+            "avg_confidence": 0.15
+          },
+          {
+            "range": "[0.3, 0.6)",
+            "count": 0,
+            "accuracy": 0.0,
+            "avg_confidence": 0.44999999999999996
+          },
+          {
+            "range": "[0.6, 0.8)",
+            "count": 1,
+            "accuracy": 1.0,
+            "avg_confidence": 0.6
+          },
+          {
+            "range": "[0.8, 1.0]",
+            "count": 83,
+            "accuracy": 0.988,
+            "avg_confidence": 0.9746
+          }
+        ],
+        "expected_calibration_error": 0.018
+      },
+      "mismatches": [
+        {
+          "segment_id": "97",
+          "user_id": "679522c69ac774e614ebd68e",
+          "predicted": {
+            "topic": "post_match_inquiry",
+            "sub_topic": "scheduling_reminder"
+          },
+          "ground_truth": {
+            "true_topic": "non_event_match_notification",
+            "true_sub_topic": "acceptation_notification"
+          },
+          "summary": "User receives multiple last-chance reminders to submit their availability and schedule the date with Haoyang but does not respond.",
+          "label_confidence": 1.0,
+          "iou": 1.0
+        }
+      ],
+      "unmatched_segments": [
+        {
+          "gt_segment_id": "47",
+          "user_id": "679522c69ac774e614ebd68e",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "86",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "81",
+          "user_id": "6798526b9ac774e614ebd72b",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "62",
+          "user_id": "679833159ac774e614ebd71c",
+          "true_topic": "requests_or_improvements",
+          "true_sub_topic": "preferences_sharing",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "71",
+          "user_id": "679833159ac774e614ebd71c",
+          "true_topic": "account_management",
+          "true_sub_topic": "pause_or_deactivate",
+          "best_iou": 0.0
+        },
+        {
+          "gt_segment_id": "72",
+          "user_id": "679833159ac774e614ebd71c",
+          "true_topic": "complaints_or_support",
+          "true_sub_topic": "frustration",
+          "best_iou": 0.0
+        }
+      ],
+      "user_engaged": {
+        "gt_segments": 36,
+        "matched": 30,
+        "match_rate": 0.8333,
+        "avg_iou": 0.9618,
+        "topic_accuracy": {
+          "correct": 30,
+          "total": 30,
+          "accuracy": 1.0,
+          "per_topic": {
+            "pre_match_inquiry": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 6
+            },
+            "technical_issues": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 1
+            },
+            "post_match_inquiry": {
+              "tp": 14,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 14
+            },
+            "requests_or_improvements": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 5
+            },
+            "account_management": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 3
+            },
+            "gibberish": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1": 1.0,
+              "support": 1
+            }
+          },
+          "confusion_matrix": {
+            "pre_match_inquiry": {
+              "pre_match_inquiry": 6
+            },
+            "requests_or_improvements": {
+              "requests_or_improvements": 5
+            },
+            "post_match_inquiry": {
+              "post_match_inquiry": 14
+            },
+            "account_management": {
+              "account_management": 3
+            },
+            "gibberish": {
+              "gibberish": 1
+            },
+            "technical_issues": {
+              "technical_issues": 1
+            }
+          }
+        },
+        "subtopic_accuracy": {
+          "correct": 25,
+          "total": 30,
+          "accuracy": 0.8333
+        },
+        "confidence_calibration": {
+          "bins": [
+            {
+              "range": "[0.0, 0.3)",
+              "count": 0,
+              "accuracy": 0.0,
+              "avg_confidence": 0.15
+            },
+            {
+              "range": "[0.3, 0.6)",
+              "count": 0,
+              "accuracy": 0.0,
+              "avg_confidence": 0.44999999999999996
+            },
+            {
+              "range": "[0.6, 0.8)",
+              "count": 1,
+              "accuracy": 1.0,
+              "avg_confidence": 0.6
+            },
+            {
+              "range": "[0.8, 1.0]",
+              "count": 29,
+              "accuracy": 1.0,
+              "avg_confidence": 0.9272
+            }
+          ],
+          "expected_calibration_error": 0.0837
+        }
+      }
+    }
+  },
+  "leaderboard": [
+    {
+      "run_id": "bench-2026-03-28",
+      "model": "openai/gpt-5.2-chat",
+      "topic_accuracy": 0.9881,
+      "subtopic_accuracy": 0.7976,
+      "avg_iou": 0.9864,
+      "match_rate": 0.9333,
+      "segment_count_ratio": 0.9333,
+      "ece": 0.018,
+      "reviewed_segments": 90,
+      "rank": 1
+    }
+  ],
+  "leaderboard_user_engaged": [
+    {
+      "run_id": "bench-2026-03-28",
+      "model": "openai/gpt-5.2-chat",
+      "topic_accuracy": 1.0,
+      "subtopic_accuracy": 0.8333,
+      "avg_iou": 0.9618,
+      "match_rate": 0.8333,
+      "ece": 0.0837,
+      "reviewed_segments": 36,
+      "rank": 1
+    }
+  ]
+}

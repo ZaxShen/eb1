@@ -1,0 +1,832 @@
+{
+  "log_type": "label_log",
+  "generated_at": "2026-02-25T04:22:01.554198+00:00",
+  "summary": {
+    "total_segments": 435,
+    "total_segments_in_clusters": 387,
+    "hdbscan_noise_segments": 48,
+    "noise_ratio": 0.1103,
+    "total_clusters_labeled": 62,
+    "unique_topics": 7,
+    "new_topics_count": 0
+  },
+  "topic_distribution": [
+    {
+      "topic": "match_discussion",
+      "cluster_count": 32,
+      "segment_count": 199,
+      "avg_confidence": 0.9119,
+      "sub_topics": [
+        "evaluating_match_potential",
+        "date_planning_and_activities",
+        "yik-yak_match_ups",
+        "casual_dating_concerns",
+        "starting_conversations",
+        "pool_match_nerves",
+        "rescheduling_cancellations",
+        "post-match uncertainty",
+        "yik-yak_match_considerations",
+        "yik-yak_match_evaluation",
+        "cancelled_dates_concerns",
+        "evaluating compatibility",
+        "nervousness_about_matches",
+        "pre-date nerves and expectations",
+        "age_difference_concerns",
+        "authenticity_in_relationships",
+        "post_match_planning",
+        "post-match thoughts and planning",
+        "post-match communication",
+        "mixed_feelings_about_match",
+        "reconnecting_with_yik_yak_match",
+        "compatibility_and_relationship_potential",
+        "post-match-planning-discussions",
+        "post-match-disappointment",
+        "low_key_meeting_tips",
+        "getting_to_know_match",
+        "pre-date match thoughts",
+        "post-match-connection",
+        "casual_match_evaluation"
+      ],
+      "generalizations": [
+        "Users are discussing their feelings and uncertainty about reaching out to matches, evaluating compatibility, and considering next steps.",
+        "Users are discussing planning dates, sharing ideas for activities, and coordinating meetups with their matches.",
+        "Users are discussing whether to reach out to their Yik-Yak matches and evaluating compatibility.",
+        "Users are discussing their concerns and experiences with casual dating on Acme, particularly as seniors in college.",
+        "Users are seeking advice on how to initiate conversations with potential matches, particularly in a college setting.",
+        "Users are discussing their feelings and uncertainty about upcoming pool matches, seeking advice on how to approach these casual dates.",
+        "Users are discussing how to handle last-minute date cancellations and reschedule with their matches.",
+        "Users are discussing whether to reach out to their matches, evaluating compatibility, and seeking advice on how to proceed after a cancelled date or lack of communication.",
+        "Users are discussing whether to reach out to their Yik-Yak matches, evaluating compatibility and potential connections.",
+        "Users are discussing their feelings and uncertainty about matches made on Yik-Yak, evaluating compatibility and intentions.",
+        "Users are discussing concerns and plans after a match's date was cancelled.",
+        "Users are discussing their concerns and uncertainty about matches who cancelled plans, wondering if it's worth reaching out again or evaluating compatibility.",
+        "Users are discussing whether to reach out or pursue matches, evaluating chemistry and compatibility.",
+        "Users are seeking advice on how to initiate conversations with their matches, including finding common ground and avoiding awkwardness.",
+        "Users are discussing their feelings and uncertainty about matches, seeking advice on how to navigate these situations.",
+        "Users are discussing their concerns and expectations about a specific match, including potential awkwardness on a date.",
+        "Users are discussing their concerns about age differences with matches and whether it's a deal-breaker for them.",
+        "Users are discussing authenticity and compatibility in relationships, seeking advice on how to be themselves while navigating potential matches.",
+        "Users are discussing how to proceed with matches, including planning dates and reaching out after meeting in person.",
+        "Users are discussing their feelings about a match, evaluating compatibility, and planning future dates.",
+        "Users are discussing how to communicate with their matches after being accepted into the pool, including asking for advice on what to say first and getting to know each other better.",
+        "Users are discussing mixed feelings about a match and deciding whether to reach out again.",
+        "Users are discussing their concerns about age differences in matches and how to navigate these dynamics.",
+        "Users are discussing whether to reach out or follow up with a match they had on Yik-Yak, and exploring their feelings about the connection.",
+        "Users are discussing their match's personality, interests, and compatibility to decide on next steps or evaluate relationship potential.",
+        "Users are discussing plans and ideas for future activities with their match, often referencing shared interests or past experiences.",
+        "Users are discussing their disappointment and confusion about why they didn't match with someone, and seeking reassurance or advice on how to move forward.",
+        "Users are discussing challenges with connecting with matches and seeking advice on low-key meeting settings.",
+        "Users are discussing their match and wanting to get to know each other better, sharing interests and ideas for dates.",
+        "Users are discussing their feelings and thoughts about a specific Acme match before deciding what to do next.",
+        "Users are discussing what to do after matching, including whether to reach out and how to navigate post-match interactions.",
+        "Users are discussing their casual matches, evaluating compatibility and deciding whether to reach out."
+      ],
+      "is_new_topic": false
+    },
+    {
+      "topic": "date_planning",
+      "cluster_count": 18,
+      "segment_count": 115,
+      "avg_confidence": 0.948,
+      "sub_topics": [
+        "campus_date_planning",
+        "low_key_date_ideas",
+        "rescheduling_and_activity_suggestions",
+        "yacht_date_activities",
+        "creative_date_ideas",
+        "pre-date nervousness planning",
+        "outdoor_date_suggestions",
+        "pre-date planning and discussion",
+        "planning_first_date",
+        "outing_planning_details",
+        "first_date_planning",
+        "planning_art_date",
+        "pre-date_nerves_and_plans",
+        "outing_itinerary_discussion"
+      ],
+      "generalizations": [
+        "Users are planning dates with their matches, discussing activities and logistics on or near campus.",
+        "Users are discussing and planning low-key dates, seeking ideas for activities and outings with their matches.",
+        "Users are discussing rescheduling cancelled dates and planning activities with their matches.",
+        "Users are discussing rescheduling and planning activities for their upcoming dates, including suggestions for fun events and outings.",
+        "Users are discussing activities and logistics for their upcoming date on the LA Love Yacht.",
+        "Users are discussing and planning creative dates with their matches, including food-related activities and outdoor events.",
+        "Users are discussing and planning their upcoming dates, specifically asking about logistics, timing, and managing nerves.",
+        "Users are discussing ideas for outdoor dates, such as hiking and picnics, and seeking suggestions from their match.",
+        "Users are discussing plans for an upcoming date, including activity suggestions, logistics, and managing nerves.",
+        "Users are discussing and planning their first date, considering activities, vibe, and conversation starters.",
+        "Users are planning activities for their upcoming date on a yacht, seeking ideas to make it enjoyable and memorable.",
+        "Users are discussing and planning specific details for their dates, such as choosing activities and timing.",
+        "Users are discussing planning and logistics for their first date, including choosing activities and managing nerves.",
+        "Users are discussing and planning their dates, specifically looking for ideas on what to do together.",
+        "Users are discussing their nerves and planning for an upcoming date, seeking advice on what to do together.",
+        "Users are discussing planning dates on campus, including choosing activities and timing.",
+        "Users are discussing planning dates on campus, including choosing activities and managing nerves.",
+        "Users are discussing and planning activities for their upcoming date, including choosing locations and timing."
+      ],
+      "is_new_topic": false
+    },
+    {
+      "topic": "profile_advice",
+      "cluster_count": 5,
+      "segment_count": 28,
+      "avg_confidence": 0.9209,
+      "sub_topics": [
+        "profile_criticisms_and_improvement",
+        "photo_profile_optimization",
+        "bio_writing_tips",
+        "improving_profile_depth",
+        "bio_optimization"
+      ],
+      "generalizations": [
+        "Users are discussing and critiquing each other's dating profiles, offering advice on how to make them more appealing.",
+        "Users are asking for advice on optimizing their dating profiles, specifically about photo selection and content.",
+        "Users are seeking advice on how to write an effective and engaging dating profile bio, including tips for showcasing personality and interests.",
+        "Users are discussing how to add more depth and uniqueness to their profiles, including showcasing passions and interests.",
+        "Users are asking for feedback on their dating profiles and seeking advice to make them more appealing."
+      ],
+      "is_new_topic": false
+    },
+    {
+      "topic": "technical_support",
+      "cluster_count": 1,
+      "segment_count": 19,
+      "avg_confidence": 1.0,
+      "sub_topics": [
+        "email_verification_issues"
+      ],
+      "generalizations": [
+        "Users are experiencing issues verifying their university email addresses on Acme, causing problems with pool membership and account access."
+      ],
+      "is_new_topic": false
+    },
+    {
+      "topic": "event_inquiry",
+      "cluster_count": 3,
+      "segment_count": 13,
+      "avg_confidence": 0.9346,
+      "sub_topics": [
+        "la-love-yacht-event-planning",
+        "writing_event_details",
+        "summer_pool_event_details"
+      ],
+      "generalizations": [
+        "Users are asking about details and planning for the LA Love Yacht event, including attendance numbers, group chats, and what to expect.",
+        "Users are asking about an event called UCR Writing Night, seeking details on its purpose and format.",
+        "Users are asking about details of a summer event listed in their pool, such as its purpose and what to expect."
+      ],
+      "is_new_topic": false
+    },
+    {
+      "topic": "general_dating",
+      "cluster_count": 2,
+      "segment_count": 10,
+      "avg_confidence": 0.8396,
+      "sub_topics": [
+        "modern_dating_advice",
+        "starting_conversations"
+      ],
+      "generalizations": [
+        "Users are seeking advice on navigating modern dating, including online app usage and building genuine connections.",
+        "Users are seeking advice on how to initiate conversations with matches without coming across as too eager or creepy."
+      ],
+      "is_new_topic": false
+    },
+    {
+      "topic": "ghosting_handling",
+      "cluster_count": 1,
+      "segment_count": 3,
+      "avg_confidence": 1.0,
+      "sub_topics": [
+        "handling_uneven_commitment"
+      ],
+      "generalizations": [
+        "Users are discussing how to handle matches who cancel plans or go silent, and deciding whether to follow up."
+      ],
+      "is_new_topic": false
+    }
+  ],
+  "new_topics": [],
+  "clusters": [
+    {
+      "cluster_id": 5,
+      "n_segments": 24,
+      "n_segments_to_llm": 24,
+      "cluster_confidence": 0.8856,
+      "topic": "match_discussion",
+      "sub_topic": "evaluating_match_potential",
+      "generalization": "Users are discussing their feelings and uncertainty about reaching out to matches, evaluating compatibility, and considering next steps.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 0,
+      "n_segments": 19,
+      "n_segments_to_llm": 19,
+      "cluster_confidence": 1.0,
+      "topic": "technical_support",
+      "sub_topic": "email_verification_issues",
+      "generalization": "Users are experiencing issues verifying their university email addresses on Acme, causing problems with pool membership and account access.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 11,
+      "n_segments": 19,
+      "n_segments_to_llm": 19,
+      "cluster_confidence": 0.9725,
+      "topic": "date_planning",
+      "sub_topic": "campus_date_planning",
+      "generalization": "Users are planning dates with their matches, discussing activities and logistics on or near campus.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 47,
+      "n_segments": 13,
+      "n_segments_to_llm": 13,
+      "cluster_confidence": 0.9835,
+      "topic": "date_planning",
+      "sub_topic": "low_key_date_ideas",
+      "generalization": "Users are discussing and planning low-key dates, seeking ideas for activities and outings with their matches.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 4,
+      "n_segments": 12,
+      "n_segments_to_llm": 12,
+      "cluster_confidence": 0.6479,
+      "topic": "match_discussion",
+      "sub_topic": "date_planning_and_activities",
+      "generalization": "Users are discussing planning dates, sharing ideas for activities, and coordinating meetups with their matches.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 34,
+      "n_segments": 11,
+      "n_segments_to_llm": 11,
+      "cluster_confidence": 0.6778,
+      "topic": "date_planning",
+      "sub_topic": "rescheduling_and_activity_suggestions",
+      "generalization": "Users are discussing rescheduling cancelled dates and planning activities with their matches.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 41,
+      "n_segments": 11,
+      "n_segments_to_llm": 11,
+      "cluster_confidence": 0.9769,
+      "topic": "match_discussion",
+      "sub_topic": "yik-yak_match_ups",
+      "generalization": "Users are discussing whether to reach out to their Yik-Yak matches and evaluating compatibility.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 23,
+      "n_segments": 10,
+      "n_segments_to_llm": 10,
+      "cluster_confidence": 0.9648,
+      "topic": "date_planning",
+      "sub_topic": "rescheduling_and_activity_suggestions",
+      "generalization": "Users are discussing rescheduling and planning activities for their upcoming dates, including suggestions for fun events and outings.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 2,
+      "n_segments": 9,
+      "n_segments_to_llm": 9,
+      "cluster_confidence": 0.8238,
+      "topic": "match_discussion",
+      "sub_topic": "casual_dating_concerns",
+      "generalization": "Users are discussing their concerns and experiences with casual dating on Acme, particularly as seniors in college.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 45,
+      "n_segments": 9,
+      "n_segments_to_llm": 9,
+      "cluster_confidence": 0.7245,
+      "topic": "match_discussion",
+      "sub_topic": "starting_conversations",
+      "generalization": "Users are seeking advice on how to initiate conversations with potential matches, particularly in a college setting.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 57,
+      "n_segments": 9,
+      "n_segments_to_llm": 9,
+      "cluster_confidence": 0.759,
+      "topic": "match_discussion",
+      "sub_topic": "pool_match_nerves",
+      "generalization": "Users are discussing their feelings and uncertainty about upcoming pool matches, seeking advice on how to approach these casual dates.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 16,
+      "n_segments": 8,
+      "n_segments_to_llm": 8,
+      "cluster_confidence": 0.9742,
+      "topic": "date_planning",
+      "sub_topic": "yacht_date_activities",
+      "generalization": "Users are discussing activities and logistics for their upcoming date on the LA Love Yacht.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 18,
+      "n_segments": 8,
+      "n_segments_to_llm": 8,
+      "cluster_confidence": 0.9094,
+      "topic": "match_discussion",
+      "sub_topic": "rescheduling_cancellations",
+      "generalization": "Users are discussing how to handle last-minute date cancellations and reschedule with their matches.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 35,
+      "n_segments": 8,
+      "n_segments_to_llm": 8,
+      "cluster_confidence": 0.9521,
+      "topic": "match_discussion",
+      "sub_topic": "post-match uncertainty",
+      "generalization": "Users are discussing whether to reach out to their matches, evaluating compatibility, and seeking advice on how to proceed after a cancelled date or lack of communication.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 38,
+      "n_segments": 8,
+      "n_segments_to_llm": 8,
+      "cluster_confidence": 0.76,
+      "topic": "profile_advice",
+      "sub_topic": "profile_criticisms_and_improvement",
+      "generalization": "Users are discussing and critiquing each other's dating profiles, offering advice on how to make them more appealing.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 43,
+      "n_segments": 8,
+      "n_segments_to_llm": 8,
+      "cluster_confidence": 0.8966,
+      "topic": "match_discussion",
+      "sub_topic": "yik-yak_match_considerations",
+      "generalization": "Users are discussing whether to reach out to their Yik-Yak matches, evaluating compatibility and potential connections.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 10,
+      "n_segments": 7,
+      "n_segments_to_llm": 7,
+      "cluster_confidence": 0.9879,
+      "topic": "date_planning",
+      "sub_topic": "creative_date_ideas",
+      "generalization": "Users are discussing and planning creative dates with their matches, including food-related activities and outdoor events.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 15,
+      "n_segments": 7,
+      "n_segments_to_llm": 7,
+      "cluster_confidence": 0.8039,
+      "topic": "event_inquiry",
+      "sub_topic": "la-love-yacht-event-planning",
+      "generalization": "Users are asking about details and planning for the LA Love Yacht event, including attendance numbers, group chats, and what to expect.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 42,
+      "n_segments": 7,
+      "n_segments_to_llm": 7,
+      "cluster_confidence": 0.6792,
+      "topic": "general_dating",
+      "sub_topic": "modern_dating_advice",
+      "generalization": "Users are seeking advice on navigating modern dating, including online app usage and building genuine connections.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 44,
+      "n_segments": 7,
+      "n_segments_to_llm": 7,
+      "cluster_confidence": 0.9358,
+      "topic": "match_discussion",
+      "sub_topic": "yik-yak_match_evaluation",
+      "generalization": "Users are discussing their feelings and uncertainty about matches made on Yik-Yak, evaluating compatibility and intentions.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 6,
+      "n_segments": 6,
+      "n_segments_to_llm": 6,
+      "cluster_confidence": 0.9163,
+      "topic": "match_discussion",
+      "sub_topic": "cancelled_dates_concerns",
+      "generalization": "Users are discussing concerns and plans after a match's date was cancelled.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 19,
+      "n_segments": 6,
+      "n_segments_to_llm": 6,
+      "cluster_confidence": 0.8552,
+      "topic": "match_discussion",
+      "sub_topic": "cancelled_dates_concerns",
+      "generalization": "Users are discussing their concerns and uncertainty about matches who cancelled plans, wondering if it's worth reaching out again or evaluating compatibility.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 26,
+      "n_segments": 6,
+      "n_segments_to_llm": 6,
+      "cluster_confidence": 0.9504,
+      "topic": "match_discussion",
+      "sub_topic": "evaluating compatibility",
+      "generalization": "Users are discussing whether to reach out or pursue matches, evaluating chemistry and compatibility.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 31,
+      "n_segments": 6,
+      "n_segments_to_llm": 6,
+      "cluster_confidence": 0.8441,
+      "topic": "date_planning",
+      "sub_topic": "pre-date nervousness planning",
+      "generalization": "Users are discussing and planning their upcoming dates, specifically asking about logistics, timing, and managing nerves.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 46,
+      "n_segments": 6,
+      "n_segments_to_llm": 6,
+      "cluster_confidence": 0.9162,
+      "topic": "profile_advice",
+      "sub_topic": "photo_profile_optimization",
+      "generalization": "Users are asking for advice on optimizing their dating profiles, specifically about photo selection and content.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 49,
+      "n_segments": 6,
+      "n_segments_to_llm": 6,
+      "cluster_confidence": 0.9019,
+      "topic": "match_discussion",
+      "sub_topic": "starting_conversations",
+      "generalization": "Users are seeking advice on how to initiate conversations with their matches, including finding common ground and avoiding awkwardness.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 59,
+      "n_segments": 6,
+      "n_segments_to_llm": 6,
+      "cluster_confidence": 0.8504,
+      "topic": "match_discussion",
+      "sub_topic": "nervousness_about_matches",
+      "generalization": "Users are discussing their feelings and uncertainty about matches, seeking advice on how to navigate these situations.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 61,
+      "n_segments": 6,
+      "n_segments_to_llm": 6,
+      "cluster_confidence": 0.8341,
+      "topic": "date_planning",
+      "sub_topic": "outdoor_date_suggestions",
+      "generalization": "Users are discussing ideas for outdoor dates, such as hiking and picnics, and seeking suggestions from their match.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 1,
+      "n_segments": 5,
+      "n_segments_to_llm": 5,
+      "cluster_confidence": 0.8889,
+      "topic": "match_discussion",
+      "sub_topic": "pre-date nerves and expectations",
+      "generalization": "Users are discussing their concerns and expectations about a specific match, including potential awkwardness on a date.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 20,
+      "n_segments": 5,
+      "n_segments_to_llm": 5,
+      "cluster_confidence": 0.8155,
+      "topic": "match_discussion",
+      "sub_topic": "age_difference_concerns",
+      "generalization": "Users are discussing their concerns about age differences with matches and whether it's a deal-breaker for them.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 37,
+      "n_segments": 5,
+      "n_segments_to_llm": 5,
+      "cluster_confidence": 0.8605,
+      "topic": "match_discussion",
+      "sub_topic": "authenticity_in_relationships",
+      "generalization": "Users are discussing authenticity and compatibility in relationships, seeking advice on how to be themselves while navigating potential matches.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 50,
+      "n_segments": 5,
+      "n_segments_to_llm": 5,
+      "cluster_confidence": 0.9447,
+      "topic": "profile_advice",
+      "sub_topic": "bio_writing_tips",
+      "generalization": "Users are seeking advice on how to write an effective and engaging dating profile bio, including tips for showcasing personality and interests.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 51,
+      "n_segments": 5,
+      "n_segments_to_llm": 5,
+      "cluster_confidence": 0.9836,
+      "topic": "profile_advice",
+      "sub_topic": "improving_profile_depth",
+      "generalization": "Users are discussing how to add more depth and uniqueness to their profiles, including showcasing passions and interests.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 53,
+      "n_segments": 5,
+      "n_segments_to_llm": 5,
+      "cluster_confidence": 0.9944,
+      "topic": "date_planning",
+      "sub_topic": "pre-date planning and discussion",
+      "generalization": "Users are discussing plans for an upcoming date, including activity suggestions, logistics, and managing nerves.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 7,
+      "n_segments": 4,
+      "n_segments_to_llm": 4,
+      "cluster_confidence": 0.9871,
+      "topic": "match_discussion",
+      "sub_topic": "post_match_planning",
+      "generalization": "Users are discussing how to proceed with matches, including planning dates and reaching out after meeting in person.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 8,
+      "n_segments": 4,
+      "n_segments_to_llm": 4,
+      "cluster_confidence": 0.9154,
+      "topic": "match_discussion",
+      "sub_topic": "post-match thoughts and planning",
+      "generalization": "Users are discussing their feelings about a match, evaluating compatibility, and planning future dates.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 9,
+      "n_segments": 4,
+      "n_segments_to_llm": 4,
+      "cluster_confidence": 0.8519,
+      "topic": "match_discussion",
+      "sub_topic": "post-match communication",
+      "generalization": "Users are discussing how to communicate with their matches after being accepted into the pool, including asking for advice on what to say first and getting to know each other better.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 12,
+      "n_segments": 4,
+      "n_segments_to_llm": 4,
+      "cluster_confidence": 1.0,
+      "topic": "match_discussion",
+      "sub_topic": "mixed_feelings_about_match",
+      "generalization": "Users are discussing mixed feelings about a match and deciding whether to reach out again.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 21,
+      "n_segments": 4,
+      "n_segments_to_llm": 4,
+      "cluster_confidence": 0.911,
+      "topic": "match_discussion",
+      "sub_topic": "age_difference_concerns",
+      "generalization": "Users are discussing their concerns about age differences in matches and how to navigate these dynamics.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 22,
+      "n_segments": 4,
+      "n_segments_to_llm": 4,
+      "cluster_confidence": 1.0,
+      "topic": "profile_advice",
+      "sub_topic": "bio_optimization",
+      "generalization": "Users are asking for feedback on their dating profiles and seeking advice to make them more appealing.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 27,
+      "n_segments": 4,
+      "n_segments_to_llm": 4,
+      "cluster_confidence": 1.0,
+      "topic": "match_discussion",
+      "sub_topic": "reconnecting_with_yik_yak_match",
+      "generalization": "Users are discussing whether to reach out or follow up with a match they had on Yik-Yak, and exploring their feelings about the connection.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 29,
+      "n_segments": 4,
+      "n_segments_to_llm": 4,
+      "cluster_confidence": 0.9644,
+      "topic": "match_discussion",
+      "sub_topic": "compatibility_and_relationship_potential",
+      "generalization": "Users are discussing their match's personality, interests, and compatibility to decide on next steps or evaluate relationship potential.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 32,
+      "n_segments": 4,
+      "n_segments_to_llm": 4,
+      "cluster_confidence": 0.8311,
+      "topic": "date_planning",
+      "sub_topic": "planning_first_date",
+      "generalization": "Users are discussing and planning their first date, considering activities, vibe, and conversation starters.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 33,
+      "n_segments": 4,
+      "n_segments_to_llm": 4,
+      "cluster_confidence": 1.0,
+      "topic": "date_planning",
+      "sub_topic": "yacht_date_activities",
+      "generalization": "Users are planning activities for their upcoming date on a yacht, seeking ideas to make it enjoyable and memorable.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 56,
+      "n_segments": 4,
+      "n_segments_to_llm": 4,
+      "cluster_confidence": 1.0,
+      "topic": "date_planning",
+      "sub_topic": "outing_planning_details",
+      "generalization": "Users are discussing and planning specific details for their dates, such as choosing activities and timing.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 3,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "event_inquiry",
+      "sub_topic": "writing_event_details",
+      "generalization": "Users are asking about an event called UCR Writing Night, seeking details on its purpose and format.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 13,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "ghosting_handling",
+      "sub_topic": "handling_uneven_commitment",
+      "generalization": "Users are discussing how to handle matches who cancel plans or go silent, and deciding whether to follow up.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 14,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "event_inquiry",
+      "sub_topic": "summer_pool_event_details",
+      "generalization": "Users are asking about details of a summer event listed in their pool, such as its purpose and what to expect.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 17,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "match_discussion",
+      "sub_topic": "post-match-planning-discussions",
+      "generalization": "Users are discussing plans and ideas for future activities with their match, often referencing shared interests or past experiences.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 24,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "date_planning",
+      "sub_topic": "first_date_planning",
+      "generalization": "Users are discussing planning and logistics for their first date, including choosing activities and managing nerves.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 25,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "match_discussion",
+      "sub_topic": "post-match-disappointment",
+      "generalization": "Users are discussing their disappointment and confusion about why they didn't match with someone, and seeking reassurance or advice on how to move forward.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 28,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "match_discussion",
+      "sub_topic": "low_key_meeting_tips",
+      "generalization": "Users are discussing challenges with connecting with matches and seeking advice on low-key meeting settings.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 30,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "date_planning",
+      "sub_topic": "planning_art_date",
+      "generalization": "Users are discussing and planning their dates, specifically looking for ideas on what to do together.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 36,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "match_discussion",
+      "sub_topic": "getting_to_know_match",
+      "generalization": "Users are discussing their match and wanting to get to know each other better, sharing interests and ideas for dates.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 39,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "date_planning",
+      "sub_topic": "pre-date_nerves_and_plans",
+      "generalization": "Users are discussing their nerves and planning for an upcoming date, seeking advice on what to do together.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 40,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "match_discussion",
+      "sub_topic": "pre-date match thoughts",
+      "generalization": "Users are discussing their feelings and thoughts about a specific Acme match before deciding what to do next.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 48,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "general_dating",
+      "sub_topic": "starting_conversations",
+      "generalization": "Users are seeking advice on how to initiate conversations with matches without coming across as too eager or creepy.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 52,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "date_planning",
+      "sub_topic": "campus_date_planning",
+      "generalization": "Users are discussing planning dates on campus, including choosing activities and timing.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 54,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "match_discussion",
+      "sub_topic": "post-match-connection",
+      "generalization": "Users are discussing what to do after matching, including whether to reach out and how to navigate post-match interactions.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 55,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "date_planning",
+      "sub_topic": "campus_date_planning",
+      "generalization": "Users are discussing planning dates on campus, including choosing activities and managing nerves.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 58,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "match_discussion",
+      "sub_topic": "casual_match_evaluation",
+      "generalization": "Users are discussing their casual matches, evaluating compatibility and deciding whether to reach out.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 60,
+      "n_segments": 3,
+      "n_segments_to_llm": 3,
+      "cluster_confidence": 1.0,
+      "topic": "date_planning",
+      "sub_topic": "outing_itinerary_discussion",
+      "generalization": "Users are discussing and planning activities for their upcoming date, including choosing locations and timing.",
+      "is_new_topic": false
+    }
+  ]
+}

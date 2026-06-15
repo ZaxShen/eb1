@@ -1,0 +1,138 @@
+title eb1 — Production Pipeline Architecture
+direction right
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DATA SOURCES
+// ══════════════════════════════════════════════════════════════════════════════
+
+PROD MongoDB (read-only) [shape: oval, icon: cloud, color: lightblue] {
+  sms_chats + sms_chat_messages [icon: message-square, color: lightblue]
+  message_templates [icon: file, color: lightblue]
+}
+
+PostgreSQL [shape: oval, icon: database, color: teal] {
+  sms_chat_segments [icon: save, color: teal]
+  Taxonomy (topics + subtopics) [icon: book, color: orange]
+  Pipeline logs [icon: file-text, color: gray]
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PIPELINE STEPS
+// ══════════════════════════════════════════════════════════════════════════════
+
+Pre-Segmenter [icon: git-branch, color: gray] {
+  Split into bot_only + user_engaged chunks [icon: scissors, color: gray]
+  Prepend bot context to user chunks [icon: corner-down-right, color: gray]
+}
+
+Three-Tier Classification [icon: brain, color: purple] {
+  1. Template Matcher (deterministic — no LLM) [icon: zap-off, color: cyan]
+  2. Bot LLM (unmatched bot chunks) [icon: cpu, color: purple]
+  3. User LLM (user-engaged chunks — max 200 msgs) [icon: user, color: purple]
+}
+
+Taxonomy Guard [shape: diamond, icon: shield, color: orange] {
+  Bidirectional type check [icon: x-circle, color: orange]
+  Retry LLM once then remap [icon: refresh-cw, color: orange]
+}
+
+Segment Builder [icon: package, color: teal] {
+  Build segments: topic + summary + sentiment [icon: tag, color: teal]
+  FK-safe writes to PostgreSQL [icon: save, color: teal]
+}
+
+Validate + Evaluate [icon: shield, color: red] {
+  8 deterministic graders (coverage + quality) [icon: check-circle, color: red]
+  Topic distribution + confidence metrics [icon: bar-chart-2, color: green]
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EXIT POINTS
+// ══════════════════════════════════════════════════════════════════════════════
+
+Human Review [shape: oval, icon: users, color: red] {
+  Low confidence or unconfirmed topics [icon: alert-circle, color: red]
+  Sets trueTopic + trueSubTopic (immutable) [icon: lock, color: red]
+}
+
+Downstream Consumers [shape: oval, icon: trending-up, color: green] {
+  Matchmaking intelligence [icon: heart, color: green]
+  Product analytics [icon: pie-chart, color: green]
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PERIODIC + OPTIONAL
+// ══════════════════════════════════════════════════════════════════════════════
+
+Offline Quality [icon: cpu, color: blue] {
+  Embed summaries + UMAP + HDBSCAN [icon: hexagon, color: blue]
+  Writes cluster object back to segments [icon: target, color: blue]
+}
+
+Benchmark Mode [icon: layers, color: pink] {
+  Multi-LLM comparison [icon: list, color: pink]
+  Isolated taxonomy (UNION ALL with prod) [icon: book, color: pink]
+  Jaccard eval against ground truth [icon: bar-chart, color: pink]
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DEPLOYMENT
+// ══════════════════════════════════════════════════════════════════════════════
+
+Kubernetes [icon: server, color: blue] {
+  Backfill Job (one-time — 135K users) [icon: play, color: blue] {
+    ~350K LLM calls [icon: zap, color: blue]
+    concurrency 32-64 [icon: layers, color: blue]
+    ~8 hours at concurrency=64 [icon: clock, color: blue]
+  }
+  Weekly CronJob (Monday) [icon: calendar, color: blue] {
+    ~6.5K active users [icon: users, color: blue]
+    Incremental — skips unchanged users [icon: skip-forward, color: blue]
+    ~17 minutes at concurrency=32 [icon: clock, color: blue]
+  }
+}
+
+AI Gateway [shape: oval, icon: globe, color: pink] {
+  GPT-5.4 (prod) + GPT-5.2-chat (backfill) [icon: brain, color: pink]
+  Prompt caching critical for cost [icon: dollar-sign, color: pink]
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FLOW
+// ══════════════════════════════════════════════════════════════════════════════
+
+// Pipeline data flow
+sms_chats + sms_chat_messages > Pre-Segmenter: Per-user chat history
+Pre-Segmenter > Three-Tier Classification: Routed chunks
+Three-Tier Classification > AI Gateway: LLM calls [color: red]
+AI Gateway > Three-Tier Classification: Responses [color: red]
+Three-Tier Classification > Taxonomy Guard: Classified segments
+Taxonomy Guard > Segment Builder: Validated segments [color: teal]
+Segment Builder > sms_chat_segments: Upsert [color: teal]
+
+// Taxonomy flow
+Taxonomy (topics + subtopics) > Three-Tier Classification: Feed prompts [color: orange, style: dashed]
+Segment Builder > Taxonomy (topics + subtopics): Auto-upsert unknown [color: orange, style: dashed]
+
+// Quality flow
+sms_chat_segments > Validate + Evaluate: Read-only checks
+Validate + Evaluate > Human Review: Low confidence [color: red]
+Validate + Evaluate > Downstream Consumers: High confidence + confirmed [color: green]
+Human Review > sms_chat_segments: Ground truth corrections [color: red, style: dashed]
+
+// Periodic
+sms_chat_segments > Offline Quality: Summaries [color: blue, style: dashed]
+Offline Quality > sms_chat_segments: Cluster object [color: blue, style: dashed]
+
+// Benchmark
+sms_chat_segments > Benchmark Mode: Ground truth [color: pink, style: dashed]
+
+// Deployment
+Kubernetes > Pre-Segmenter: Runs pipeline [color: red]
+Kubernetes > AI Gateway: Rate-limited [color: red, style: dashed]
+
+// Template classification (one-time setup)
+message_templates > 1. Template Matcher (deterministic — no LLM): Template mappings [color: cyan, style: dashed]
+
+// Logging
+Taxonomy Guard > Pipeline logs: Remap events [color: gray, style: dashed]

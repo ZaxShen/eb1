@@ -1,0 +1,53 @@
+{
+  "log_type": "label_log",
+  "generated_at": "2026-03-02T22:08:17.790170+00:00",
+  "summary": {
+    "total_segments": 19,
+    "total_segments_in_clusters": 19,
+    "hdbscan_noise_segments": 0,
+    "noise_ratio": 0.0,
+    "total_clusters_labeled": 2,
+    "unique_topics": 1,
+    "new_topics_count": 0
+  },
+  "topic_distribution": [
+    {
+      "topic": "requests_improvements",
+      "cluster_count": 2,
+      "segment_count": 19,
+      "avg_confidence": 0.9993,
+      "sub_topics": [
+        "requesting more matches",
+        "adjusting preferences for better matches"
+      ],
+      "generalizations": [
+        "Users are asking the app to provide more dates or matches, sometimes adding preferences, and occasionally dealing with account status or scheduling issues.",
+        "Users are asking the app to modify their match preferences, add hobbies, or request new matches to better align with their desired criteria."
+      ],
+      "is_new_topic": false
+    }
+  ],
+  "new_topics": [],
+  "clusters": [
+    {
+      "cluster_id": 1,
+      "n_segments": 12,
+      "n_segments_to_llm": 12,
+      "cluster_confidence": 0.9987,
+      "topic": "requests_improvements",
+      "sub_topic": "requesting more matches",
+      "generalization": "Users are asking the app to provide more dates or matches, sometimes adding preferences, and occasionally dealing with account status or scheduling issues.",
+      "is_new_topic": false
+    },
+    {
+      "cluster_id": 0,
+      "n_segments": 7,
+      "n_segments_to_llm": 7,
+      "cluster_confidence": 1.0,
+      "topic": "requests_improvements",
+      "sub_topic": "adjusting preferences for better matches",
+      "generalization": "Users are asking the app to modify their match preferences, add hobbies, or request new matches to better align with their desired criteria.",
+      "is_new_topic": false
+    }
+  ]
+}
