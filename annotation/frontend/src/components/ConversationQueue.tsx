@@ -2,7 +2,6 @@ import { MessagesSquare, RotateCcw, Tag, User } from "lucide-react";
 import type { ConversationFilters, ConversationSummary } from "../api";
 import type { TaxonomyMap } from "../lib/taxonomy";
 import { sortedTopics } from "../lib/taxonomy";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -18,7 +17,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { topicColorClass } from "../lib/badges";
 import { cn, formatLabel } from "../lib/utils";
 
 interface ConversationQueueProps {
@@ -67,25 +65,7 @@ const ConversationCard = ({
       )}
     </div>
 
-    <div className="mb-1 flex flex-wrap items-center gap-1">
-      {conversation.topics.length > 0 ? (
-        conversation.topics.map((topic) => (
-          <Badge
-            key={topic}
-            variant="outline"
-            className={topicColorClass(topic)}
-          >
-            {formatLabel(topic)}
-          </Badge>
-        ))
-      ) : (
-        <Badge variant="outline" className="text-muted-foreground">
-          No topics
-        </Badge>
-      )}
-    </div>
-
-    <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+    <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
       <span className="flex items-center gap-1">
         <MessagesSquare className="size-3" />
         {conversation.message_count} msg
