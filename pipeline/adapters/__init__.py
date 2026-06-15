@@ -8,10 +8,14 @@ See ``base`` for the normalized-message contract.
 from __future__ import annotations
 
 from pipeline.adapters.base import ConversationLoader, normalize_role
+from pipeline.adapters.lmsys import LMSYSLoader
+from pipeline.adapters.superdialseg import SuperDialsegLoader
 from pipeline.adapters.wildchat import WildChatLoader
 
 LOADERS: dict[str, type] = {
     WildChatLoader.name: WildChatLoader,
+    LMSYSLoader.name: LMSYSLoader,
+    SuperDialsegLoader.name: SuperDialsegLoader,
 }
 
 
@@ -27,7 +31,9 @@ def get_loader(name: str) -> ConversationLoader:
 
 __all__ = [
     "ConversationLoader",
+    "LMSYSLoader",
     "LOADERS",
+    "SuperDialsegLoader",
     "WildChatLoader",
     "get_loader",
     "normalize_role",

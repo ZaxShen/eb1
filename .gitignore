@@ -65,3 +65,4 @@ docs/papers/**/*.synctex.gz
 # Generated per-dataset SQLite artifacts (rebuilt by seed/runner)
 datasets/**/metadata.db
 datasets/**/output.db
+datasets/**/gold.db
