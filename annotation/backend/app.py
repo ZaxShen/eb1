@@ -4,7 +4,9 @@ Wires CORS for the Vite dev origin and mounts the ``/api`` router. Run::
 
     uv run uvicorn annotation.backend.app:app --reload
 
-The datasets root defaults to ``datasets/``; tests override it via
+The datasets root defaults to ``datasets/`` and is overridable via the
+``EB1_DATASETS_DIR`` environment variable (used by the E2E harness to isolate
+its fixture data); tests can also override it in-process via
 ``annotation.backend.routes.set_datasets_root``.
 """
 

@@ -17,6 +17,7 @@ network.
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
@@ -24,14 +25,25 @@ from pathlib import Path
 from pipeline.adapters import get_loader
 from pipeline.metadata import SqliteDatasetProvider
 
-DATASETS_ROOT = Path("datasets")
+DEFAULT_DATASETS_ROOT = Path("datasets")
 
 GOLD_SCHEMA_PATH = Path(__file__).parent / "gold_schema.sql"
 
 
+def datasets_root() -> Path:
+    """Resolve the datasets root, honoring the ``EB1_DATASETS_DIR`` override.
+
+    Defaults to ``datasets/`` (current behavior). The override lets the E2E
+    harness point the backend at an isolated fixture tree so it never reads or
+    writes the repo's real ``datasets/``.
+    """
+    override = os.environ.get("EB1_DATASETS_DIR")
+    return Path(override) if override else DEFAULT_DATASETS_ROOT
+
+
 def dataset_dir(dataset: str, root: Path | None = None) -> Path:
-    """Return ``<root>/<dataset>`` (defaults to the ``datasets/`` root)."""
-    return (root or DATASETS_ROOT) / dataset
+    """Return ``<root>/<dataset>`` (defaults to the resolved datasets root)."""
+    return (root or datasets_root()) / dataset
 
 
 def output_db_path(dataset: str, root: Path | None = None) -> Path:
@@ -56,7 +68,7 @@ def gold_db_path(dataset: str, root: Path | None = None) -> Path:
 
 def list_datasets(root: Path | None = None) -> list[str]:
     """Return dataset names that have an ``output.db`` under ``root``."""
-    base = root or DATASETS_ROOT
+    base = root or datasets_root()
     if not base.exists():
         return []
     names = [

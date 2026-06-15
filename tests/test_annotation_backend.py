@@ -386,3 +386,25 @@ def test_unknown_dataset_404(client):
 
 def test_unknown_segment_404(client):
     assert client.get("/api/datasets/wildchat/segments/999").status_code == 404
+
+
+def test_datasets_root_defaults_to_datasets(monkeypatch):
+    monkeypatch.delenv("EB1_DATASETS_DIR", raising=False)
+    assert db.datasets_root() == db.DEFAULT_DATASETS_ROOT
+
+
+def test_datasets_root_honors_env_override(monkeypatch, tmp_path):
+    monkeypatch.setenv("EB1_DATASETS_DIR", str(tmp_path))
+    assert db.datasets_root() == tmp_path
+    # The override flows through to every path helper, isolating fixture data.
+    assert db.output_db_path("wildchat") == tmp_path / "wildchat" / "output.db"
+
+
+def test_env_override_lists_only_fixture_datasets(monkeypatch, tmp_path):
+    ds_dir = tmp_path / "wildchat"
+    ds_dir.mkdir()
+    _build_output_db(ds_dir / "output.db")
+    monkeypatch.setenv("EB1_DATASETS_DIR", str(tmp_path))
+
+    client = TestClient(create_app())
+    assert client.get("/api/datasets").json() == ["wildchat"]
