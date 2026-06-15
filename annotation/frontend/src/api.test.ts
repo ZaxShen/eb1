@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { api, type AnnotateRequest, type BoundaryRequest } from "./api";
+import {
+  api,
+  setAuthToken,
+  type AnnotateRequest,
+  type BoundaryRequest,
+} from "./api";
 
 function mockFetch(payload: unknown) {
   const fn = vi.fn().mockResolvedValue({
@@ -18,6 +23,27 @@ describe("api client request shapes", () => {
   });
   afterEach(() => {
     vi.unstubAllGlobals();
+    setAuthToken(null);
+  });
+
+  it("attaches an Authorization: Bearer header when an auth token is set", async () => {
+    const fetchMock = mockFetch([]);
+    setAuthToken("id-token-xyz");
+    await api.listDatasets();
+
+    const [, init] = fetchMock.mock.calls[0];
+    expect(init?.headers).toMatchObject({
+      Authorization: "Bearer id-token-xyz",
+    });
+  });
+
+  it("omits the Authorization header when no auth token is set", async () => {
+    const fetchMock = mockFetch([]);
+    setAuthToken(null);
+    await api.listDatasets();
+
+    const [, init] = fetchMock.mock.calls[0];
+    expect((init?.headers as Record<string, string>).Authorization).toBeUndefined();
   });
 
   it("listConversations issues a GET to the dataset conversations path", async () => {

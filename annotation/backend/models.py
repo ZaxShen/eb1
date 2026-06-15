@@ -131,6 +131,12 @@ class BoundaryResponse(BaseModel):
     gold_segments_written: int
 
 
+class AuthConfig(BaseModel):
+    """Whether Google SSO is required (unauthenticated config endpoint)."""
+
+    sso_enabled: bool
+
+
 class Stats(BaseModel):
     """Review progress for a dataset."""
 

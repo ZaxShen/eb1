@@ -21,6 +21,7 @@ interface AnnotationPanelProps {
   topic: string;
   subtopic: string;
   reviewedBy: string;
+  reviewedByLocked?: boolean;
   saving: boolean;
   onTopicChange: (topic: string) => void;
   onSubtopicChange: (subtopic: string) => void;
@@ -43,6 +44,7 @@ const AnnotationPanel = ({
   topic,
   subtopic,
   reviewedBy,
+  reviewedByLocked = false,
   saving,
   onTopicChange,
   onSubtopicChange,
@@ -113,14 +115,20 @@ const AnnotationPanel = ({
 
         <div className="flex flex-col gap-1.5">
           <label className="text-xs text-muted-foreground">
-            Reviewed by (optional)
+            {reviewedByLocked ? "Reviewed by (Google account)" : "Reviewed by (optional)"}
           </label>
-          <Input
-            value={reviewedBy}
-            onChange={(e) => onReviewedByChange(e.target.value)}
-            placeholder="your name"
-            className="h-8 text-sm"
-          />
+          {reviewedByLocked ? (
+            <div className="flex h-8 items-center rounded-md border border-border bg-muted px-3 text-sm text-muted-foreground">
+              {reviewedBy}
+            </div>
+          ) : (
+            <Input
+              value={reviewedBy}
+              onChange={(e) => onReviewedByChange(e.target.value)}
+              placeholder="your name"
+              className="h-8 text-sm"
+            />
+          )}
         </div>
 
         <Separator />

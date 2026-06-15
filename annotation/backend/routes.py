@@ -5,12 +5,14 @@ from __future__ import annotations
 from collections import Counter
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from annotation.backend import db
+from annotation.backend.auth import Identity, require_identity, sso_enabled
 from annotation.backend.models import (
     AnnotateRequest,
     AnnotateResponse,
+    AuthConfig,
     BoundaryRequest,
     BoundaryResponse,
     ClearAnnotationResponse,
@@ -24,9 +26,16 @@ from annotation.backend.models import (
     TaxonomyEntry,
 )
 
-router = APIRouter(prefix="/api")
+auth_router = APIRouter(prefix="/api")
+router = APIRouter(prefix="/api", dependencies=[Depends(require_identity)])
 
 _DATASETS_ROOT: Path | None = None
+
+
+@auth_router.get("/auth/config", response_model=AuthConfig)
+def get_auth_config() -> AuthConfig:
+    """Unauthenticated: tell the frontend whether Google SSO is required."""
+    return AuthConfig(sso_enabled=sso_enabled())
 
 
 def set_datasets_root(root: Path | None) -> None:
@@ -42,6 +51,11 @@ def _root() -> Path | None:
 def _require_dataset(dataset: str) -> None:
     if not db.output_db_path(dataset, _root()).exists():
         raise HTTPException(status_code=404, detail=f"Unknown dataset: {dataset!r}")
+
+
+def _reviewer(identity: Identity | None, body_value: str | None) -> str | None:
+    """When SSO is on, ``reviewed_by`` is the verified name; else the client value."""
+    return identity.name if identity is not None else body_value
 
 
 def _to_summary(
@@ -220,7 +234,10 @@ def get_taxonomy(dataset: str) -> list[TaxonomyEntry]:
     "/datasets/{dataset}/segments/{segment_id}/annotate", response_model=AnnotateResponse
 )
 def annotate_segment(
-    dataset: str, segment_id: int, request: AnnotateRequest
+    dataset: str,
+    segment_id: int,
+    request: AnnotateRequest,
+    identity: Identity | None = Depends(require_identity),
 ) -> AnnotateResponse:
     """Write a gold_segment mirroring the base span with corrected labels."""
     _require_dataset(dataset)
@@ -234,7 +251,7 @@ def annotate_segment(
         topic=request.true_topic,
         subtopic=request.true_subtopic,
         sentiment=request.sentiment,
-        reviewed_by=request.reviewed_by,
+        reviewed_by=_reviewer(identity, request.reviewed_by),
         root=_root(),
     )
     return AnnotateResponse(gold_segment_id=gold_id)
@@ -245,7 +262,9 @@ def annotate_segment(
     response_model=ClearAnnotationResponse,
 )
 def clear_segment_annotation(
-    dataset: str, segment_id: int
+    dataset: str,
+    segment_id: int,
+    identity: Identity | None = Depends(require_identity),
 ) -> ClearAnnotationResponse:
     """Clear a segment's gold annotation, reverting it to unannotated.
 
@@ -266,7 +285,10 @@ def clear_segment_annotation(
     response_model=BoundaryResponse,
 )
 def replace_boundaries(
-    dataset: str, conversation: str, request: BoundaryRequest
+    dataset: str,
+    conversation: str,
+    request: BoundaryRequest,
+    identity: Identity | None = Depends(require_identity),
 ) -> BoundaryResponse:
     """REPLACE all gold_segments for a conversation with the posted spans."""
     _require_dataset(dataset)
@@ -274,7 +296,7 @@ def replace_boundaries(
         dataset,
         conversation,
         spans=[s.model_dump() for s in request.segments],
-        reviewed_by=request.reviewed_by,
+        reviewed_by=_reviewer(identity, request.reviewed_by),
         root=_root(),
     )
     return BoundaryResponse(conversation=conversation, gold_segments_written=written)

@@ -120,10 +120,21 @@ export interface ConversationFilters {
   topic?: string;
 }
 
+let authToken: string | null = null;
+
+export function setAuthToken(token: string | null): void {
+  authToken = token;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...((init?.headers as Record<string, string>) ?? {}),
+  };
+  if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
   const res = await fetch(`/api${path}`, {
-    headers: { "Content-Type": "application/json" },
     ...init,
+    headers,
   });
   if (!res.ok) {
     let detail = res.statusText;
@@ -149,7 +160,13 @@ function qs(params: Record<string, string | number | undefined>): string {
   return out ? `?${out}` : "";
 }
 
+export interface AuthConfig {
+  sso_enabled: boolean;
+}
+
 export const api = {
+  getAuthConfig: () => request<AuthConfig>("/auth/config"),
+
   listDatasets: () => request<string[]>("/datasets"),
 
   listConversations: async (

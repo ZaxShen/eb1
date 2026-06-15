@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Moon, Sun, Database, Redo2, Undo2 } from "lucide-react";
+import { Moon, Sun, Database, LogOut, Redo2, Undo2 } from "lucide-react";
 import { toast } from "sonner";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import {
   api,
   type BoundarySpan,
@@ -39,6 +40,12 @@ import ConversationStream from "./components/ConversationStream";
 import StatisticsPanel from "./components/StatisticsPanel";
 import AnnotationPanel from "./components/AnnotationPanel";
 import SegmentFieldsPanel from "./components/SegmentFieldsPanel";
+import {
+  AuthProvider,
+  GOOGLE_CLIENT_ID,
+  useAuth,
+} from "./auth/AuthContext";
+import SignInGate from "./auth/SignInGate";
 
 function useTheme() {
   const [theme, setTheme] = useState<"light" | "dark">(() => {
@@ -56,8 +63,9 @@ function useTheme() {
   };
 }
 
-export default function App() {
+function AnnotationApp() {
   const { theme, toggle } = useTheme();
+  const { ssoEnabled, user, signOut } = useAuth();
 
   const [datasets, setDatasets] = useState<string[]>([]);
   const [dataset, setDataset] = useState("");
@@ -81,8 +89,12 @@ export default function App() {
 
   const [topic, setTopic] = useState("");
   const [subtopic, setSubtopic] = useState("");
-  const [reviewedBy, setReviewedBy] = useState("");
+  const [manualReviewedBy, setManualReviewedBy] = useState("");
   const [saving, setSaving] = useState(false);
+
+  // When SSO is on the server overrides reviewed_by with the verified Google
+  // name; we mirror it read-only in the UI. When off, it's the manual input.
+  const reviewedBy = ssoEnabled ? (user?.name ?? "") : manualReviewedBy;
 
   const history = useHistory();
 
@@ -426,6 +438,29 @@ export default function App() {
                 <Moon className="size-4" />
               )}
             </Button>
+            {ssoEnabled && user && (
+              <div className="flex items-center gap-2 border-l border-border pl-2">
+                {user.picture && (
+                  <img
+                    src={user.picture}
+                    alt=""
+                    className="size-6 rounded-full"
+                  />
+                )}
+                <span className="text-xs font-medium" title={user.email}>
+                  {user.name}
+                </span>
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  onClick={signOut}
+                  title="Sign out"
+                  aria-label="Sign out"
+                >
+                  <LogOut className="size-4" />
+                </Button>
+              </div>
+            )}
           </div>
         </header>
 
@@ -487,13 +522,14 @@ export default function App() {
                     topic={topic}
                     subtopic={subtopic}
                     reviewedBy={reviewedBy}
+                    reviewedByLocked={ssoEnabled}
                     saving={saving}
                     onTopicChange={(t) => {
                       setTopic(t);
                       setSubtopic("");
                     }}
                     onSubtopicChange={setSubtopic}
-                    onReviewedByChange={setReviewedBy}
+                    onReviewedByChange={setManualReviewedBy}
                     onConfirmAi={handleConfirmAi}
                     onSave={handleSave}
                     onPrev={() => selectAdjacentConversation(-1)}
@@ -515,5 +551,30 @@ export default function App() {
       </div>
       <Toaster theme={theme} position="bottom-right" />
     </TooltipProvider>
+  );
+}
+
+function GatedApp() {
+  return (
+    <SignInGate>
+      <AnnotationApp />
+    </SignInGate>
+  );
+}
+
+export default function App() {
+  if (GOOGLE_CLIENT_ID) {
+    return (
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <AuthProvider>
+          <GatedApp />
+        </AuthProvider>
+      </GoogleOAuthProvider>
+    );
+  }
+  return (
+    <AuthProvider>
+      <AnnotationApp />
+    </AuthProvider>
   );
 }

@@ -13,7 +13,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from annotation.backend.routes import router
+from annotation.backend.routes import auth_router, router
 
 VITE_DEV_ORIGINS = [
     "http://localhost:5173",
@@ -31,6 +31,7 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app.include_router(auth_router)
     app.include_router(router)
     return app
 
