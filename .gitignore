@@ -66,3 +66,4 @@ docs/papers/**/*.synctex.gz
 datasets/**/metadata.db
 datasets/**/output.db
 datasets/**/gold.db
+datasets/**/eval.json
