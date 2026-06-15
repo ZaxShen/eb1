@@ -1,12 +1,11 @@
-import { RotateCcw, Tag, User } from "lucide-react";
-import type { SegmentFilters, SegmentSummary } from "../api";
+import { MessagesSquare, RotateCcw, Tag, User } from "lucide-react";
+import type { ConversationFilters, ConversationSummary } from "../api";
 import type { TaxonomyMap } from "../lib/taxonomy";
 import { sortedTopics } from "../lib/taxonomy";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -19,32 +18,28 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  sentimentBadgeClass,
-  SUBTOPIC_BADGE_CLASS,
-  topicColorClass,
-} from "../lib/badges";
-import { cn, formatConfidence, formatLabel } from "../lib/utils";
+import { topicColorClass } from "../lib/badges";
+import { cn, formatLabel } from "../lib/utils";
 
-interface SegmentQueueProps {
-  segments: SegmentSummary[];
-  selectedId: number | null;
-  filters: SegmentFilters;
+interface ConversationQueueProps {
+  conversations: ConversationSummary[];
+  selectedConversation: string | null;
+  filters: ConversationFilters;
   taxonomy: TaxonomyMap;
   loading: boolean;
   total: number;
-  onSelect: (segmentId: number) => void;
-  onFiltersChange: (filters: SegmentFilters) => void;
+  onSelect: (conversation: string) => void;
+  onFiltersChange: (filters: ConversationFilters) => void;
 }
 
 const ALL_TOPICS = "__all__";
 
-const SegmentCard = ({
-  segment,
+const ConversationCard = ({
+  conversation,
   isSelected,
   onClick,
 }: {
-  segment: SegmentSummary;
+  conversation: ConversationSummary;
   isSelected: boolean;
   onClick: () => void;
 }) => (
@@ -62,79 +57,71 @@ const SegmentCard = ({
         <User className="size-3.5" />
       </span>
       <span className="flex-1 truncate text-sm font-medium">
-        {segment.conversation}
+        {conversation.conversation}
       </span>
-      {segment.reviewed && (
-        <span className="size-2 shrink-0 rounded-full bg-positive" />
+      {conversation.reviewed && (
+        <span
+          className="size-2 shrink-0 rounded-full bg-positive"
+          title="All segments reviewed"
+        />
       )}
     </div>
 
     <div className="mb-1 flex flex-wrap items-center gap-1">
-      {segment.topic ? (
-        <Badge variant="outline" className={topicColorClass(segment.topic)}>
-          {formatLabel(segment.topic)}
-        </Badge>
+      {conversation.topics.length > 0 ? (
+        conversation.topics.map((topic) => (
+          <Badge
+            key={topic}
+            variant="outline"
+            className={topicColorClass(topic)}
+          >
+            {formatLabel(topic)}
+          </Badge>
+        ))
       ) : (
         <Badge variant="outline" className="text-muted-foreground">
-          No topic
-        </Badge>
-      )}
-      {segment.subtopic && (
-        <Badge variant="outline" className={SUBTOPIC_BADGE_CLASS}>
-          {formatLabel(segment.subtopic)}
-        </Badge>
-      )}
-      {segment.sentiment && (
-        <Badge
-          variant="outline"
-          className={sentimentBadgeClass(segment.sentiment)}
-        >
-          {segment.sentiment}
+          No topics
         </Badge>
       )}
     </div>
 
-    <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-      {segment.summary ?? "No summary available"}
-    </p>
-
-    <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-      <span>
-        Confidence{" "}
-        <span className="text-foreground">
-          {formatConfidence(segment.label_confidence)}
-        </span>
+    <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+      <span className="flex items-center gap-1">
+        <MessagesSquare className="size-3" />
+        {conversation.message_count} msg
       </span>
-      <span>chunk {segment.chunk_index}</span>
+      <span>
+        {conversation.segment_count} segment
+        {conversation.segment_count !== 1 ? "s" : ""}
+      </span>
+      <span>
+        {conversation.reviewed_count}/{conversation.segment_count} reviewed
+      </span>
     </div>
   </button>
 );
 
-const SegmentQueue = ({
-  segments,
-  selectedId,
+const ConversationQueue = ({
+  conversations,
+  selectedConversation,
   filters,
   taxonomy,
   loading,
   total,
   onSelect,
   onFiltersChange,
-}: SegmentQueueProps) => {
+}: ConversationQueueProps) => {
   const topics = sortedTopics(taxonomy);
-  const update = (patch: Partial<SegmentFilters>) =>
+  const update = (patch: Partial<ConversationFilters>) =>
     onFiltersChange({ ...filters, ...patch });
 
   const hasActiveFilters =
-    filters.status !== undefined ||
-    filters.topic !== undefined ||
-    filters.max_confidence !== undefined;
+    filters.status !== undefined || filters.topic !== undefined;
 
-  const maxConfidencePct =
-    filters.max_confidence !== undefined
-      ? Math.round(filters.max_confidence * 100)
-      : 100;
-
-  const statusOptions: { value: SegmentFilters["status"]; label: string }[] = [
+  const statusOptions: {
+    value: ConversationFilters["status"];
+    label: string;
+  }[] = [
     { value: undefined, label: "All" },
     { value: "unreviewed", label: "Unreviewed" },
     { value: "reviewed", label: "Reviewed" },
@@ -145,7 +132,7 @@ const SegmentQueue = ({
       <div className="flex flex-col gap-2.5 p-3">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold tracking-tight">
-            Topic Annotation
+            Conversations
           </h2>
           {hasActiveFilters && (
             <Tooltip>
@@ -199,28 +186,6 @@ const SegmentQueue = ({
             ))}
           </SelectContent>
         </Select>
-
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Max confidence
-            </span>
-            <span className="text-xs tabular-nums text-muted-foreground">
-              {filters.max_confidence !== undefined
-                ? `${maxConfidencePct}%`
-                : "off"}
-            </span>
-          </div>
-          <Slider
-            min={0}
-            max={100}
-            step={5}
-            value={[maxConfidencePct]}
-            onValueChange={([pct]) =>
-              update({ max_confidence: pct >= 100 ? undefined : pct / 100 })
-            }
-          />
-        </div>
       </div>
 
       <Separator />
@@ -232,19 +197,21 @@ const SegmentQueue = ({
               Loading…
             </div>
           )}
-          {!loading && segments.length === 0 && (
+          {!loading && conversations.length === 0 && (
             <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-              No segments found
+              No conversations found
             </div>
           )}
-          {!loading && segments.length > 0 && (
+          {!loading && conversations.length > 0 && (
             <div className="flex flex-col gap-1">
-              {segments.map((segment) => (
-                <SegmentCard
-                  key={segment.id}
-                  segment={segment}
-                  isSelected={selectedId === segment.id}
-                  onClick={() => onSelect(segment.id)}
+              {conversations.map((conversation) => (
+                <ConversationCard
+                  key={conversation.conversation}
+                  conversation={conversation}
+                  isSelected={
+                    selectedConversation === conversation.conversation
+                  }
+                  onClick={() => onSelect(conversation.conversation)}
                 />
               ))}
             </div>
@@ -254,10 +221,11 @@ const SegmentQueue = ({
 
       <Separator />
       <div className="px-4 py-1.5 text-center text-xs text-muted-foreground">
-        {segments.length} shown · {total} total segment{total !== 1 ? "s" : ""}
+        {conversations.length} shown · {total} total conversation
+        {total !== 1 ? "s" : ""}
       </div>
     </div>
   );
 };
 
-export default SegmentQueue;
+export default ConversationQueue;

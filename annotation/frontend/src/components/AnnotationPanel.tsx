@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Check, ChevronLeft, ChevronRight, Save } from "lucide-react";
-import type { SegmentDetail } from "../api";
+import type { SegmentSummary } from "../api";
 import type { TaxonomyMap } from "../lib/taxonomy";
 import { sortedTopics, subtopicsFor } from "../lib/taxonomy";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import {
 import { formatLabel } from "../lib/utils";
 
 interface AnnotationPanelProps {
-  detail: SegmentDetail | null;
+  segment: SegmentSummary | null;
   taxonomy: TaxonomyMap;
   topic: string;
   subtopic: string;
@@ -38,7 +38,7 @@ const Kbd = ({ children }: { children: ReactNode }) => (
 );
 
 const AnnotationPanel = ({
-  detail,
+  segment,
   taxonomy,
   topic,
   subtopic,
@@ -52,17 +52,17 @@ const AnnotationPanel = ({
   onPrev,
   onNext,
 }: AnnotationPanelProps) => {
-  if (!detail) {
+  if (!segment) {
     return (
       <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-        Select a segment from the queue
+        Select a segment in the stream
       </div>
     );
   }
 
   const topics = sortedTopics(taxonomy);
   const subtopics = subtopicsFor(taxonomy, topic);
-  const aiTopic = detail.segment.topic;
+  const aiTopic = segment.topic;
 
   return (
     <div className="flex h-full flex-col overflow-y-auto p-3">
@@ -157,7 +157,7 @@ const AnnotationPanel = ({
             size="sm"
             className="flex-1"
             onClick={onPrev}
-            title="Previous segment (←)"
+            title="Previous conversation (←)"
           >
             <ChevronLeft />
             Prev
@@ -168,7 +168,7 @@ const AnnotationPanel = ({
             size="sm"
             className="flex-1"
             onClick={onNext}
-            title="Next segment (→)"
+            title="Next conversation (→)"
           >
             Next
             <ChevronRight />

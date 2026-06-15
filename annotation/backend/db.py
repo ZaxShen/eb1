@@ -163,6 +163,15 @@ def conversation_messages(dataset: str, conversation: str, root: Path | None = N
     return load_conversation_messages(dataset, root).get(conversation, [])
 
 
+def conversation_message_counts(dataset: str, root: Path | None = None) -> dict[str, int]:
+    """Return message count per conversation id (empty if no sample file)."""
+    try:
+        conversations = load_conversation_messages(dataset, root)
+    except FileNotFoundError:
+        return {}
+    return {conv: len(messages) for conv, messages in conversations.items()}
+
+
 def serialize_messages(messages: list[dict]) -> list[dict]:
     """Project normalized messages to JSON-safe dicts for the API.
 

@@ -13,6 +13,7 @@ from annotation.backend.models import (
     AnnotateResponse,
     BoundaryRequest,
     BoundaryResponse,
+    ConversationSummary,
     ConversationView,
     GoldSegment,
     Message,
@@ -123,6 +124,47 @@ def get_segment(dataset: str, segment_id: int) -> SegmentDetail:
         span=span,
         siblings=siblings,
     )
+
+
+@router.get("/datasets/{dataset}/conversations", response_model=list[ConversationSummary])
+def list_conversations(dataset: str) -> list[ConversationSummary]:
+    """Return one row per conversation/user for the review queue.
+
+    Groups ``run_segment`` rows by conversation (segment count, distinct
+    topics), counts messages via the dataset adapter, and folds in review
+    state from gold.db.
+    """
+    _require_dataset(dataset)
+    reviewed_ids = db.reviewed_base_segment_ids(dataset, _root())
+    message_counts = db.conversation_message_counts(dataset, _root())
+    segments = db.read_run_segments(dataset, _root())
+
+    grouped: dict[str, dict] = {}
+    for seg in segments:
+        conv = seg["conversation"]
+        row = grouped.setdefault(
+            conv, {"segment_count": 0, "topics": [], "reviewed_count": 0}
+        )
+        row["segment_count"] += 1
+        topic = seg["topic"]
+        if topic and topic not in row["topics"]:
+            row["topics"].append(topic)
+        if seg["id"] in reviewed_ids:
+            row["reviewed_count"] += 1
+
+    result: list[ConversationSummary] = []
+    for conv, row in grouped.items():
+        result.append(
+            ConversationSummary(
+                conversation=conv,
+                message_count=message_counts.get(conv, 0),
+                segment_count=row["segment_count"],
+                topics=row["topics"],
+                reviewed_count=row["reviewed_count"],
+                reviewed=row["reviewed_count"] == row["segment_count"],
+            )
+        )
+    return result
 
 
 @router.get("/datasets/{dataset}/conversations/{conversation}", response_model=ConversationView)

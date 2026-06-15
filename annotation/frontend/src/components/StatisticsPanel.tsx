@@ -1,4 +1,4 @@
-import type { SegmentFilters, Stats } from "../api";
+import type { ConversationFilters, Stats } from "../api";
 import type { TaxonomyMap } from "../lib/taxonomy";
 import { Badge } from "@/components/ui/badge";
 import { cn, formatLabel } from "../lib/utils";
@@ -6,9 +6,9 @@ import { topicBarClass } from "../lib/badges";
 
 interface StatisticsPanelProps {
   stats: Stats | null;
-  filters: SegmentFilters;
+  filters: ConversationFilters;
   taxonomy: TaxonomyMap;
-  onFiltersChange: (filters: SegmentFilters) => void;
+  onFiltersChange: (filters: ConversationFilters) => void;
 }
 
 const StatisticsPanel = ({

@@ -54,6 +54,17 @@ class GoldSegment(BaseModel):
     reviewed_at: str | None = None
 
 
+class ConversationSummary(BaseModel):
+    """One row in the user/conversation review queue."""
+
+    conversation: str
+    message_count: int
+    segment_count: int
+    topics: list[str] = Field(default_factory=list)
+    reviewed_count: int
+    reviewed: bool = False
+
+
 class ConversationView(BaseModel):
     """All messages + all machine segments for the boundary-edit view."""
 

@@ -1,6 +1,10 @@
 import { useMemo } from "react";
 import { ArrowUpToLine, Scissors } from "lucide-react";
-import type { Message, SegmentDetail, SegmentSummary } from "../api";
+import type {
+  ConversationView,
+  Message,
+  SegmentSummary,
+} from "../api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -9,7 +13,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { topicColorClass, SUBTOPIC_BADGE_CLASS } from "../lib/badges";
+import {
+  sentimentBadgeClass,
+  SUBTOPIC_BADGE_CLASS,
+  topicColorClass,
+} from "../lib/badges";
 import {
   cn,
   formatChatTimestamp,
@@ -45,12 +53,10 @@ function isUserRole(type: string): boolean {
 const MessageBubble = ({
   msg,
   prevMsg,
-  muted,
   onSplitHere,
 }: {
   msg: Message;
   prevMsg?: Message;
-  muted?: boolean;
   onSplitHere?: () => void;
 }) => {
   const isUser = isUserRole(msg.type);
@@ -64,7 +70,6 @@ const MessageBubble = ({
       className={cn(
         "group flex flex-col gap-0.5",
         isUser ? "items-start" : "items-end",
-        muted && "opacity-60",
       )}
     >
       {(isFirstInSeries || showTimestamp) && (
@@ -103,15 +108,16 @@ const MessageBubble = ({
               <Button
                 variant="ghost"
                 size="icon-xs"
-                onClick={onSplitHere}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSplitHere();
+                }}
                 className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
               >
                 <Scissors />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>
-              Split a new segment starting here
-            </TooltipContent>
+            <TooltipContent>Split a new segment starting here</TooltipContent>
           </Tooltip>
         )}
       </div>
@@ -140,7 +146,10 @@ const SegmentDivider = ({
           <Button
             variant="ghost"
             size="icon-xs"
-            onClick={onMergePrev}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMergePrev();
+            }}
             className="shrink-0"
           >
             <ArrowUpToLine />
@@ -174,7 +183,7 @@ const SegmentDivider = ({
       </Badge>
     )}
     {segment.sentiment && (
-      <Badge variant="outline" className="text-muted-foreground">
+      <Badge variant="outline" className={sentimentBadgeClass(segment.sentiment)}>
         {segment.sentiment}
       </Badge>
     )}
@@ -184,32 +193,34 @@ const SegmentDivider = ({
   </div>
 );
 
-interface SegmentMessagesProps {
-  detail: SegmentDetail | null;
+interface ConversationStreamProps {
+  view: ConversationView | null;
   loading: boolean;
-  onSelectSegment: (segmentId: number) => void;
+  selectedSegmentId: number | null;
+  onSelectSegment: (segment: SegmentSummary) => void;
   onReplaceBoundaries: (spans: { message_indices: number[] }[]) => void;
 }
 
-const SegmentMessages = ({
-  detail,
+const ConversationStream = ({
+  view,
   loading,
+  selectedSegmentId,
   onSelectSegment,
   onReplaceBoundaries,
-}: SegmentMessagesProps) => {
-  // Order siblings into contiguous spans by their first message index.
-  const orderedSpans = useMemo(() => {
-    if (!detail) return [];
-    return [...detail.siblings].sort(
+}: ConversationStreamProps) => {
+  // Order segments into contiguous spans by their first message index.
+  const orderedSegments = useMemo(() => {
+    if (!view) return [];
+    return [...view.segments].sort(
       (a, b) => (a.message_indices[0] ?? 0) - (b.message_indices[0] ?? 0),
     );
-  }, [detail]);
+  }, [view]);
 
   const byIndex = useMemo(() => {
     const map = new Map<number, Message>();
-    for (const m of detail?.messages ?? []) map.set(m.index, m);
+    for (const m of view?.messages ?? []) map.set(m.index, m);
     return map;
-  }, [detail]);
+  }, [view]);
 
   if (loading) {
     return (
@@ -219,55 +230,46 @@ const SegmentMessages = ({
     );
   }
 
-  if (!detail) {
+  if (!view) {
     return (
       <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-        Select a segment
+        Select a conversation
       </div>
     );
   }
 
-  const currentId = detail.segment.id;
-
-  /** Split the current span into two at `splitIndex` (which starts span 2). */
-  const handleSplitHere = (splitIndex: number) => {
-    const newSpans = orderedSpans.map((span) => {
-      if (span.id !== currentId) {
-        return { message_indices: span.message_indices };
+  /** Split the span at `segmentId` into two at `splitIndex` (starts span 2). */
+  const handleSplitHere = (segmentId: number, splitIndex: number) => {
+    const flattened: { message_indices: number[] }[] = [];
+    for (const span of orderedSegments) {
+      if (span.id !== segmentId) {
+        flattened.push({ message_indices: span.message_indices });
+        continue;
       }
       const before = span.message_indices.filter((i) => i < splitIndex);
       const after = span.message_indices.filter((i) => i >= splitIndex);
-      return [before, after];
-    });
-    const flattened: { message_indices: number[] }[] = [];
-    for (const entry of newSpans) {
-      if (Array.isArray(entry)) {
-        for (const part of entry) {
-          if (part.length > 0) flattened.push({ message_indices: part });
-        }
-      } else {
-        flattened.push(entry);
-      }
+      if (before.length > 0) flattened.push({ message_indices: before });
+      if (after.length > 0) flattened.push({ message_indices: after });
     }
     onReplaceBoundaries(flattened);
   };
 
-  /** Merge the current span into the immediately-previous span. */
-  const handleMergePrev = () => {
-    const currentPos = orderedSpans.findIndex((s) => s.id === currentId);
-    if (currentPos <= 0) return;
+  /** Merge the span at `segmentId` into the immediately-previous span. */
+  const handleMergePrev = (segmentId: number) => {
+    const pos = orderedSegments.findIndex((s) => s.id === segmentId);
+    if (pos <= 0) return;
     const spans: { message_indices: number[] }[] = [];
-    for (let i = 0; i < orderedSpans.length; i += 1) {
-      if (i === currentPos) continue;
-      if (i === currentPos - 1) {
+    for (let i = 0; i < orderedSegments.length; i += 1) {
+      if (i === pos) continue;
+      if (i === pos - 1) {
         spans.push({
           message_indices: [
-            ...orderedSpans[i].message_indices,
-            ...orderedSpans[currentPos].message_indices,
+            ...orderedSegments[i].message_indices,
+            ...orderedSegments[pos].message_indices,
           ].sort((a, b) => a - b),
         });
       } else {
-        spans.push({ message_indices: orderedSpans[i].message_indices });
+        spans.push({ message_indices: orderedSegments[i].message_indices });
       }
     }
     onReplaceBoundaries(spans);
@@ -276,28 +278,35 @@ const SegmentMessages = ({
   return (
     <ScrollArea className="min-h-0 flex-1">
       <div className="flex flex-col gap-1 p-3">
-        {orderedSpans.map((span, spanIdx) => {
-          const isCurrent = span.id === currentId;
-          const messages = span.message_indices
+        {orderedSegments.length === 0 && (
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            No segments for this conversation
+          </p>
+        )}
+        {orderedSegments.map((segment, segIdx) => {
+          const isSelected = segment.id === selectedSegmentId;
+          const messages = segment.message_indices
             .map((i) => byIndex.get(i))
             .filter((m): m is Message => Boolean(m));
           return (
-            <div key={span.id} className={cn(!isCurrent && "opacity-70")}>
-              {isCurrent ? (
-                <SegmentDivider
-                  label="Current"
-                  segment={span}
-                  current
-                  onMergePrev={spanIdx > 0 ? handleMergePrev : undefined}
-                />
-              ) : (
-                <button
-                  onClick={() => onSelectSegment(span.id)}
-                  className="w-full transition-opacity hover:opacity-100"
-                >
-                  <SegmentDivider label="Context" segment={span} />
-                </button>
+            <div
+              key={segment.id}
+              onClick={() => onSelectSegment(segment)}
+              className={cn(
+                "cursor-pointer rounded-lg px-1 transition-colors",
+                isSelected
+                  ? "bg-accent ring-1 ring-primary/30"
+                  : "hover:bg-accent/40",
               )}
+            >
+              <SegmentDivider
+                label={isSelected ? "Selected" : `Segment ${segIdx + 1}`}
+                segment={segment}
+                current={isSelected}
+                onMergePrev={
+                  segIdx > 0 ? () => handleMergePrev(segment.id) : undefined
+                }
+              />
               <div className="flex flex-col gap-0.5 pb-2">
                 {messages.length === 0 && (
                   <p className="text-center text-[10px] italic text-muted-foreground">
@@ -309,10 +318,9 @@ const SegmentMessages = ({
                     key={msg.id}
                     msg={msg}
                     prevMsg={messages[i - 1]}
-                    muted={!isCurrent}
                     onSplitHere={
-                      isCurrent && i > 0
-                        ? () => handleSplitHere(msg.index)
+                      i > 0
+                        ? () => handleSplitHere(segment.id, msg.index)
                         : undefined
                     }
                   />
@@ -326,4 +334,4 @@ const SegmentMessages = ({
   );
 };
 
-export default SegmentMessages;
+export default ConversationStream;

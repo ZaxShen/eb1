@@ -43,6 +43,15 @@ export interface GoldSegment {
   reviewed_at: string | null;
 }
 
+export interface ConversationSummary {
+  conversation: string;
+  message_count: number;
+  segment_count: number;
+  topics: string[];
+  reviewed_count: number;
+  reviewed: boolean;
+}
+
 export interface ConversationView {
   conversation: string;
   messages: Message[];
@@ -98,6 +107,11 @@ export interface SegmentFilters {
   max_confidence?: number;
 }
 
+export interface ConversationFilters {
+  status?: "reviewed" | "unreviewed";
+  topic?: string;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`/api${path}`, {
     headers: { "Content-Type": "application/json" },
@@ -129,6 +143,21 @@ function qs(params: Record<string, string | number | undefined>): string {
 
 export const api = {
   listDatasets: () => request<string[]>("/datasets"),
+
+  listConversations: async (
+    dataset: string,
+    filters: ConversationFilters = {},
+  ): Promise<ConversationSummary[]> => {
+    const rows = await request<ConversationSummary[]>(
+      `/datasets/${encodeURIComponent(dataset)}/conversations`,
+    );
+    return rows.filter((row) => {
+      if (filters.status === "reviewed" && !row.reviewed) return false;
+      if (filters.status === "unreviewed" && row.reviewed) return false;
+      if (filters.topic && !row.topics.includes(filters.topic)) return false;
+      return true;
+    });
+  },
 
   listSegments: (dataset: string, filters: SegmentFilters = {}) =>
     request<SegmentSummary[]>(

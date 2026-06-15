@@ -1,28 +1,31 @@
 # UFL Annotation — Frontend
 
-React + Vite + TypeScript + Tailwind UI for reviewing machine segments,
-relabeling topics/subtopics, and editing segment boundaries (split / merge).
-It consumes the FastAPI backend in `../backend` through the Vite dev proxy
-(`/api` → `http://localhost:8000`).
+React + Vite + TypeScript + Tailwind UI for **user/conversation-level** review:
+browse conversations, read each one's full chat stream with all its machine
+segments overlaid inline, relabel topics/subtopics, and edit segment boundaries
+(split / merge). It consumes the FastAPI backend in `../backend` through the
+Vite dev proxy (`/api` → `http://localhost:8000`).
 
 ## Layout
 
 A full-height **3-column resizable** frame (via `react-resizable-panels`), each
-column a rounded-xl card, faithfully matching ufl-dev's TopicAnnotation UX. A
-slim topbar carries the **dataset picker** and a light/dark theme toggle.
+column a rounded-xl card. A slim topbar carries the **dataset picker** and a
+light/dark theme toggle.
 
-- **SegmentQueue** (left, ~22%) — filterable review queue (review status, topic,
-  max-confidence slider) of **segment cards**: avatar + conversation label +
-  **color-coded topic / subtopic / sentiment badges** + confidence. The selected
-  card is highlighted.
-- **SegmentMessages** (center, ~50%) — a chat thread with **bubbles colored by
-  role** (assistant=emerald, user=neutral, automated=amber, team=sky). The
-  selected segment is delimited by a **divider carrying its topic/subtopic/
-  sentiment badges**; the conversation's other segments render as muted,
-  clickable context. **Boundary controls**: per-message **split here** and a
-  per-segment **merge with previous**, both `POST` to `/boundaries` (REPLACE
-  semantics).
-- **Right rail** (~28%) — a vertical stack of three cards:
+- **ConversationQueue** (left, ~22%) — filterable list (review status, topic) of
+  **conversation cards**, one per conversation/user: avatar + conversation id +
+  **color-coded topic badges** + message / segment counts + reviewed indicator.
+  Selecting a card loads that conversation's stream. Sourced from
+  `/conversations`.
+- **ConversationStream** (center, ~50%) — the selected conversation's **full
+  message stream** with **bubbles colored by role** (semantic role tokens) and
+  **every segment overlaid inline**: each segment opens with a **labeled divider
+  carrying its topic/subtopic/sentiment badges**, and clicking a segment region
+  selects it for the right rail. **Boundary controls**: per-message **split
+  here** and a per-segment **merge with previous**, both `POST` to `/boundaries`
+  (REPLACE semantics). Sourced from `/conversations/{conv}`.
+- **Right rail** (~28%) — a vertical stack of three cards, acting on the segment
+  selected in the stream:
   - **StatisticsPanel** — total / reviewed / unreviewed badges (clickable
     filters) + per-topic mini-bars (`/stats`).
   - **AnnotationPanel** — topic + subtopic selects (subtopic list depends on the
@@ -39,7 +42,7 @@ slim topbar carries the **dataset picker** and a light/dark theme toggle.
 |-----|--------|
 | `Enter` | Save the current label (`POST /annotate`) |
 | `Space` | Confirm the AI label (copies it into the form) |
-| `←` / `→` | Previous / next segment in the queue |
+| `←` / `→` | Previous / next conversation in the queue |
 
 (Shortcuts are ignored while typing in an input or select.)
 

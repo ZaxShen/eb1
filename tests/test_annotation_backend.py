@@ -210,6 +210,40 @@ def test_get_segment_returns_messages_and_span(client):
     assert sibling_ids == {1, 2}
 
 
+def test_list_conversations_one_row_per_conversation(client):
+    resp = client.get("/api/datasets/wildchat/conversations")
+    assert resp.status_code == 200
+    rows = resp.json()
+    assert len(rows) == 2
+    by_conv = {r["conversation"]: r for r in rows}
+    assert set(by_conv) == {CONV_A, CONV_B}
+
+    a = by_conv[CONV_A]
+    assert a["message_count"] == 4
+    assert a["segment_count"] == 2
+    assert set(a["topics"]) == {"writing_help", "factual_question"}
+    assert a["reviewed_count"] == 0
+    assert a["reviewed"] is False
+
+    b = by_conv[CONV_B]
+    assert b["message_count"] == 2
+    assert b["segment_count"] == 1
+    assert b["topics"] == ["coding_help"]
+
+
+def test_list_conversations_reflects_review_state(client):
+    client.post(
+        "/api/datasets/wildchat/segments/3/annotate",
+        json={"true_topic": "coding_help", "true_subtopic": "binary_search_implementation"},
+    )
+    rows = {r["conversation"]: r for r in client.get(
+        "/api/datasets/wildchat/conversations"
+    ).json()}
+    assert rows[CONV_B]["reviewed_count"] == 1
+    assert rows[CONV_B]["reviewed"] is True
+    assert rows[CONV_A]["reviewed"] is False
+
+
 def test_get_conversation_boundary_view(client):
     resp = client.get(f"/api/datasets/wildchat/conversations/{CONV_A}")
     assert resp.status_code == 200

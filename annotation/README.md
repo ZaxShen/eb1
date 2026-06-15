@@ -1,17 +1,18 @@
 # UFL Annotation Site
 
-A trimmed data-annotation web app for reviewing and relabeling UFL machine
-segments and editing their boundaries (split / merge → gold spans). Modeled on
-ufl-dev's `docker-topic-annotation` 3-panel UX, but without Redis / RabbitMQ /
-Mongo / Postgres and without auth.
+A trimmed data-annotation web app for **user/conversation-level** review of UFL
+machine segments: browse conversations, read each one's full chat stream with
+all its segments overlaid inline, relabel topics/subtopics, and edit boundaries
+(split / merge → gold spans). Without Redis / RabbitMQ / Mongo / Postgres and
+without auth.
 
 - **`backend/`** — FastAPI + per-dataset SQLite gold store. Reads machine
   segments from `datasets/<name>/output.db`, taxonomy from the metadata
   provider, and writes human gold (corrected topic/subtopic + boundaries).
-- **`frontend/`** — React + Vite + TypeScript + Tailwind, a faithful rebuild of
-  ufl-dev's 3-column TopicAnnotation UI: resizable queue | color-by-role chat
-  thread with labeled segment dividers + boundary split/merge | a Stats /
-  Annotation / Fields right rail.
+- **`frontend/`** — React + Vite + TypeScript + Tailwind: a resizable
+  **conversation queue** | the selected conversation's **full color-by-role chat
+  stream with all segments as inline labeled dividers** + boundary split/merge |
+  a Stats / Annotation / Fields right rail acting on the selected segment.
 
 ## One-command dev
 

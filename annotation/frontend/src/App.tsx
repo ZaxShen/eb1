@@ -4,8 +4,9 @@ import { toast } from "sonner";
 import {
   api,
   type BoundarySpan,
-  type SegmentDetail,
-  type SegmentFilters,
+  type ConversationFilters,
+  type ConversationSummary,
+  type ConversationView,
   type SegmentSummary,
   type Stats,
   type TaxonomyEntry,
@@ -27,8 +28,8 @@ import {
 } from "@/components/ui/select";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import SegmentQueue from "./components/SegmentQueue";
-import SegmentMessages from "./components/SegmentMessages";
+import ConversationQueue from "./components/ConversationQueue";
+import ConversationStream from "./components/ConversationStream";
 import StatisticsPanel from "./components/StatisticsPanel";
 import AnnotationPanel from "./components/AnnotationPanel";
 import SegmentFieldsPanel from "./components/SegmentFieldsPanel";
@@ -55,13 +56,19 @@ export default function App() {
   const [datasets, setDatasets] = useState<string[]>([]);
   const [dataset, setDataset] = useState("");
 
-  const [segments, setSegments] = useState<SegmentSummary[]>([]);
-  const [filters, setFilters] = useState<SegmentFilters>({});
+  const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+  const [filters, setFilters] = useState<ConversationFilters>({});
   const [queueLoading, setQueueLoading] = useState(false);
 
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [detail, setDetail] = useState<SegmentDetail | null>(null);
-  const [detailLoading, setDetailLoading] = useState(false);
+  const [selectedConversation, setSelectedConversation] = useState<
+    string | null
+  >(null);
+  const [view, setView] = useState<ConversationView | null>(null);
+  const [viewLoading, setViewLoading] = useState(false);
+
+  const [selectedSegment, setSelectedSegment] = useState<SegmentSummary | null>(
+    null,
+  );
 
   const [taxonomyEntries, setTaxonomyEntries] = useState<TaxonomyEntry[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -96,11 +103,11 @@ export default function App() {
   );
 
   const refreshQueue = useCallback(
-    (ds: string, f: SegmentFilters) => {
+    (ds: string, f: ConversationFilters) => {
       setQueueLoading(true);
       api
-        .listSegments(ds, f)
-        .then(setSegments)
+        .listConversations(ds, f)
+        .then(setConversations)
         .catch(fail)
         .finally(() => setQueueLoading(false));
     },
@@ -109,8 +116,9 @@ export default function App() {
 
   useEffect(() => {
     if (!dataset) return;
-    setSelectedId(null);
-    setDetail(null);
+    setSelectedConversation(null);
+    setView(null);
+    setSelectedSegment(null);
     api.getTaxonomy(dataset).then(setTaxonomyEntries).catch(fail);
     refreshStats(dataset);
   }, [dataset, refreshStats, fail]);
@@ -120,86 +128,105 @@ export default function App() {
     refreshQueue(dataset, filters);
   }, [dataset, filters, refreshQueue]);
 
-  const loadSegment = useCallback(
-    (segmentId: number) => {
+  const selectSegment = useCallback((segment: SegmentSummary) => {
+    setSelectedSegment(segment);
+    setTopic(segment.topic ?? "");
+    setSubtopic(segment.subtopic ?? "");
+  }, []);
+
+  const loadConversation = useCallback(
+    (conversation: string) => {
       if (!dataset) return;
-      setSelectedId(segmentId);
-      setDetailLoading(true);
+      setSelectedConversation(conversation);
+      setViewLoading(true);
       api
-        .getSegment(dataset, segmentId)
-        .then((d) => {
-          setDetail(d);
-          setTopic(d.segment.topic ?? "");
-          setSubtopic(d.segment.subtopic ?? "");
+        .getConversation(dataset, conversation)
+        .then((v) => {
+          setView(v);
+          const first = [...v.segments].sort(
+            (a, b) =>
+              (a.message_indices[0] ?? 0) - (b.message_indices[0] ?? 0),
+          )[0];
+          if (first) {
+            selectSegment(first);
+          } else {
+            setSelectedSegment(null);
+          }
         })
         .catch(fail)
-        .finally(() => setDetailLoading(false));
+        .finally(() => setViewLoading(false));
     },
-    [dataset, fail],
+    [dataset, fail, selectSegment],
   );
 
-  const selectAdjacent = useCallback(
+  const selectAdjacentConversation = useCallback(
     (delta: number) => {
-      if (segments.length === 0) return;
-      const idx = segments.findIndex((s) => s.id === selectedId);
+      if (conversations.length === 0) return;
+      const idx = conversations.findIndex(
+        (c) => c.conversation === selectedConversation,
+      );
       const nextIdx =
-        idx < 0 ? 0 : Math.min(Math.max(idx + delta, 0), segments.length - 1);
-      loadSegment(segments[nextIdx].id);
+        idx < 0
+          ? 0
+          : Math.min(Math.max(idx + delta, 0), conversations.length - 1);
+      loadConversation(conversations[nextIdx].conversation);
     },
-    [segments, selectedId, loadSegment],
+    [conversations, selectedConversation, loadConversation],
   );
 
   const afterWrite = useCallback(() => {
     if (!dataset) return;
     refreshQueue(dataset, filters);
     refreshStats(dataset);
-    if (selectedId != null) loadSegment(selectedId);
-  }, [dataset, filters, refreshQueue, refreshStats, selectedId, loadSegment]);
+    if (selectedConversation) loadConversation(selectedConversation);
+  }, [
+    dataset,
+    filters,
+    refreshQueue,
+    refreshStats,
+    selectedConversation,
+    loadConversation,
+  ]);
 
   const handleSave = useCallback(() => {
-    if (!dataset || selectedId == null || topic.trim() === "") return;
+    if (!dataset || !selectedSegment || topic.trim() === "") return;
     setSaving(true);
     api
-      .annotate(dataset, selectedId, {
+      .annotate(dataset, selectedSegment.id, {
         true_topic: topic,
         true_subtopic: subtopic,
         reviewed_by: reviewedBy || null,
       })
       .then(() => {
         toast.success("Annotation saved");
-        refreshQueue(dataset, filters);
-        refreshStats(dataset);
-        selectAdjacent(1);
+        afterWrite();
       })
       .catch(fail)
       .finally(() => setSaving(false));
   }, [
     dataset,
-    selectedId,
+    selectedSegment,
     topic,
     subtopic,
     reviewedBy,
-    filters,
-    refreshQueue,
-    refreshStats,
-    selectAdjacent,
+    afterWrite,
     fail,
   ]);
 
   const handleConfirmAi = useCallback(() => {
-    if (!detail) return;
-    const aiTopic = detail.segment.topic ?? "";
-    const aiSubtopic = detail.segment.subtopic ?? "";
+    if (!selectedSegment) return;
+    const aiTopic = selectedSegment.topic ?? "";
+    const aiSubtopic = selectedSegment.subtopic ?? "";
     if (aiTopic === "") return;
     setTopic(aiTopic);
     setSubtopic(aiSubtopic);
-  }, [detail]);
+  }, [selectedSegment]);
 
   const handleReplaceBoundaries = useCallback(
     (spans: BoundarySpan[]) => {
-      if (!dataset || !detail) return;
+      if (!dataset || !selectedConversation) return;
       api
-        .replaceBoundaries(dataset, detail.segment.conversation, {
+        .replaceBoundaries(dataset, selectedConversation, {
           segments: spans,
           reviewed_by: reviewedBy || null,
         })
@@ -209,16 +236,16 @@ export default function App() {
         })
         .catch(fail);
     },
-    [dataset, detail, reviewedBy, afterWrite, fail],
+    [dataset, selectedConversation, reviewedBy, afterWrite, fail],
   );
 
   // Keyboard orchestration (ignored while typing in inputs/selects).
   const saveRef = useRef(handleSave);
   const confirmRef = useRef(handleConfirmAi);
-  const adjacentRef = useRef(selectAdjacent);
+  const adjacentRef = useRef(selectAdjacentConversation);
   saveRef.current = handleSave;
   confirmRef.current = handleConfirmAi;
-  adjacentRef.current = selectAdjacent;
+  adjacentRef.current = selectAdjacentConversation;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -296,14 +323,14 @@ export default function App() {
         >
           <ResizablePanel defaultSize={22} minSize={15} maxSize={35}>
             <Card className="h-full gap-0 overflow-hidden py-0">
-              <SegmentQueue
-                segments={segments}
-                selectedId={selectedId}
+              <ConversationQueue
+                conversations={conversations}
+                selectedConversation={selectedConversation}
                 filters={filters}
                 taxonomy={taxonomy}
                 loading={queueLoading}
-                total={stats?.total ?? segments.length}
-                onSelect={loadSegment}
+                total={conversations.length}
+                onSelect={loadConversation}
                 onFiltersChange={setFilters}
               />
             </Card>
@@ -313,10 +340,11 @@ export default function App() {
 
           <ResizablePanel defaultSize={50} minSize={30}>
             <Card className="flex h-full flex-col gap-0 overflow-hidden py-0">
-              <SegmentMessages
-                detail={detail}
-                loading={detailLoading}
-                onSelectSegment={loadSegment}
+              <ConversationStream
+                view={view}
+                loading={viewLoading}
+                selectedSegmentId={selectedSegment?.id ?? null}
+                onSelectSegment={selectSegment}
                 onReplaceBoundaries={handleReplaceBoundaries}
               />
             </Card>
@@ -342,7 +370,7 @@ export default function App() {
               <ResizablePanel defaultSize={36} minSize={20}>
                 <Card className="flex h-full flex-col gap-0 overflow-hidden py-0">
                   <AnnotationPanel
-                    detail={detail}
+                    segment={selectedSegment}
                     taxonomy={taxonomy}
                     topic={topic}
                     subtopic={subtopic}
@@ -356,8 +384,8 @@ export default function App() {
                     onReviewedByChange={setReviewedBy}
                     onConfirmAi={handleConfirmAi}
                     onSave={handleSave}
-                    onPrev={() => selectAdjacent(-1)}
-                    onNext={() => selectAdjacent(1)}
+                    onPrev={() => selectAdjacentConversation(-1)}
+                    onNext={() => selectAdjacentConversation(1)}
                   />
                 </Card>
               </ResizablePanel>
@@ -366,7 +394,7 @@ export default function App() {
 
               <ResizablePanel defaultSize={36} minSize={20}>
                 <Card className="h-full gap-0 overflow-hidden py-0">
-                  <SegmentFieldsPanel segment={detail?.segment ?? null} />
+                  <SegmentFieldsPanel segment={selectedSegment} />
                 </Card>
               </ResizablePanel>
             </ResizablePanelGroup>
