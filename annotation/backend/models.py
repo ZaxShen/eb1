@@ -28,6 +28,8 @@ class SegmentSummary(BaseModel):
     sentiment: str | None = None
     label_confidence: float | None = None
     reviewed: bool = False
+    true_topic: str | None = None
+    true_subtopic: str | None = None
 
 
 class SegmentDetail(BaseModel):
@@ -112,6 +114,14 @@ class AnnotateResponse(BaseModel):
 
     gold_segment_id: int
     reviewed: bool = True
+
+
+class ClearAnnotationResponse(BaseModel):
+    """Result of clearing a segment's gold annotation."""
+
+    segment_id: int
+    deleted: int
+    reviewed: bool = False
 
 
 class BoundaryResponse(BaseModel):

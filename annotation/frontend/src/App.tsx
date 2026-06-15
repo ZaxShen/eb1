@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Moon, Sun, Database } from "lucide-react";
+import { Moon, Sun, Database, Redo2, Undo2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   api,
@@ -12,6 +12,7 @@ import {
   type TaxonomyEntry,
 } from "./api";
 import { buildTaxonomyMap } from "./lib/taxonomy";
+import { useHistory } from "./lib/useHistory";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -27,7 +28,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import ConversationQueue from "./components/ConversationQueue";
 import ConversationStream from "./components/ConversationStream";
 import StatisticsPanel from "./components/StatisticsPanel";
@@ -77,6 +83,8 @@ export default function App() {
   const [subtopic, setSubtopic] = useState("");
   const [reviewedBy, setReviewedBy] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const history = useHistory();
 
   const taxonomy = useMemo(
     () => buildTaxonomyMap(taxonomyEntries),
@@ -188,17 +196,53 @@ export default function App() {
     loadConversation,
   ]);
 
+  // History closures re-fetch via the latest afterWrite/dataset snapshot.
+  const afterWriteRef = useRef(afterWrite);
+  const datasetRef = useRef(dataset);
+  afterWriteRef.current = afterWrite;
+  datasetRef.current = dataset;
+
   const handleSave = useCallback(() => {
     if (!dataset || !selectedSegment || topic.trim() === "") return;
+    const segmentId = selectedSegment.id;
+    const reviewer = reviewedBy || null;
+    // Snapshot before-state BEFORE the write: the segment's current gold
+    // (or null if it was unannotated).
+    const before =
+      selectedSegment.true_topic !== null
+        ? {
+            true_topic: selectedSegment.true_topic,
+            true_subtopic: selectedSegment.true_subtopic ?? "",
+          }
+        : null;
+    const after = { true_topic: topic, true_subtopic: subtopic };
     setSaving(true);
     api
-      .annotate(dataset, selectedSegment.id, {
-        true_topic: topic,
-        true_subtopic: subtopic,
-        reviewed_by: reviewedBy || null,
-      })
+      .annotate(dataset, segmentId, { ...after, reviewed_by: reviewer })
       .then(() => {
         toast.success("Annotation saved");
+        history.push({
+          label: "relabel",
+          undo: async () => {
+            const ds = datasetRef.current;
+            if (before) {
+              await api.annotate(ds, segmentId, {
+                ...before,
+                reviewed_by: reviewer,
+              });
+            } else {
+              await api.clearAnnotation(ds, segmentId);
+            }
+            afterWriteRef.current();
+          },
+          redo: async () => {
+            await api.annotate(datasetRef.current, segmentId, {
+              ...after,
+              reviewed_by: reviewer,
+            });
+            afterWriteRef.current();
+          },
+        });
         afterWrite();
       })
       .catch(fail)
@@ -210,6 +254,7 @@ export default function App() {
     subtopic,
     reviewedBy,
     afterWrite,
+    history,
     fail,
   ]);
 
@@ -224,28 +269,56 @@ export default function App() {
 
   const handleReplaceBoundaries = useCallback(
     (spans: BoundarySpan[]) => {
-      if (!dataset || !selectedConversation) return;
-      api
-        .replaceBoundaries(dataset, selectedConversation, {
-          segments: spans,
-          reviewed_by: reviewedBy || null,
-        })
+      if (!dataset || !selectedConversation || !view) return;
+      const conversation = selectedConversation;
+      const reviewer = reviewedBy || null;
+      // Snapshot the conversation's CURRENT span set before the POST so undo
+      // can restore the prior boundaries.
+      const before: BoundarySpan[] = [...view.segments]
+        .sort((a, b) => (a.message_indices[0] ?? 0) - (b.message_indices[0] ?? 0))
+        .map((s) => ({
+          message_indices: s.message_indices,
+          topic: s.true_topic ?? s.topic,
+          subtopic: s.true_subtopic ?? s.subtopic,
+        }));
+      const after = spans;
+      const post = (segments: BoundarySpan[]) =>
+        api.replaceBoundaries(datasetRef.current, conversation, {
+          segments,
+          reviewed_by: reviewer,
+        });
+      post(after)
         .then(() => {
           toast.success("Boundaries updated");
+          history.push({
+            label: "boundary",
+            undo: async () => {
+              await post(before);
+              afterWriteRef.current();
+            },
+            redo: async () => {
+              await post(after);
+              afterWriteRef.current();
+            },
+          });
           afterWrite();
         })
         .catch(fail);
     },
-    [dataset, selectedConversation, reviewedBy, afterWrite, fail],
+    [dataset, selectedConversation, view, reviewedBy, afterWrite, history, fail],
   );
 
   // Keyboard orchestration (ignored while typing in inputs/selects).
   const saveRef = useRef(handleSave);
   const confirmRef = useRef(handleConfirmAi);
   const adjacentRef = useRef(selectAdjacentConversation);
+  const undoRef = useRef(history.undo);
+  const redoRef = useRef(history.redo);
   saveRef.current = handleSave;
   confirmRef.current = handleConfirmAi;
   adjacentRef.current = selectAdjacentConversation;
+  undoRef.current = history.undo;
+  redoRef.current = history.redo;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -255,9 +328,19 @@ export default function App() {
         tag === "INPUT" ||
         tag === "SELECT" ||
         tag === "TEXTAREA" ||
+        el?.isContentEditable === true ||
         el?.getAttribute("role") === "combobox" ||
         el?.closest("[data-radix-popper-content-wrapper]") != null;
       if (typing) return;
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        if (e.shiftKey) {
+          void redoRef.current();
+        } else {
+          void undoRef.current();
+        }
+        return;
+      }
       if (e.key === "Enter") {
         e.preventDefault();
         saveRef.current();
@@ -302,19 +385,48 @@ export default function App() {
               </SelectContent>
             </Select>
           </div>
-          <Button
-            variant="outline"
-            size="icon-sm"
-            onClick={toggle}
-            title="Toggle theme"
-            className="ml-auto"
-          >
-            {theme === "dark" ? (
-              <Sun className="size-4" />
-            ) : (
-              <Moon className="size-4" />
-            )}
-          </Button>
+          <div className="ml-auto flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  onClick={() => void history.undo()}
+                  disabled={!history.canUndo}
+                  aria-label="Undo"
+                >
+                  <Undo2 className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Undo (⌘/Ctrl+Z)</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  onClick={() => void history.redo()}
+                  disabled={!history.canRedo}
+                  aria-label="Redo"
+                >
+                  <Redo2 className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Redo (⌘/Ctrl+Shift+Z)</TooltipContent>
+            </Tooltip>
+            <Button
+              variant="outline"
+              size="icon-sm"
+              onClick={toggle}
+              title="Toggle theme"
+            >
+              {theme === "dark" ? (
+                <Sun className="size-4" />
+              ) : (
+                <Moon className="size-4" />
+              )}
+            </Button>
+          </div>
         </header>
 
         <ResizablePanelGroup

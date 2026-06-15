@@ -13,6 +13,7 @@ from annotation.backend.models import (
     AnnotateResponse,
     BoundaryRequest,
     BoundaryResponse,
+    ClearAnnotationResponse,
     ConversationSummary,
     ConversationView,
     GoldSegment,
@@ -43,7 +44,12 @@ def _require_dataset(dataset: str) -> None:
         raise HTTPException(status_code=404, detail=f"Unknown dataset: {dataset!r}")
 
 
-def _to_summary(seg: dict, reviewed_ids: set[int]) -> SegmentSummary:
+def _to_summary(
+    seg: dict,
+    reviewed_ids: set[int],
+    gold_labels: dict[int, dict] | None = None,
+) -> SegmentSummary:
+    gold = (gold_labels or {}).get(seg["id"]) or {}
     return SegmentSummary(
         id=seg["id"],
         conversation=seg["conversation"],
@@ -55,6 +61,8 @@ def _to_summary(seg: dict, reviewed_ids: set[int]) -> SegmentSummary:
         sentiment=seg["sentiment"],
         label_confidence=seg["label_confidence"],
         reviewed=seg["id"] in reviewed_ids,
+        true_topic=gold.get("topic"),
+        true_subtopic=gold.get("subtopic"),
     )
 
 
@@ -106,6 +114,7 @@ def get_segment(dataset: str, segment_id: int) -> SegmentDetail:
         raise HTTPException(status_code=404, detail=f"Unknown segment: {segment_id}")
 
     reviewed_ids = db.reviewed_base_segment_ids(dataset, _root())
+    gold_labels = db.gold_labels_by_base_segment(dataset, _root())
     messages = db.serialize_messages(
         db.conversation_messages(dataset, seg["conversation"], _root())
     )
@@ -114,12 +123,12 @@ def get_segment(dataset: str, segment_id: int) -> SegmentDetail:
         Message(**by_index[i]) for i in seg["message_indices"] if i in by_index
     ]
     siblings = [
-        _to_summary(s, reviewed_ids)
+        _to_summary(s, reviewed_ids, gold_labels)
         for s in db.read_run_segments(dataset, _root())
         if s["conversation"] == seg["conversation"]
     ]
     return SegmentDetail(
-        segment=_to_summary(seg, reviewed_ids),
+        segment=_to_summary(seg, reviewed_ids, gold_labels),
         messages=[Message(**m) for m in messages],
         span=span,
         siblings=siblings,
@@ -172,11 +181,12 @@ def get_conversation(dataset: str, conversation: str) -> ConversationView:
     """Return a conversation's messages plus all its segments (boundary view)."""
     _require_dataset(dataset)
     reviewed_ids = db.reviewed_base_segment_ids(dataset, _root())
+    gold_labels = db.gold_labels_by_base_segment(dataset, _root())
     messages = db.serialize_messages(
         db.conversation_messages(dataset, conversation, _root())
     )
     segments = [
-        _to_summary(s, reviewed_ids)
+        _to_summary(s, reviewed_ids, gold_labels)
         for s in db.read_run_segments(dataset, _root())
         if s["conversation"] == conversation
     ]
@@ -228,6 +238,27 @@ def annotate_segment(
         root=_root(),
     )
     return AnnotateResponse(gold_segment_id=gold_id)
+
+
+@router.delete(
+    "/datasets/{dataset}/segments/{segment_id}/annotate",
+    response_model=ClearAnnotationResponse,
+)
+def clear_segment_annotation(
+    dataset: str, segment_id: int
+) -> ClearAnnotationResponse:
+    """Clear a segment's gold annotation, reverting it to unannotated.
+
+    Deletes the segment's relabel/confirm gold_segment row(s) + its review_state
+    entry so undoing a first annotation reverts the segment to unreviewed.
+    """
+    _require_dataset(dataset)
+    seg = db.read_run_segment(dataset, segment_id, _root())
+    if seg is None:
+        raise HTTPException(status_code=404, detail=f"Unknown segment: {segment_id}")
+
+    deleted = db.clear_segment_annotation(dataset, segment_id, _root())
+    return ClearAnnotationResponse(segment_id=segment_id, deleted=deleted)
 
 
 @router.post(

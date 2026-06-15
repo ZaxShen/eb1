@@ -328,6 +328,55 @@ def _decode_gold_segment(row: sqlite3.Row) -> dict:
     }
 
 
+def gold_labels_by_base_segment(
+    dataset: str, root: Path | None = None
+) -> dict[int, dict]:
+    """Return current gold ``{topic, subtopic}`` keyed by base_segment_id.
+
+    Only relabel/confirm gold rows carry a base_segment_id; boundary rows have
+    NULL and are excluded. Lets segment responses expose the current gold so the
+    frontend can snapshot before-state for undo.
+    """
+    conn = open_gold_db(dataset, root)
+    try:
+        rows = conn.execute(
+            "SELECT base_segment_id, topic, subtopic FROM gold_segment "
+            "WHERE base_segment_id IS NOT NULL"
+        ).fetchall()
+    finally:
+        conn.close()
+    return {
+        r["base_segment_id"]: {"topic": r["topic"], "subtopic": r["subtopic"]}
+        for r in rows
+    }
+
+
+def clear_segment_annotation(
+    dataset: str, base_segment_id: int, root: Path | None = None
+) -> int:
+    """Clear a base segment's gold: delete its relabel/confirm gold_segment
+    row(s) + its review_state entry, reverting the segment to unannotated.
+
+    Returns the number of gold_segment rows deleted.
+    """
+    conn = open_gold_db(dataset, root)
+    try:
+        cur = conn.execute(
+            "DELETE FROM gold_segment WHERE base_segment_id = ? "
+            "AND source IN ('relabel', 'confirm')",
+            (base_segment_id,),
+        )
+        deleted = cur.rowcount
+        conn.execute(
+            "DELETE FROM review_state WHERE base_segment_id = ?",
+            (base_segment_id,),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return int(deleted)
+
+
 def reviewed_base_segment_ids(dataset: str, root: Path | None = None) -> set[int]:
     """Return base_segment_ids marked reviewed in review_state."""
     conn = open_gold_db(dataset, root)

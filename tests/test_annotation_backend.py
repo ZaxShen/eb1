@@ -300,6 +300,35 @@ def test_annotate_is_idempotent_no_duplicate_gold(client, datasets_root):
     assert mirrored[0]["source"] == "confirm"
 
 
+def test_clear_annotation_reverts_segment_to_unannotated(client, datasets_root):
+    client.post(
+        "/api/datasets/wildchat/segments/2/annotate",
+        json={"true_topic": "science_question", "true_subtopic": "astronomy_fact"},
+    )
+    assert client.get("/api/datasets/wildchat/stats").json()["reviewed"] == 1
+    detail = client.get("/api/datasets/wildchat/segments/2").json()
+    assert detail["segment"]["true_topic"] == "science_question"
+    assert detail["segment"]["reviewed"] is True
+
+    resp = client.delete("/api/datasets/wildchat/segments/2/annotate")
+    assert resp.status_code == 200
+    assert resp.json()["deleted"] == 1
+
+    gold = db.read_gold_segments("wildchat", CONV_A, datasets_root)
+    assert [g for g in gold if g["base_segment_id"] == 2] == []
+    assert client.get("/api/datasets/wildchat/stats").json()["reviewed"] == 0
+    detail = client.get("/api/datasets/wildchat/segments/2").json()
+    assert detail["segment"]["true_topic"] is None
+    assert detail["segment"]["reviewed"] is False
+
+
+def test_clear_annotation_unknown_segment_404(client):
+    assert (
+        client.delete("/api/datasets/wildchat/segments/999/annotate").status_code
+        == 404
+    )
+
+
 def test_boundaries_split_persists_two_gold_rows(client, datasets_root):
     resp = client.post(
         f"/api/datasets/wildchat/conversations/{CONV_A}/boundaries",

@@ -21,6 +21,8 @@ export interface SegmentSummary {
   sentiment: string | null;
   label_confidence: number | null;
   reviewed: boolean;
+  true_topic: string | null;
+  true_subtopic: string | null;
 }
 
 export interface SegmentDetail {
@@ -74,6 +76,12 @@ export interface AnnotateRequest {
 
 export interface AnnotateResponse {
   gold_segment_id: number;
+  reviewed: boolean;
+}
+
+export interface ClearAnnotationResponse {
+  segment_id: number;
+  deleted: number;
   reviewed: boolean;
 }
 
@@ -187,6 +195,12 @@ export const api = {
     request<AnnotateResponse>(
       `/datasets/${encodeURIComponent(dataset)}/segments/${segmentId}/annotate`,
       { method: "POST", body: JSON.stringify(body) },
+    ),
+
+  clearAnnotation: (dataset: string, segmentId: number) =>
+    request<ClearAnnotationResponse>(
+      `/datasets/${encodeURIComponent(dataset)}/segments/${segmentId}/annotate`,
+      { method: "DELETE" },
     ),
 
   replaceBoundaries: (
