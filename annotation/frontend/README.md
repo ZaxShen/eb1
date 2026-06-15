@@ -7,25 +7,38 @@ It consumes the FastAPI backend in `../backend` through the Vite dev proxy
 
 ## Layout
 
-Three panels, mirroring ufl-dev's annotation UX:
+A full-height **3-column resizable** frame (via `react-resizable-panels`), each
+column a rounded-xl card, faithfully matching ufl-dev's TopicAnnotation UX. A
+slim topbar carries the **dataset picker** and a light/dark theme toggle.
 
-- **SegmentQueue** (left) — filterable review queue (status, topic, max
-  confidence). Click a segment to load it.
-- **ConversationView** (center) — the full message thread with the selected
-  segment highlighted. Per-span controls **split here** (start a new span at a
-  message) and **merge prev** (combine adjacent spans) `POST` to `/boundaries`.
-- **AnnotationPanel** (right) — topic + subtopic selects (subtopic list depends
-  on the chosen topic, sourced from `/taxonomy`), **Confirm AI label**, **Save**
-  (`POST /annotate`), and an optional free-text reviewer-name field.
-
-A **StatsBar** across the top shows reviewed / unreviewed and per-topic counts.
+- **SegmentQueue** (left, ~22%) — filterable review queue (review status, topic,
+  max-confidence slider) of **segment cards**: avatar + conversation label +
+  **color-coded topic / subtopic / sentiment badges** + confidence. The selected
+  card is highlighted.
+- **SegmentMessages** (center, ~50%) — a chat thread with **bubbles colored by
+  role** (assistant=emerald, user=neutral, automated=amber, team=sky). The
+  selected segment is delimited by a **divider carrying its topic/subtopic/
+  sentiment badges**; the conversation's other segments render as muted,
+  clickable context. **Boundary controls**: per-message **split here** and a
+  per-segment **merge with previous**, both `POST` to `/boundaries` (REPLACE
+  semantics).
+- **Right rail** (~28%) — a vertical stack of three cards:
+  - **StatisticsPanel** — total / reviewed / unreviewed badges (clickable
+    filters) + per-topic mini-bars (`/stats`).
+  - **AnnotationPanel** — topic + subtopic selects (subtopic list depends on the
+    chosen topic, sourced from `/taxonomy`), **Confirm AI** (copies the predicted
+    label into the form), **Save** (`POST /annotate`), Prev/Next chevrons, and an
+    optional reviewer-name input.
+  - **SegmentFieldsPanel** — read-only list of every segment field (id,
+    conversation, chunk_index, message_indices, topic, subtopic, sentiment,
+    label_confidence, summary, reviewed).
 
 ### Keyboard shortcuts
 
 | Key | Action |
 |-----|--------|
-| `Enter` | Save the current label |
-| `Space` | Confirm the AI label as-is |
+| `Enter` | Save the current label (`POST /annotate`) |
+| `Space` | Confirm the AI label (copies it into the form) |
 | `←` / `→` | Previous / next segment in the queue |
 
 (Shortcuts are ignored while typing in an input or select.)

@@ -8,8 +8,10 @@ Mongo / Postgres and without auth.
 - **`backend/`** — FastAPI + per-dataset SQLite gold store. Reads machine
   segments from `datasets/<name>/output.db`, taxonomy from the metadata
   provider, and writes human gold (corrected topic/subtopic + boundaries).
-- **`frontend/`** — React + Vite + TypeScript + Tailwind 3-panel UI
-  (queue | conversation + boundary editing | annotation panel).
+- **`frontend/`** — React + Vite + TypeScript + Tailwind, a faithful rebuild of
+  ufl-dev's 3-column TopicAnnotation UI: resizable queue | color-by-role chat
+  thread with labeled segment dividers + boundary split/merge | a Stats /
+  Annotation / Fields right rail.
 
 ## One-command dev
 

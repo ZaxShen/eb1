@@ -1,9 +1,14 @@
-import { useMemo } from "react";
-import type { SegmentDetail, TaxonomyEntry } from "../api";
+import type { SegmentDetail } from "../api";
+import type { TaxonomyMap } from "../lib/taxonomy";
+import { sortedTopics, subtopicsFor } from "../lib/taxonomy";
+import { Button, Kbd } from "./ui/Button";
+import { ChevronLeft, ChevronRight } from "./icons";
+import { formatLabel } from "../lib/utils";
+import { topicTextColor } from "../lib/badges";
 
 interface AnnotationPanelProps {
   detail: SegmentDetail | null;
-  taxonomy: TaxonomyEntry[];
+  taxonomy: TaxonomyMap;
   topic: string;
   subtopic: string;
   reviewedBy: string;
@@ -11,11 +16,13 @@ interface AnnotationPanelProps {
   onTopicChange: (topic: string) => void;
   onSubtopicChange: (subtopic: string) => void;
   onReviewedByChange: (value: string) => void;
-  onSave: () => void;
   onConfirmAi: () => void;
+  onSave: () => void;
+  onPrev: () => void;
+  onNext: () => void;
 }
 
-export default function AnnotationPanel({
+const AnnotationPanel = ({
   detail,
   taxonomy,
   topic,
@@ -25,122 +32,113 @@ export default function AnnotationPanel({
   onTopicChange,
   onSubtopicChange,
   onReviewedByChange,
-  onSave,
   onConfirmAi,
-}: AnnotationPanelProps) {
-  const topics = useMemo(() => {
-    const seen = new Set<string>();
-    for (const entry of taxonomy) {
-      if (entry.topic) seen.add(entry.topic);
-    }
-    return [...seen].sort();
-  }, [taxonomy]);
-
-  const subtopics = useMemo(() => {
-    const seen = new Set<string>();
-    for (const entry of taxonomy) {
-      if (entry.topic === topic && entry.subtopic) seen.add(entry.subtopic);
-    }
-    return [...seen].sort();
-  }, [taxonomy, topic]);
-
+  onSave,
+  onPrev,
+  onNext,
+}: AnnotationPanelProps) => {
   if (!detail) {
     return (
-      <div className="p-4 text-sm text-slate-400">
-        Select a segment to annotate.
+      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+        Select a segment from the queue
       </div>
     );
   }
 
-  const seg = detail.segment;
-  const canSave = topic.trim() !== "" && subtopic.trim() !== "";
+  const topics = sortedTopics(taxonomy);
+  const subtopics = subtopicsFor(taxonomy, topic);
+  const aiTopic = detail.segment.topic;
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto p-4">
-      <div className="mb-4">
-        <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-          Segment #{seg.id}
+    <div className="flex h-full flex-col overflow-y-auto p-3">
+      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+        Annotation
+      </h3>
+
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-muted-foreground">True Topic</label>
+          <select
+            value={topic}
+            onChange={(e) => onTopicChange(e.target.value)}
+            className="rounded-md border border-border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            <option value="">Select a topic…</option>
+            {topics.map((t) => (
+              <option key={t} value={t} className={topicTextColor(t)}>
+                {taxonomy[t]?.name ?? formatLabel(t)}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="mt-1 text-sm text-slate-600">{seg.conversation}</div>
-        {seg.summary && (
-          <p className="mt-2 text-sm text-slate-500">{seg.summary}</p>
-        )}
-      </div>
 
-      <div className="mb-3 rounded border border-slate-200 bg-slate-50 p-2 text-xs text-slate-500">
-        AI label: <span className="font-medium">{seg.topic ?? "—"}</span> /{" "}
-        <span className="font-medium">{seg.subtopic ?? "—"}</span>
-        {seg.label_confidence != null && (
-          <span> (conf {seg.label_confidence.toFixed(2)})</span>
-        )}
-      </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-muted-foreground">True Subtopic</label>
+          <select
+            value={subtopic}
+            onChange={(e) => onSubtopicChange(e.target.value)}
+            disabled={!topic || subtopics.length === 0}
+            className="rounded-md border border-border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+          >
+            <option value="">
+              {topic ? "Select a subtopic…" : "Select a topic first"}
+            </option>
+            {subtopics.map((s) => (
+              <option key={s} value={s}>
+                {formatLabel(s)}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <label className="mb-1 text-xs font-medium text-slate-600">Topic</label>
-      <select
-        className="mb-3 rounded border border-slate-300 px-2 py-1 text-sm"
-        value={topic}
-        onChange={(e) => onTopicChange(e.target.value)}
-      >
-        <option value="">— select topic —</option>
-        {topics.map((t) => (
-          <option key={t} value={t}>
-            {t}
-          </option>
-        ))}
-      </select>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-muted-foreground">Reviewed by (optional)</label>
+          <input
+            value={reviewedBy}
+            onChange={(e) => onReviewedByChange(e.target.value)}
+            placeholder="your name"
+            className="rounded-md border border-border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+        </div>
 
-      <label className="mb-1 text-xs font-medium text-slate-600">
-        Subtopic
-      </label>
-      <select
-        className="mb-3 rounded border border-slate-300 px-2 py-1 text-sm disabled:bg-slate-100"
-        value={subtopic}
-        disabled={topic === ""}
-        onChange={(e) => onSubtopicChange(e.target.value)}
-      >
-        <option value="">— select subtopic —</option>
-        {subtopics.map((s) => (
-          <option key={s} value={s}>
-            {s}
-          </option>
-        ))}
-      </select>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={onConfirmAi}
+            disabled={!aiTopic}
+            title="Confirm the AI label (Space)"
+          >
+            Confirm AI
+            <Kbd>Space</Kbd>
+          </Button>
+          <Button
+            variant="primary"
+            className="flex-1"
+            onClick={onSave}
+            disabled={saving || !topic}
+            title="Save annotation (Enter)"
+          >
+            {saving ? "Saving…" : "Save"}
+            {!saving && <Kbd>Enter</Kbd>}
+          </Button>
+        </div>
 
-      <label className="mb-1 text-xs font-medium text-slate-600">
-        Reviewer name (optional)
-      </label>
-      <input
-        type="text"
-        className="mb-4 rounded border border-slate-300 px-2 py-1 text-sm"
-        placeholder="your name"
-        value={reviewedBy}
-        onChange={(e) => onReviewedByChange(e.target.value)}
-      />
-
-      <div className="mt-auto flex flex-col gap-2 pt-2">
-        <button
-          type="button"
-          onClick={onConfirmAi}
-          className="rounded border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
-          title="Accept the AI label as gold (Space)"
-        >
-          Confirm AI label{" "}
-          <span className="text-xs text-slate-400">(Space)</span>
-        </button>
-        <button
-          type="button"
-          onClick={onSave}
-          disabled={!canSave || saving}
-          className="rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-slate-300"
-          title="Save the corrected label (Enter)"
-        >
-          {saving ? "Saving…" : "Save"}{" "}
-          <span className="text-xs text-blue-200">(Enter)</span>
-        </button>
-        <p className="text-center text-xs text-slate-400">
-          ← / → to move between segments
-        </p>
+        <div className="flex gap-2">
+          <Button variant="outline" className="flex-1" onClick={onPrev} title="Previous segment (←)">
+            <ChevronLeft className="h-4 w-4" />
+            Prev
+            <Kbd>←</Kbd>
+          </Button>
+          <Button variant="outline" className="flex-1" onClick={onNext} title="Next segment (→)">
+            Next
+            <ChevronRight className="h-4 w-4" />
+            <Kbd>→</Kbd>
+          </Button>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default AnnotationPanel;
