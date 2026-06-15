@@ -61,3 +61,7 @@ docs/papers/**/*.synctex.gz
 
 # TMB plugin runtime state — never commit
 .claude/
+
+# Generated per-dataset SQLite artifacts (rebuilt by seed/runner)
+datasets/**/metadata.db
+datasets/**/output.db
