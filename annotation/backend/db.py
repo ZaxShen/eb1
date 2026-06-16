@@ -43,6 +43,11 @@ def _utcnow() -> datetime:
     return datetime.now(tz=timezone.utc)
 
 
+def _strip_nul(value: str) -> str:
+    """Drop NUL (0x00) bytes Postgres TEXT rejects (real WildChat content has them)."""
+    return value.replace("\x00", "")
+
+
 def get_pool() -> ConnectionPool:
     """Return the process-wide connection pool, opening it on first use.
 
@@ -288,7 +293,7 @@ def ingest_batch(dataset: str, conversations: list[dict]) -> int:
                 (dataset,),
             )
             for conv in conversations:
-                ext_id = conv["ext_id"]
+                ext_id = _strip_nul(conv["ext_id"])
                 messages = conv.get("messages", [])
                 conn.execute(
                     "INSERT INTO conversation (dataset, ext_id, message_count) "
@@ -311,8 +316,8 @@ def ingest_batch(dataset: str, conversations: list[dict]) -> int:
                         (
                             conv_id,
                             idx,
-                            m.get("role", ""),
-                            m.get("content", ""),
+                            _strip_nul(m.get("role", "")),
+                            _strip_nul(m.get("content", "")),
                             m.get("created_at"),
                         ),
                     )

@@ -40,6 +40,15 @@ WILDCHAT_ROW = {
     ],
 }
 
+WILDCHAT_ROW_WITH_NUL = {
+    "conversation_hash": "ingesttest_wc_nul",
+    "timestamp": "2023-04-09T00:02:53Z",
+    "conversation": [
+        {"role": "user", "content": "Tell me about\x00 the Andromeda galaxy."},
+        {"role": "assistant", "content": "It is\x00 about 2.5 million light-years away."},
+    ],
+}
+
 SUPERDIALSEG_DIALOGUE = {
     "dialogue_id": "ingesttest_sds_0001",
     "utterances": [
@@ -182,6 +191,41 @@ def test_wildchat_reingest_is_idempotent(monkeypatch, _db):
     counts = _counts(_db, "wildchat", "ingesttest_wc_0001")
     assert counts["messages"] == 4
     assert counts["predicted"] == [[0, 1, 2, 3]]
+
+
+@pg
+def test_wildchat_content_with_nul_byte_ingests(monkeypatch, _db):
+    """Real WildChat content has NUL (0x00) bytes Postgres TEXT rejects.
+
+    The ingester must strip them; ingest succeeds and stored content equals the
+    content with NUL removed.
+    """
+    from annotation.ingest import run
+    monkeypatch.setattr(
+        sources, "wildchat_stream", lambda limit=None: iter([WILDCHAT_ROW_WITH_NUL])
+    )
+
+    result = run.ingest("wildchat", batch_size=10)
+    assert result["written"] == 1
+
+    pool = _db.get_pool()
+    with pool.connection() as conn:
+        conv = conn.execute(
+            "SELECT id FROM conversation WHERE dataset = %s AND ext_id = %s",
+            ("wildchat", "ingesttest_wc_nul"),
+        ).fetchone()
+        rows = conn.execute(
+            "SELECT content FROM message WHERE conversation_id = %s ORDER BY idx",
+            (conv["id"],),
+        ).fetchall()
+
+    stored = [r["content"] for r in rows]
+    expected = [
+        m["content"].replace("\x00", "")
+        for m in WILDCHAT_ROW_WITH_NUL["conversation"]
+    ]
+    assert stored == expected
+    assert all("\x00" not in c for c in stored)
 
 
 @pg
