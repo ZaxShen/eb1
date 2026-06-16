@@ -79,6 +79,19 @@ export class AnnotationPage {
     return this.segments().count();
   }
 
+  /**
+   * The divider row for the i-th (0-based) segment: the element wrapping the
+   * "Segment N"/"Selected" label, which also holds that segment's merge control.
+   */
+  private dividerRow(i: number): Locator {
+    return this.segments().nth(i).locator("xpath=ancestor::div[1]");
+  }
+
+  /** How many dividers render the "No topic" placeholder (an empty label). */
+  async untopicedSegments(): Promise<number> {
+    return this.page.getByText("No topic", { exact: true }).count();
+  }
+
   /** Click the i-th (0-based) segment in the stream to select it. */
   async selectSegment(i: number): Promise<void> {
     await this.segments().nth(i).click();
@@ -86,27 +99,24 @@ export class AnnotationPage {
   }
 
   /**
-   * Split the i-th segment at the message bubble whose text contains `text`.
-   * Hovers to reveal the scissors control, then clicks it.
+   * Split a segment at the message bubble whose text contains `text`: the
+   * scissors control on that bubble starts a new segment there.
+   *
+   * The control is revealed on hover (`opacity-0` until `group-hover`), so we
+   * hover the bubble and force the click rather than waiting on the fade-in.
    */
-  async splitAt(i: number, text: string): Promise<void> {
+  async splitAt(_i: number, text: string): Promise<void> {
     const bubble = this.page.getByText(text, { exact: false }).first();
     await bubble.hover();
-    await bubble
-      .locator("xpath=ancestor::div[contains(@class,'group')]")
-      .getByRole("button")
-      .first()
-      .click();
+    const row = bubble.locator("xpath=ancestor::div[contains(@class,'gap-1')][1]");
+    await row.getByRole("button").first().click({ force: true });
   }
 
   /** Merge the i-th (0-based, i>=1) segment into the previous one. */
   async mergeSegment(i: number): Promise<void> {
-    await this.segments().nth(i).hover();
-    await this.page
-      .locator("button:has(svg)")
-      .filter({ hasText: "" })
-      .nth(i)
-      .click();
+    const row = this.dividerRow(i);
+    await row.hover();
+    await row.getByRole("button").first().click({ force: true });
   }
 
   // --- Right-hand segment fields panel -----------------------------------
@@ -154,10 +164,16 @@ export class AnnotationPage {
 
   // --- Statistics --------------------------------------------------------
 
-  /** The "<n> reviewed" count from the Statistics panel. */
+  /** The "<n> reviewed" count from the Statistics panel.
+   *
+   * Scoped to the Statistics card and anchored to the exact "<n> reviewed"
+   * badge so it never picks up the queue cards' "x/y reviewed" totals. */
   async statsReviewed(): Promise<number> {
+    const panel = this.page
+      .getByRole("heading", { name: "Statistics" })
+      .locator("xpath=ancestor::div[1]");
     const text =
-      (await this.page.getByText(/\d+ reviewed/).first().textContent()) ?? "0";
+      (await panel.getByText(/^\d+ reviewed$/).first().textContent()) ?? "0";
     return Number(text.replace(/\D+/g, ""));
   }
 }

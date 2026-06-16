@@ -100,6 +100,10 @@ export interface paths {
         /**
          * Replace Boundaries
          * @description REPLACE all gold_segments for a conversation with the posted spans.
+         *
+         *     Each new gold span inherits topic/subtopic/sentiment from the overlapping
+         *     predicted segment when the client leaves them unset, so split children keep
+         *     the parent's label and a merge takes the primary overlapped segment's label.
          */
         post: operations["replace_boundaries_api_datasets__dataset__conversations__conversation__boundaries_post"];
         delete?: never;
@@ -187,7 +191,7 @@ export interface paths {
         };
         /**
          * Get Stats
-         * @description Return review progress: totals and per-topic counts.
+         * @description Return review progress: totals and per-topic counts on the effective set.
          */
         get: operations["get_stats_api_datasets__dataset__stats_get"];
         put?: never;

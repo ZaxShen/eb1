@@ -899,7 +899,7 @@
     },
     "/api/datasets/{dataset}/conversations/{conversation}/boundaries": {
       "post": {
-        "description": "REPLACE all gold_segments for a conversation with the posted spans.",
+        "description": "REPLACE all gold_segments for a conversation with the posted spans.\n\nEach new gold span inherits topic/subtopic/sentiment from the overlapping\npredicted segment when the client leaves them unset, so split children keep\nthe parent's label and a merge takes the primary overlapped segment's label.",
         "operationId": "replace_boundaries_api_datasets__dataset__conversations__conversation__boundaries_post",
         "parameters": [
           {
@@ -1285,7 +1285,7 @@
     },
     "/api/datasets/{dataset}/stats": {
       "get": {
-        "description": "Return review progress: totals and per-topic counts.",
+        "description": "Return review progress: totals and per-topic counts on the effective set.",
         "operationId": "get_stats_api_datasets__dataset__stats_get",
         "parameters": [
           {
