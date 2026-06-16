@@ -25,6 +25,7 @@ interface AnnotationPanelProps {
   reviewedBy: string;
   reviewedByLocked?: boolean;
   saving: boolean;
+  onAddTopic?: (topic: string) => void | Promise<void>;
   onTopicChange: (topic: string) => void;
   onSubtopicChange: (subtopic: string) => void;
   onReviewedByChange: (value: string) => void;
@@ -49,6 +50,7 @@ const AnnotationPanel = ({
   reviewedBy,
   reviewedByLocked = false,
   saving,
+  onAddTopic,
   onTopicChange,
   onSubtopicChange,
   onReviewedByChange,
@@ -93,6 +95,7 @@ const AnnotationPanel = ({
             value={topic}
             suggestions={topicSuggestions}
             onChange={onTopicChange}
+            onAddNew={onAddTopic}
             placeholder="Type or pick a topic…"
             ariaLabel="True Topic"
             label={(t) => taxonomy[t]?.name ?? formatLabel(t)}

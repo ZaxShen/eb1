@@ -4,7 +4,10 @@ import type {
   ConversationSummary,
   ConversationView,
   Stats,
+  TaxonomyCreateRequest,
   TaxonomyEntry,
+  TaxonomyMergeRequest,
+  TaxonomyRenameRequest,
 } from "../../api";
 
 // Reusable, realistic `/api` responses mirroring annotation/backend/models.py.
@@ -19,7 +22,10 @@ export const datasets: string[] = [DATASET];
 
 export const authConfig: AuthConfig = { sso_enabled: false };
 
-export const taxonomy: TaxonomyEntry[] = [
+// Mutable so the taxonomy CRUD handlers below can add/rename/merge/delete rows
+// and a subsequent GET /taxonomy reflects the write — the refetch-after-mutation
+// contract the TaxonomyManager + combobox "Add to taxonomy" flow depend on.
+export let taxonomy: TaxonomyEntry[] = [
   {
     topic: "billing",
     subtopic: "refund_request",
@@ -36,6 +42,15 @@ export const taxonomy: TaxonomyEntry[] = [
     description: "Customer cannot sign in.",
   },
 ];
+
+const SEED_TAXONOMY: TaxonomyEntry[] = taxonomy.map((e) => ({ ...e }));
+
+// Restore the taxonomy + used-topics fixtures to their seed so tests that mutate
+// them stay order-independent. Call from a test's afterEach/beforeEach.
+export function resetTaxonomy(): void {
+  taxonomy = SEED_TAXONOMY.map((e) => ({ ...e }));
+  usedTopics = [...SEED_USED_TOPICS];
+}
 
 export const stats: Stats = {
   total: 2,
@@ -67,7 +82,9 @@ export const conversations: ConversationSummary[] = [
 // human `gold_segments` — the two arrays the re-segment feature confuses.
 // Topic names already saved for the dataset, most-frequent first — the
 // `used-topics` endpoint feeds these into the combobox alongside the taxonomy.
-export const usedTopics: string[] = ["billing", "shipping_delay"];
+export let usedTopics: string[] = ["billing", "shipping_delay"];
+
+const SEED_USED_TOPICS = [...usedTopics];
 
 // Per-labeler worklist: which conversations each labeler is assigned. Drives the
 // `?labeler=` filter the queue handler honors below.
@@ -198,6 +215,81 @@ export const handlers = [
   http.get(`${base}/datasets/:dataset/taxonomy`, () =>
     HttpResponse.json(taxonomy),
   ),
+
+  // Add a topic (idempotent on topic+subtopic) and surface it in used-topics so
+  // both the manager list and the combobox suggestions pick it up on refetch.
+  http.post(`${base}/datasets/:dataset/taxonomy`, async ({ request }) => {
+    const body = (await request.json()) as TaxonomyCreateRequest;
+    const exists = taxonomy.some(
+      (e) => e.topic === body.topic && (e.subtopic ?? null) === (body.subtopic ?? null),
+    );
+    if (!exists) {
+      taxonomy = [
+        ...taxonomy,
+        {
+          topic: body.topic,
+          subtopic: body.subtopic ?? null,
+          description: body.description ?? null,
+        },
+      ];
+    }
+    if (!usedTopics.includes(body.topic)) usedTopics = [...usedTopics, body.topic];
+    return HttpResponse.json({ dataset: "e2e-fixture", cascaded: 0, deleted: 0 });
+  }),
+
+  // Rename a topic (cascade is server-side; here we just rewrite the rows). A
+  // topic-level rename leaves new_subtopic unset and rewrites every matching topic.
+  http.patch(`${base}/datasets/:dataset/taxonomy`, async ({ request }) => {
+    const body = (await request.json()) as TaxonomyRenameRequest;
+    let cascaded = 0;
+    taxonomy = taxonomy.map((e) => {
+      if (e.topic !== body.topic) return e;
+      if (body.subtopic != null && (e.subtopic ?? null) !== body.subtopic) return e;
+      cascaded += 1;
+      return {
+        ...e,
+        topic: body.new_topic,
+        subtopic: body.new_subtopic ?? e.subtopic ?? null,
+      };
+    });
+    usedTopics = usedTopics.map((t) => (t === body.topic ? body.new_topic : t));
+    return HttpResponse.json({ dataset: "e2e-fixture", cascaded, deleted: 0 });
+  }),
+
+  // Fold one topic into another: rewrite the source rows' topic, drop dup rows.
+  http.post(`${base}/datasets/:dataset/taxonomy/merge`, async ({ request }) => {
+    const body = (await request.json()) as TaxonomyMergeRequest;
+    const seen = new Set<string>();
+    const merged: TaxonomyEntry[] = [];
+    let cascaded = 0;
+    for (const e of taxonomy) {
+      const topic = e.topic === body.from_topic ? body.into_topic : e.topic;
+      if (e.topic === body.from_topic) cascaded += 1;
+      const key = `${topic ?? ""} ${e.subtopic ?? ""}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      merged.push({ ...e, topic });
+    }
+    taxonomy = merged;
+    usedTopics = usedTopics.filter((t) => t !== body.from_topic);
+    return HttpResponse.json({ dataset: "e2e-fixture", cascaded, deleted: 0 });
+  }),
+
+  // Remove a topic (optionally a single subtopic) from the taxonomy list.
+  http.delete(`${base}/datasets/:dataset/taxonomy`, ({ request }) => {
+    const url = new URL(request.url);
+    const topic = url.searchParams.get("topic");
+    const subtopic = url.searchParams.get("subtopic");
+    const before = taxonomy.length;
+    taxonomy = taxonomy.filter((e) => {
+      if (e.topic !== topic) return true;
+      if (subtopic != null) return (e.subtopic ?? null) !== subtopic;
+      return false;
+    });
+    const deleted = before - taxonomy.length;
+    if (subtopic == null) usedTopics = usedTopics.filter((t) => t !== topic);
+    return HttpResponse.json({ dataset: "e2e-fixture", cascaded: 0, deleted });
+  }),
 
   http.get(`${base}/datasets/:dataset/used-topics`, () =>
     HttpResponse.json({ topics: usedTopics }),

@@ -209,6 +209,46 @@ export class AnnotationPage {
     await this.page.getByRole("button", { name: "Save" }).click();
   }
 
+  // --- Taxonomy manager --------------------------------------------------
+
+  /** Open the taxonomy-management dialog from the header. */
+  async openTaxonomyManager(): Promise<Locator> {
+    await this.page.getByRole("button", { name: "Manage taxonomy" }).click();
+    const dialog = this.page.getByRole("dialog", { name: "Manage taxonomy" });
+    await expect(dialog).toBeVisible();
+    return dialog;
+  }
+
+  /** Add a topic via the manager's "Add topic" input. */
+  async addTaxonomyTopic(name: string): Promise<void> {
+    const dialog = this.page.getByRole("dialog", { name: "Manage taxonomy" });
+    await dialog.getByLabel("New topic name").fill(name);
+    await dialog.getByRole("button", { name: "Add topic" }).click();
+  }
+
+  /** Inline-rename a topic row (slug-cased name) to a new name. */
+  async renameTaxonomyTopic(slug: string, next: string): Promise<void> {
+    const dialog = this.page.getByRole("dialog", { name: "Manage taxonomy" });
+    await dialog.getByRole("button", { name: `Rename ${slug}` }).click();
+    const input = dialog.getByRole("textbox", { name: `Rename ${slug}` });
+    await input.fill(next);
+    await dialog.getByRole("button", { name: `Save ${slug}` }).click();
+  }
+
+  /** A topic row in the manager located by its display label. */
+  taxonomyRow(label: string): Locator {
+    return this.page
+      .getByRole("dialog", { name: "Manage taxonomy" })
+      .getByText(label, { exact: true });
+  }
+
+  async closeTaxonomyManager(): Promise<void> {
+    await this.page
+      .getByRole("dialog", { name: "Manage taxonomy" })
+      .getByRole("button", { name: "Close" })
+      .click();
+  }
+
   // --- History -----------------------------------------------------------
 
   async undo(): Promise<void> {
