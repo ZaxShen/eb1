@@ -83,6 +83,7 @@ class ConversationView(BaseModel):
     messages: list[Message]
     segments: list[SegmentSummary]
     gold_segments: list[GoldSegment]
+    frozen_boundaries: bool = False
 
 
 class TaxonomyEntry(BaseModel):
@@ -91,6 +92,12 @@ class TaxonomyEntry(BaseModel):
     topic: str | None = None
     subtopic: str | None = None
     description: str | None = None
+
+
+class UsedTopics(BaseModel):
+    """Distinct topic names already used for a dataset, most-frequent first."""
+
+    topics: list[str] = Field(default_factory=list)
 
 
 class AnnotateRequest(BaseModel):

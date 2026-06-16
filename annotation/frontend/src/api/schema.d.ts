@@ -56,7 +56,8 @@ export interface paths {
          * @description Return a PAGINATED, searchable page of conversation summaries.
          *
          *     ``q`` matches conversation ext_id OR message content. ``status``/``topic``
-         *     filter on the effective segmentation. Shape: ``{items,total,page,page_size}``.
+         *     filter on the effective segmentation. ``labeler`` restricts the page to that
+         *     labeler's worklist assignments. Shape: ``{items,total,page,page_size}``.
          */
         get: operations["list_conversations_api_datasets__dataset__conversations_get"];
         put?: never;
@@ -217,6 +218,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/datasets/{dataset}/used-topics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Used Topics
+         * @description Return distinct topic names already used for the dataset, frequent first.
+         */
+        get: operations["get_used_topics_api_datasets__dataset__used_topics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -347,6 +368,11 @@ export interface components {
         ConversationView: {
             /** Conversation */
             conversation: string;
+            /**
+             * Frozen Boundaries
+             * @default false
+             */
+            frozen_boundaries: boolean;
             /** Gold Segments */
             gold_segments: components["schemas"]["GoldSegment"][];
             /** Messages */
@@ -475,6 +501,14 @@ export interface components {
             /** Topic */
             topic?: string | null;
         };
+        /**
+         * UsedTopics
+         * @description Distinct topic names already used for a dataset, most-frequent first.
+         */
+        UsedTopics: {
+            /** Topics */
+            topics?: string[];
+        };
         /** ValidationError */
         ValidationError: {
             /** Context */
@@ -556,6 +590,7 @@ export interface operations {
                 q?: string | null;
                 status?: string | null;
                 topic?: string | null;
+                labeler?: string | null;
             };
             header?: {
                 authorization?: string | null;
@@ -855,6 +890,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TaxonomyEntry"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_used_topics_api_datasets__dataset__used_topics_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                dataset: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsedTopics"];
                 };
             };
             /** @description Validation Error */

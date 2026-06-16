@@ -120,11 +120,53 @@ describe("ConversationStream (MSW component)", () => {
     expect(screen.getAllByText("Billing")).toHaveLength(2);
   });
 
+  it("hides the re-segmentation controls when frozen_boundaries is true", () => {
+    // Frozen datasets (SuperDialseg gold): no split scissors, no merge arrows —
+    // the gold boundaries are authoritative. Segments stay selectable for naming.
+    const onSelectSegment = vi.fn();
+    const frozenView: ConversationView = {
+      ...conversationView,
+      frozen_boundaries: true,
+    };
+
+    const { rerender } = renderWithProviders(
+      <ConversationStream
+        view={frozenView}
+        loading={false}
+        selectedSegmentId={null}
+        onSelectSegment={onSelectSegment}
+        onReplaceBoundaries={vi.fn()}
+      />,
+    );
+
+    // No re-segmentation control is reachable.
+    expect(screen.queryAllByRole("button")).toHaveLength(0);
+
+    // Segments still render and stay selectable.
+    expect(screen.getByText("Segment 1")).toBeInTheDocument();
+    screen.getByText("Segment 1").click();
+    expect(onSelectSegment).toHaveBeenCalled();
+
+    // Sanity: the SAME conversation un-frozen DOES expose re-segment controls,
+    // so the assertion above is about the flag, not an empty stream.
+    rerender(
+      <ConversationStream
+        view={{ ...conversationView, frozen_boundaries: false }}
+        loading={false}
+        selectedSegmentId={null}
+        onSelectSegment={vi.fn()}
+        onReplaceBoundaries={vi.fn()}
+      />,
+    );
+    expect(screen.getAllByRole("button").length).toBeGreaterThan(0);
+  });
+
   it("shows the empty-state when a conversation has no segments", () => {
     renderWithProviders(
       <ConversationStream
         view={{
           conversation: "empty",
+          frozen_boundaries: false,
           messages: [],
           segments: [],
           gold_segments: [],

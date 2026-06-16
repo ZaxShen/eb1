@@ -65,8 +65,20 @@ export const conversations: ConversationSummary[] = [
 
 // A conversation detail that carries BOTH the machine `segments` and the
 // human `gold_segments` — the two arrays the re-segment feature confuses.
+// Topic names already saved for the dataset, most-frequent first — the
+// `used-topics` endpoint feeds these into the combobox alongside the taxonomy.
+export const usedTopics: string[] = ["billing", "shipping_delay"];
+
+// Per-labeler worklist: which conversations each labeler is assigned. Drives the
+// `?labeler=` filter the queue handler honors below.
+export const worklist: Record<string, string[]> = {
+  labeler_a: ["conv-001"],
+  labeler_b: ["conv-002"],
+};
+
 export const conversationView: ConversationView = {
   conversation: "conv-001",
+  frozen_boundaries: false,
   messages: [
     {
       index: 0,
@@ -159,12 +171,14 @@ export const handlers = [
     const q = (url.searchParams.get("q") ?? "").toLowerCase();
     const status = url.searchParams.get("status");
     const topic = url.searchParams.get("topic");
+    const labeler = url.searchParams.get("labeler");
 
     const filtered = conversations.filter((c) => {
       if (q && !c.conversation.toLowerCase().includes(q)) return false;
       if (status === "reviewed" && !c.reviewed) return false;
       if (status === "unreviewed" && c.reviewed) return false;
       if (topic && !c.topics.includes(topic)) return false;
+      if (labeler && !worklist[labeler]?.includes(c.conversation)) return false;
       return true;
     });
 
@@ -183,6 +197,10 @@ export const handlers = [
 
   http.get(`${base}/datasets/:dataset/taxonomy`, () =>
     HttpResponse.json(taxonomy),
+  ),
+
+  http.get(`${base}/datasets/:dataset/used-topics`, () =>
+    HttpResponse.json({ topics: usedTopics }),
   ),
 
   http.get(`${base}/datasets/:dataset/stats`, () => HttpResponse.json(stats)),

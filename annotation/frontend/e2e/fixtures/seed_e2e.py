@@ -39,6 +39,23 @@ SAMPLES_DIR = Path(__file__).parent / "samples"
 
 DATASETS = ["wildchat", "superdialseg"]
 
+# Per-labeler worklist assignments for the name-only labeling flow. Keyed by
+# dataset; each row mirrors the sampler JSON (``dialogue_id`` + ``assigned_to``)
+# so the ``?labeler=`` queue filter has something to resolve. Assigned on the
+# FROZEN superdialseg dataset (the real flow's home), keeping the per-labeler
+# label spec off the wildchat conversations the re-segment spec mutates.
+WORKLIST: dict[str, list[dict]] = {
+    "superdialseg": [
+        {
+            "dialogue_id": "e2e_superdialseg_0001",
+            "seg_bucket": "1-2",
+            "len_bucket": "short",
+            "assigned_to": ["labeler_a"],
+            "is_overlap": False,
+        },
+    ],
+}
+
 SEED_TOPIC = "mock_topic"
 SEED_SUBTOPIC = "mock subtopic"
 
@@ -87,7 +104,14 @@ def build_dataset(name: str) -> dict:
         )
 
     db.seed_conversations(name, conversations, taxonomy=TAXONOMY, reset=True)
-    return {"conversations": len(conversations), "segments": len(conversations)}
+    worklist = WORKLIST.get(name, [])
+    if worklist:
+        db.load_worklist(name, worklist)
+    return {
+        "conversations": len(conversations),
+        "segments": len(conversations),
+        "worklist": len(worklist),
+    }
 
 
 def build() -> None:

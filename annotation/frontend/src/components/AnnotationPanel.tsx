@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 import { Check, ChevronLeft, ChevronRight, Save } from "lucide-react";
 import type { SegmentSummary } from "../api";
 import type { TaxonomyMap } from "../lib/taxonomy";
@@ -13,11 +13,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TopicCombobox } from "@/components/ui/topic-combobox";
 import { formatLabel } from "../lib/utils";
 
 interface AnnotationPanelProps {
   segment: SegmentSummary | null;
   taxonomy: TaxonomyMap;
+  usedTopics?: string[];
   topic: string;
   subtopic: string;
   reviewedBy: string;
@@ -41,6 +43,7 @@ const Kbd = ({ children }: { children: ReactNode }) => (
 const AnnotationPanel = ({
   segment,
   taxonomy,
+  usedTopics = [],
   topic,
   subtopic,
   reviewedBy,
@@ -54,6 +57,15 @@ const AnnotationPanel = ({
   onPrev,
   onNext,
 }: AnnotationPanelProps) => {
+  const taxonomyTopics = useMemo(() => sortedTopics(taxonomy), [taxonomy]);
+
+  // Open-vocab suggestions: taxonomy names first, then any topics already used
+  // for this dataset that the taxonomy doesn't cover, de-duplicated.
+  const topicSuggestions = useMemo(() => {
+    const seen = new Set(taxonomyTopics);
+    return [...taxonomyTopics, ...usedTopics.filter((t) => !seen.has(t))];
+  }, [taxonomyTopics, usedTopics]);
+
   if (!segment) {
     return (
       <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
@@ -62,9 +74,11 @@ const AnnotationPanel = ({
     );
   }
 
-  const topics = sortedTopics(taxonomy);
   const subtopics = subtopicsFor(taxonomy, topic);
   const aiTopic = segment.topic;
+  // The frozen gold cluster the segment was ingested under; shown as a naming
+  // hint so labelers stay consistent within a cluster (SuperDialseg flow).
+  const goldCluster = segment.topic;
 
   return (
     <div className="flex h-full flex-col overflow-y-auto p-3">
@@ -75,18 +89,19 @@ const AnnotationPanel = ({
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1.5">
           <label className="text-xs text-muted-foreground">True Topic</label>
-          <Select value={topic} onValueChange={onTopicChange}>
-            <SelectTrigger size="sm" className="w-full">
-              <SelectValue placeholder="Select a topic…" />
-            </SelectTrigger>
-            <SelectContent>
-              {topics.map((t) => (
-                <SelectItem key={t} value={t}>
-                  {taxonomy[t]?.name ?? formatLabel(t)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <TopicCombobox
+            value={topic}
+            suggestions={topicSuggestions}
+            onChange={onTopicChange}
+            placeholder="Type or pick a topic…"
+            ariaLabel="True Topic"
+            label={(t) => taxonomy[t]?.name ?? formatLabel(t)}
+          />
+          {goldCluster && (
+            <p className="text-[11px] text-muted-foreground">
+              Gold cluster: {formatLabel(goldCluster)}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">
