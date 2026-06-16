@@ -22,7 +22,8 @@ Run a single step:
 
 Options:
     --limit N              Process only the first N users (segment step only)
-    --relabel              Clear classification fields on unreviewed segments and re-run the Analyzer
+    --relabel              Clear classification fields on unreviewed segments and re-run
+                           the Analyzer
     --benchmark NAME       Run benchmark: all models write to sms_chat_segments_{NAME}
     --benchmark-eval [NAME] Evaluate benchmark against ground truth (NAME or 'all')
     --rerun-user USER_ID   Re-segment a single user by ObjectId (use with --benchmark)
@@ -73,7 +74,9 @@ _ALL_STEPS = ["segment", "validate", "evaluate"]
 
 def _run_signal(db, cfg, input_db=None, **_):
     from pipeline.sampling.signal_extractor import run_signal_extraction
-    return run_signal_extraction(input_db=input_db if input_db is not None else db, output_db=db, cfg=cfg)
+    return run_signal_extraction(
+        input_db=input_db if input_db is not None else db, output_db=db, cfg=cfg
+    )
 
 
 def _run_segment(
@@ -568,7 +571,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--relabel",
         action="store_true",
-        help="Clear AI classification fields on unreviewed segments and re-run the Analyzer (segment→evaluate)",
+        help=(
+            "Clear AI classification fields on unreviewed segments and re-run the Analyzer "
+            "(segment→evaluate)"
+        ),
     )
     parser.add_argument(
         "--benchmark",

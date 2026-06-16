@@ -107,7 +107,9 @@ class TestParseV2Segments:
 
     def test_missing_required_field_skips_segment(self):
         seg_ok = _valid_raw_segment(messageIndices=[0], summary="ok")
-        seg_bad = {k: v for k, v in _valid_raw_segment(messageIndices=[1]).items() if k != "summary"}
+        seg_bad = {
+            k: v for k, v in _valid_raw_segment(messageIndices=[1]).items() if k != "summary"
+        }
         payload = {"segments": [seg_ok, seg_bad]}
         result = _parse_llm_segments(json.dumps(payload), n_msgs=5)
         # Only the valid segment should be kept
@@ -220,7 +222,11 @@ class TestBuildSegmentsV2:
         result = _build_segments_from_llm(user_id, msgs, chat_ids, llm_segs)
         assert len(result) == 1
         doc = result[0]
-        assert doc["chat_messages"] == [str(msgs[0]["_id"]), str(msgs[1]["_id"]), str(msgs[2]["_id"])]
+        assert doc["chat_messages"] == [
+            str(msgs[0]["_id"]),
+            str(msgs[1]["_id"]),
+            str(msgs[2]["_id"]),
+        ]
         assert doc["topic"] == "match_status"
         assert doc["summary"] == "user discussed match timing"
         assert doc["sentiment"] == "neutral"
@@ -230,7 +236,9 @@ class TestBuildSegmentsV2:
         msgs, chat_ids = _make_messages(4)
         llm_segs = [
             self._llm_seg(messageIndices=[0, 1]),
-            self._llm_seg(messageIndices=[2, 3], topic="match_feedback", subTopic="post_date_feedback"),
+            self._llm_seg(
+                messageIndices=[2, 3], topic="match_feedback", subTopic="post_date_feedback"
+            ),
         ]
         result = _build_segments_from_llm(ObjectId(), msgs, chat_ids, llm_segs)
         assert len(result) == 2
@@ -248,8 +256,14 @@ class TestBuildSegmentsV2:
         llm_segs = [self._llm_seg(messageIndices=[0, 2])]
         result = _build_segments_from_llm(ObjectId(), msgs, chat_ids, llm_segs)
         doc = result[0]
-        assert doc["chat_started_at"] == msgs[0]["createdAt"].replace(tzinfo=None) or doc["chat_started_at"] == msgs[0]["createdAt"]
-        assert doc["chat_ended_at"] == msgs[2]["createdAt"].replace(tzinfo=None) or doc["chat_ended_at"] == msgs[2]["createdAt"]
+        assert (
+            doc["chat_started_at"] == msgs[0]["createdAt"].replace(tzinfo=None)
+            or doc["chat_started_at"] == msgs[0]["createdAt"]
+        )
+        assert (
+            doc["chat_ended_at"] == msgs[2]["createdAt"].replace(tzinfo=None)
+            or doc["chat_ended_at"] == msgs[2]["createdAt"]
+        )
 
     def test_classified_at_is_set(self):
         msgs, chat_ids = _make_messages(2)

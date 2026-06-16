@@ -234,7 +234,8 @@ class TestBuildBotOnlySegmentsWithTemplates:
         assert seg["topic"] == "onboarding"
         assert seg["sub_topic"] == "profile_setup"
         assert seg["summary"] is not None
-        assert seg["label_confidence"] == 1.0  # bot-only — deterministic confidence  # template match = deterministic, not LLM
+        # bot-only — deterministic confidence; template match = deterministic, not LLM
+        assert seg["label_confidence"] == 1.0
         assert seg["classified_at"] is not None
         assert seg["has_user_engagement"] is False
 

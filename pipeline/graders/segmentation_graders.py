@@ -135,7 +135,9 @@ def g03_full_message_coverage(
                 details.append(f"User {uid}: {len(extra)} extra messages in segments (not in PROD)")
             if has_overlap:
                 overlap_count = len(all_msg_ids) - len(set(all_msg_ids))
-                details.append(f"User {uid}: {overlap_count} overlapping message refs across segments")
+                details.append(
+                    f"User {uid}: {overlap_count} overlapping message refs across segments"
+                )
 
     passed = failures == 0 or (failures / max(total, 1)) < 0.05  # < 5% failure = PASS
     return GraderResult(
@@ -357,7 +359,9 @@ def g010_topic_subtopic_completeness(
     all_segs = segment_repo.find_all()
     total = len(all_segs)
     if total == 0:
-        return GraderResult("G0.10", "Topic/sub_topic completeness", True, 0, 0, ["No segments found"])
+        return GraderResult(
+            "G0.10", "Topic/sub_topic completeness", True, 0, 0, ["No segments found"]
+        )
 
     bad_segments = [
         s for s in all_segs

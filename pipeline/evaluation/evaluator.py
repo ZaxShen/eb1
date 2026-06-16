@@ -115,7 +115,9 @@ def _print_report(m: dict) -> None:
     print(f"  Noise ratio         : {m['noise_ratio']:.1%}")
     print(f"  Distinct topics     : {m['distinct_topics']}")
     print(f"  Low-confidence queue: {m['low_confidence_count']} segments (P3 review)")
-    print(f"  Unconfirmed topics  : {m['unconfirmed_topic_count']} — taxonomy expansion pending (P1)")
+    print(
+        f"  Unconfirmed topics  : {m['unconfirmed_topic_count']} — taxonomy expansion pending (P1)"
+    )
     print(f"  Unconfirmed subtopics: {m['unconfirmed_subtopic_count']} — pending review (P2)")
     print()
     print("  Topic distribution:")
