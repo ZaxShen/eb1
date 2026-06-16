@@ -80,6 +80,58 @@ def _to_summary(
     )
 
 
+def _effective_summary(
+    seg: dict,
+    reviewed_ids: set[int],
+    gold_labels: dict[int, dict] | None = None,
+) -> SegmentSummary:
+    """Build a SegmentSummary from an effective-segment dict.
+
+    Review state and gold true_topic/true_subtopic resolve via the effective
+    span's ``base_segment_id`` (the predicted segment it derives from), so a
+    relabel still surfaces as reviewed in the effective view.
+    """
+    base_id = seg.get("base_segment_id")
+    gold = (gold_labels or {}).get(base_id) or {}
+    return SegmentSummary(
+        id=seg["id"],
+        conversation=seg["conversation"],
+        chunk_index=seg["chunk_index"],
+        message_indices=seg["message_indices"],
+        summary=seg["summary"],
+        topic=seg["topic"],
+        subtopic=seg["subtopic"],
+        sentiment=seg["sentiment"],
+        label_confidence=seg["label_confidence"],
+        reviewed=base_id is not None and base_id in reviewed_ids,
+        true_topic=gold.get("topic"),
+        true_subtopic=gold.get("subtopic"),
+    )
+
+
+def _resolve_effective(predicted_seg: dict, effective: list[dict]) -> dict:
+    """Map a predicted run_segment to its effective span.
+
+    When no gold edits exist the effective set still carries the predicted ids,
+    so the exact-id match wins. Once gold replaces predicted, return the
+    effective span overlapping the requested predicted span the most.
+    """
+    for seg in effective:
+        if seg["id"] == predicted_seg["id"] and seg.get("base_segment_id") == (
+            predicted_seg["id"]
+        ):
+            return seg
+    target = set(predicted_seg["message_indices"])
+    best = None
+    best_overlap = -1
+    for seg in effective:
+        overlap = len(target & set(seg["message_indices"]))
+        if overlap > best_overlap:
+            best_overlap = overlap
+            best = seg
+    return best if best is not None else predicted_seg
+
+
 @router.get("/datasets", response_model=list[str])
 def list_datasets() -> list[str]:
     """List dataset names that have an ``output.db``."""
@@ -133,16 +185,19 @@ def get_segment(dataset: str, segment_id: int) -> SegmentDetail:
         db.conversation_messages(dataset, seg["conversation"], _root())
     )
     by_index = {m["index"]: m for m in messages}
+
+    effective = db.effective_segments(dataset, seg["conversation"], _root())
+    effective_seg = _resolve_effective(seg, effective)
     span = [
-        Message(**by_index[i]) for i in seg["message_indices"] if i in by_index
+        Message(**by_index[i])
+        for i in effective_seg["message_indices"]
+        if i in by_index
     ]
     siblings = [
-        _to_summary(s, reviewed_ids, gold_labels)
-        for s in db.read_run_segments(dataset, _root())
-        if s["conversation"] == seg["conversation"]
+        _effective_summary(s, reviewed_ids, gold_labels) for s in effective
     ]
     return SegmentDetail(
-        segment=_to_summary(seg, reviewed_ids, gold_labels),
+        segment=_effective_summary(effective_seg, reviewed_ids, gold_labels),
         messages=[Message(**m) for m in messages],
         span=span,
         siblings=siblings,
@@ -162,29 +217,28 @@ def list_conversations(dataset: str) -> list[ConversationSummary]:
     message_counts = db.conversation_message_counts(dataset, _root())
     segments = db.read_run_segments(dataset, _root())
 
-    grouped: dict[str, dict] = {}
-    for seg in segments:
-        conv = seg["conversation"]
-        row = grouped.setdefault(
-            conv, {"segment_count": 0, "topics": [], "reviewed_count": 0}
-        )
-        row["segment_count"] += 1
-        topic = seg["topic"]
-        if topic and topic not in row["topics"]:
-            row["topics"].append(topic)
-        if seg["id"] in reviewed_ids:
-            row["reviewed_count"] += 1
-
+    conversations = {seg["conversation"] for seg in segments}
     result: list[ConversationSummary] = []
-    for conv, row in grouped.items():
+    for conv in sorted(conversations):
+        effective = db.effective_segments(dataset, conv, _root())
+        topics: list[str] = []
+        reviewed_count = 0
+        for seg in effective:
+            topic = seg["topic"]
+            if topic and topic not in topics:
+                topics.append(topic)
+            base_id = seg.get("base_segment_id")
+            if base_id is not None and base_id in reviewed_ids:
+                reviewed_count += 1
+        segment_count = len(effective)
         result.append(
             ConversationSummary(
                 conversation=conv,
                 message_count=message_counts.get(conv, 0),
-                segment_count=row["segment_count"],
-                topics=row["topics"],
-                reviewed_count=row["reviewed_count"],
-                reviewed=row["reviewed_count"] == row["segment_count"],
+                segment_count=segment_count,
+                topics=topics,
+                reviewed_count=reviewed_count,
+                reviewed=segment_count > 0 and reviewed_count == segment_count,
             )
         )
     return result
@@ -200,9 +254,8 @@ def get_conversation(dataset: str, conversation: str) -> ConversationView:
         db.conversation_messages(dataset, conversation, _root())
     )
     segments = [
-        _to_summary(s, reviewed_ids, gold_labels)
-        for s in db.read_run_segments(dataset, _root())
-        if s["conversation"] == conversation
+        _effective_summary(s, reviewed_ids, gold_labels)
+        for s in db.effective_segments(dataset, conversation, _root())
     ]
     gold = [
         GoldSegment(**g) for g in db.read_gold_segments(dataset, conversation, _root())
@@ -290,12 +343,23 @@ def replace_boundaries(
     request: BoundaryRequest,
     identity: Identity | None = Depends(require_identity),
 ) -> BoundaryResponse:
-    """REPLACE all gold_segments for a conversation with the posted spans."""
+    """REPLACE all gold_segments for a conversation with the posted spans.
+
+    Each new gold span inherits topic/subtopic/sentiment from the overlapping
+    predicted segment when the client leaves them unset, so split children keep
+    the parent's label and a merge takes the primary overlapped segment's label.
+    """
     _require_dataset(dataset)
+    spans = db.inherited_boundary_spans(
+        dataset,
+        conversation,
+        [s.model_dump() for s in request.segments],
+        _root(),
+    )
     written = db.replace_conversation_boundaries(
         dataset,
         conversation,
-        spans=[s.model_dump() for s in request.segments],
+        spans=spans,
         reviewed_by=_reviewer(identity, request.reviewed_by),
         root=_root(),
     )
@@ -304,13 +368,23 @@ def replace_boundaries(
 
 @router.get("/datasets/{dataset}/stats", response_model=Stats)
 def get_stats(dataset: str) -> Stats:
-    """Return review progress: totals and per-topic counts."""
+    """Return review progress: totals and per-topic counts on the effective set."""
     _require_dataset(dataset)
     reviewed_ids = db.reviewed_base_segment_ids(dataset, _root())
-    segments = db.read_run_segments(dataset, _root())
-    total = len(segments)
-    reviewed = sum(1 for s in segments if s["id"] in reviewed_ids)
-    per_topic = Counter(s["topic"] for s in segments if s["topic"])
+    run_segments = db.read_run_segments(dataset, _root())
+    conversations = {s["conversation"] for s in run_segments}
+
+    total = 0
+    reviewed = 0
+    per_topic: Counter[str] = Counter()
+    for conv in conversations:
+        for seg in db.effective_segments(dataset, conv, _root()):
+            total += 1
+            base_id = seg.get("base_segment_id")
+            if base_id is not None and base_id in reviewed_ids:
+                reviewed += 1
+            if seg["topic"]:
+                per_topic[seg["topic"]] += 1
     return Stats(
         total=total,
         reviewed=reviewed,

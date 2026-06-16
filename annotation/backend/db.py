@@ -340,6 +340,145 @@ def _decode_gold_segment(row: sqlite3.Row) -> dict:
     }
 
 
+def _overlap(a: list[int], b: list[int]) -> int:
+    """Count shared message indices between two spans."""
+    return len(set(a) & set(b))
+
+
+def _inherit_label(span_indices: list[int], predicted: list[dict]) -> dict:
+    """Return ``{topic, subtopic, sentiment}`` inherited from the predicted
+    run_segment that overlaps ``span_indices`` the most.
+
+    Used when a gold boundary span carries no label of its own: split children
+    inherit their parent predicted segment's topic; a merge inherits the primary
+    (most-overlapped) predicted segment's topic. Returns empty values when no
+    predicted segment overlaps.
+    """
+    best: dict | None = None
+    best_overlap = 0
+    for seg in predicted:
+        overlap = _overlap(span_indices, seg["message_indices"])
+        if overlap > best_overlap:
+            best_overlap = overlap
+            best = seg
+    if best is None:
+        return {"topic": None, "subtopic": None, "sentiment": None}
+    return {
+        "topic": best["topic"],
+        "subtopic": best["subtopic"],
+        "sentiment": best["sentiment"],
+    }
+
+
+def effective_segments(
+    dataset: str, conversation: str, root: Path | None = None
+) -> list[dict]:
+    """Return the EFFECTIVE segmentation for one conversation.
+
+    A boundary edit REPLACES predicted per-conversation (matching the
+    ``/boundaries`` REPLACE semantics):
+
+    - if the conversation has any ``source='boundary'`` gold_segment row, the
+      effective set is those gold boundary spans. Each span's topic/subtopic is
+      its gold value when set, else INHERITED from the predicted ``run_segment``
+      overlapping the span the most (so split/merge edits keep labels rather than
+      going empty);
+    - otherwise the effective set is the predicted ``run_segment`` rows, with any
+      per-segment relabel/confirm gold overlaid onto the matching span's
+      topic/subtopic.
+
+    Each returned dict carries the SegmentSummary fields plus a ``base_segment_id``
+    (the predicted id for predicted rows; the gold's base_segment_id, possibly
+    NULL, for boundary rows) so callers can resolve review state.
+    """
+    gold = read_gold_segments(dataset, conversation, root)
+    predicted = [
+        s
+        for s in read_run_segments(dataset, root)
+        if s["conversation"] == conversation
+    ]
+    boundary = [g for g in gold if g["source"] == "boundary"]
+
+    if not boundary:
+        overlay = {
+            g["base_segment_id"]: g
+            for g in gold
+            if g["base_segment_id"] is not None and g["source"] in ("relabel", "confirm")
+        }
+        result: list[dict] = []
+        for s in predicted:
+            g = overlay.get(s["id"])
+            result.append(
+                {
+                    "id": s["id"],
+                    "conversation": s["conversation"],
+                    "chunk_index": s["chunk_index"],
+                    "message_indices": s["message_indices"],
+                    "summary": s["summary"],
+                    "topic": g["topic"] if g is not None else s["topic"],
+                    "subtopic": g["subtopic"] if g is not None else s["subtopic"],
+                    "sentiment": s["sentiment"],
+                    "label_confidence": s["label_confidence"],
+                    "base_segment_id": s["id"],
+                }
+            )
+        return result
+
+    effective: list[dict] = []
+    for i, g in enumerate(boundary):
+        inherited = _inherit_label(g["message_indices"], predicted)
+        effective.append(
+            {
+                "id": g["id"],
+                "conversation": conversation,
+                "chunk_index": i,
+                "message_indices": g["message_indices"],
+                "summary": None,
+                "topic": g["topic"] if g["topic"] is not None else inherited["topic"],
+                "subtopic": g["subtopic"]
+                if g["subtopic"] is not None
+                else inherited["subtopic"],
+                "sentiment": g["sentiment"]
+                if g["sentiment"] is not None
+                else inherited["sentiment"],
+                "label_confidence": None,
+                "base_segment_id": g["base_segment_id"],
+            }
+        )
+    return effective
+
+
+def inherited_boundary_spans(
+    dataset: str, conversation: str, spans: list[dict], root: Path | None = None
+) -> list[dict]:
+    """Fill each boundary span's missing topic/subtopic/sentiment by INHERITING
+    from the overlapping predicted segment, leaving explicit values untouched.
+    """
+    predicted = [
+        s
+        for s in read_run_segments(dataset, root)
+        if s["conversation"] == conversation
+    ]
+    filled: list[dict] = []
+    for span in spans:
+        inherited = _inherit_label(span.get("message_indices", []), predicted)
+        filled.append(
+            {
+                "message_indices": span.get("message_indices", []),
+                "topic": span.get("topic")
+                if span.get("topic") is not None
+                else inherited["topic"],
+                "subtopic": span.get("subtopic")
+                if span.get("subtopic") is not None
+                else inherited["subtopic"],
+                "sentiment": span.get("sentiment")
+                if span.get("sentiment") is not None
+                else inherited["sentiment"],
+            }
+        )
+    return filled
+
+
 def gold_labels_by_base_segment(
     dataset: str, root: Path | None = None
 ) -> dict[int, dict]:

@@ -379,6 +379,116 @@ def test_boundaries_replace_collapses_to_posted_spans(client, datasets_root):
     assert gold[0]["message_indices"] == [0, 1, 2, 3]
 
 
+def _split_conv_a(client) -> None:
+    """Split CONV_A's predicted [0,1]+[2,3] into a single [0,1,2,3] gold span,
+    then re-split into [0,1]+[2,3] WITHOUT posting topics, so the effective
+    topics must be inherited from the overlapping predicted segments."""
+    client.post(
+        f"/api/datasets/wildchat/conversations/{CONV_A}/boundaries",
+        json={
+            "segments": [
+                {"message_indices": [0, 1]},
+                {"message_indices": [2, 3]},
+            ]
+        },
+    )
+
+
+def test_effective_split_inherits_predicted_topics(client):
+    """After splitting a predicted span without explicit topics, /conversations
+    returns the new spans with INHERITED topics, not empty — the core re-segment
+    fix. Predicted [0,1]=writing_help, [2,3]=factual_question."""
+    _split_conv_a(client)
+    view = client.get(f"/api/datasets/wildchat/conversations/{CONV_A}").json()
+    spans = view["segments"]
+    assert len(spans) == 2
+    by_span = {tuple(s["message_indices"]): s for s in spans}
+    assert by_span[(0, 1)]["topic"] == "writing_help"
+    assert by_span[(0, 1)]["subtopic"] == "cover_letter_drafting"
+    assert by_span[(2, 3)]["topic"] == "factual_question"
+    assert by_span[(2, 3)]["subtopic"] == "astronomy_fact"
+    assert all(s["topic"] for s in spans)
+
+
+def test_effective_merge_takes_primary_overlapped_topic(client):
+    """Merging predicted [0,1]+[2,3] into one [0,1,2,3] span (no topic posted)
+    inherits the primary (most-overlapped) predicted segment's topic."""
+    client.post(
+        f"/api/datasets/wildchat/conversations/{CONV_A}/boundaries",
+        json={"segments": [{"message_indices": [0, 1, 2, 3]}]},
+    )
+    view = client.get(f"/api/datasets/wildchat/conversations/{CONV_A}").json()
+    assert len(view["segments"]) == 1
+    assert view["segments"][0]["topic"] in {"writing_help", "factual_question"}
+    assert view["segments"][0]["topic"]
+
+
+def test_effective_no_gold_returns_predicted_unchanged(client):
+    """A conversation with no gold edits returns the predicted segments verbatim."""
+    view = client.get(f"/api/datasets/wildchat/conversations/{CONV_B}").json()
+    spans = view["segments"]
+    assert len(spans) == 1
+    assert spans[0]["message_indices"] == [0, 1]
+    assert spans[0]["topic"] == "coding_help"
+
+
+def test_list_and_stats_reflect_effective_after_split(client):
+    """A split that yields the same span count keeps counts; a merge to one span
+    drops the effective count in both the conversations list and /stats."""
+    client.post(
+        f"/api/datasets/wildchat/conversations/{CONV_A}/boundaries",
+        json={"segments": [{"message_indices": [0, 1, 2, 3]}]},
+    )
+    rows = {r["conversation"]: r for r in client.get(
+        "/api/datasets/wildchat/conversations"
+    ).json()}
+    assert rows[CONV_A]["segment_count"] == 1
+    assert rows[CONV_B]["segment_count"] == 1
+
+    stats = client.get("/api/datasets/wildchat/stats").json()
+    assert stats["total"] == 2
+
+
+def test_list_and_stats_reflect_effective_split_into_three(client):
+    """Splitting CONV_A into three spans surfaces three effective segments in the
+    list and bumps /stats total to 4 (3 for CONV_A + 1 for CONV_B)."""
+    client.post(
+        f"/api/datasets/wildchat/conversations/{CONV_A}/boundaries",
+        json={
+            "segments": [
+                {"message_indices": [0]},
+                {"message_indices": [1, 2]},
+                {"message_indices": [3]},
+            ]
+        },
+    )
+    rows = {r["conversation"]: r for r in client.get(
+        "/api/datasets/wildchat/conversations"
+    ).json()}
+    assert rows[CONV_A]["segment_count"] == 3
+    assert client.get("/api/datasets/wildchat/stats").json()["total"] == 4
+
+
+def test_relabel_overrides_topic_in_effective(client):
+    """A relabel overrides the segment's topic/subtopic in the effective view
+    while leaving the conversation's segment count unchanged (no boundary edit)."""
+    client.post(
+        "/api/datasets/wildchat/segments/2/annotate",
+        json={"true_topic": "science_question", "true_subtopic": "astronomy_fact"},
+    )
+    view = client.get(f"/api/datasets/wildchat/conversations/{CONV_A}").json()
+    assert len(view["segments"]) == 2
+    by_span = {tuple(s["message_indices"]): s for s in view["segments"]}
+    relabeled = by_span[(2, 3)]
+    assert relabeled["topic"] == "science_question"
+    assert relabeled["true_topic"] == "science_question"
+    assert relabeled["reviewed"] is True
+
+    stats = client.get("/api/datasets/wildchat/stats").json()
+    assert stats["per_topic"].get("science_question") == 1
+    assert "factual_question" not in stats["per_topic"]
+
+
 def test_unknown_dataset_404(client):
     assert client.get("/api/datasets/nope/segments").status_code == 404
     assert client.get("/api/datasets/nope/stats").status_code == 404
