@@ -1,4 +1,4 @@
-"""Per-dataset SQLite metadata layer for the universal UFL pipeline.
+"""Per-dataset SQLite metadata layer for the universal eb1 pipeline.
 
 Every domain knob the segmentation engine consumes — role map, prompt profile,
 taxonomy, P1/P3/P4 accelerator rules, topic filters, preprocessing rules — lives

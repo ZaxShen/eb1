@@ -1,4 +1,4 @@
-# UFL Annotation — Frontend
+# eb1 Annotation — Frontend
 
 React + Vite + TypeScript + Tailwind UI for **user/conversation-level** review:
 browse conversations, read each one's full chat stream with all its machine

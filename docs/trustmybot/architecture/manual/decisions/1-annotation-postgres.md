@@ -6,7 +6,7 @@
 
 ## Context
 
-The annotation tool is the production labeling surface for UFL — the Founder
+The annotation tool is the production labeling surface for eb1 — the Founder
 needs to label the FULL real corpora soon (~1.85M conversations: ~838K WildChat
 + ~1M LMSYS + ~9.5K SuperDialseg). The pipeline stays an MVP; the labeling
 website does not.

@@ -51,7 +51,7 @@ describe("SignInGate", () => {
 
   it("renders children when SSO is on and a token is already stored", async () => {
     sessionStorage.setItem(
-      "ufl-annotation-auth",
+      "eb1-annotation-auth",
       JSON.stringify({ token: "tok", user: { name: "Ada", email: "ada@example.com" } }),
     );
     const { AuthProvider, SignInGate } = await loadModules("client-123");

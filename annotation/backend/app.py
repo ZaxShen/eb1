@@ -25,7 +25,7 @@ VITE_DEV_ORIGINS = [
 
 def create_app() -> FastAPI:
     """Build the FastAPI app with CORS and the API router."""
-    app = FastAPI(title="UFL Annotation Backend", version="0.1.0")
+    app = FastAPI(title="eb1 Annotation Backend", version="0.1.0")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=VITE_DEV_ORIGINS,

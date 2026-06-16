@@ -1,7 +1,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
 /**
- * Page object for the UFL Annotation app.
+ * Page object for the eb1 Annotation app.
  *
  * Encapsulates every interaction the annotation UI supports so specs read as
  * intent ("open this conversation, split here, save") rather than selectors.
@@ -25,7 +25,7 @@ export class AnnotationPage {
   }
 
   heading(): Locator {
-    return this.page.getByRole("heading", { name: "UFL Annotation" });
+    return this.page.getByRole("heading", { name: "eb1 Annotation" });
   }
 
   // --- Dataset selection -------------------------------------------------

@@ -1,6 +1,6 @@
-# UFL Annotation Site
+# eb1 Annotation Site
 
-A data-annotation web app for **user/conversation-level** review of UFL machine
+A data-annotation web app for **user/conversation-level** review of eb1 machine
 segments: browse conversations, read each one's full chat stream with all its
 segments overlaid inline, relabel topics/subtopics, and edit boundaries
 (split / merge → gold spans). Server-side paginated + searchable so it scales to

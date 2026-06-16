@@ -90,7 +90,7 @@ describe("AuthContext", () => {
     expect(screen.getByTestId("token").textContent).toBe("tok-ada");
     expect(screen.getByTestId("name").textContent).toBe("Ada Lovelace");
     expect(setAuthToken).toHaveBeenLastCalledWith("tok-ada");
-    expect(JSON.parse(sessionStorage.getItem("ufl-annotation-auth")!)).toMatchObject({
+    expect(JSON.parse(sessionStorage.getItem("eb1-annotation-auth")!)).toMatchObject({
       token: "tok-ada",
       user: { name: "Ada Lovelace", email: "ada@example.com" },
     });
@@ -108,7 +108,7 @@ describe("AuthContext", () => {
 
     expect(screen.getByTestId("token").textContent).toBe("none");
     expect(screen.getByTestId("name").textContent).toBe("none");
-    expect(sessionStorage.getItem("ufl-annotation-auth")).toBeNull();
+    expect(sessionStorage.getItem("eb1-annotation-auth")).toBeNull();
     expect(setAuthToken).toHaveBeenLastCalledWith(null);
   });
 });

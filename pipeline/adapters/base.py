@@ -1,4 +1,4 @@
-"""Dataset-adapter contract for the universal UFL pipeline.
+"""Dataset-adapter contract for the universal eb1 pipeline.
 
 An adapter normalizes a public bot-human chat corpus into the pipeline's
 EXISTING internal message shape — the same dicts that
