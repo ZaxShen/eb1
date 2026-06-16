@@ -44,7 +44,7 @@ cd annotation/frontend && npm run test:e2e
 bash scripts/test-all.sh
 ```
 
-CI (`.github/workflows/ci.yml`) runs the same layers on every push and PR.
+Run `scripts/test-all.sh` locally before pushing. (CI is deferred for now — wire `.github/workflows/` to call the same script when you want it.)
 
 ## Frontend-vs-backend bisection
 
