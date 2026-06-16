@@ -33,7 +33,7 @@ export interface paths {
         };
         /**
          * List Datasets
-         * @description List dataset names that have an ``output.db``.
+         * @description List registered dataset names.
          */
         get: operations["list_datasets_api_datasets_get"];
         put?: never;
@@ -53,11 +53,10 @@ export interface paths {
         };
         /**
          * List Conversations
-         * @description Return one row per conversation/user for the review queue.
+         * @description Return a PAGINATED, searchable page of conversation summaries.
          *
-         *     Groups ``run_segment`` rows by conversation (segment count, distinct
-         *     topics), counts messages via the dataset adapter, and folds in review
-         *     state from gold.db.
+         *     ``q`` matches conversation ext_id OR message content. ``status``/``topic``
+         *     filter on the effective segmentation. Shape: ``{items,total,page,page_size}``.
          */
         get: operations["list_conversations_api_datasets__dataset__conversations_get"];
         put?: never;
@@ -77,7 +76,7 @@ export interface paths {
         };
         /**
          * Get Conversation
-         * @description Return a conversation's messages plus all its segments (boundary view).
+         * @description Return a conversation's messages plus its effective + gold segments.
          */
         get: operations["get_conversation_api_datasets__dataset__conversations__conversation__get"];
         put?: never;
@@ -99,11 +98,10 @@ export interface paths {
         put?: never;
         /**
          * Replace Boundaries
-         * @description REPLACE all gold_segments for a conversation with the posted spans.
+         * @description REPLACE all gold for a conversation with the posted spans (split/merge).
          *
-         *     Each new gold span inherits topic/subtopic/sentiment from the overlapping
-         *     predicted segment when the client leaves them unset, so split children keep
-         *     the parent's label and a merge takes the primary overlapped segment's label.
+         *     Each new span inherits topic/subtopic/sentiment from the overlapping
+         *     predicted segment when the client leaves them unset.
          */
         post: operations["replace_boundaries_api_datasets__dataset__conversations__conversation__boundaries_post"];
         delete?: never;
@@ -121,10 +119,10 @@ export interface paths {
         };
         /**
          * List Segments
-         * @description Return the review queue: run_segment rows joined with gold review state.
+         * @description Return the predicted-segment review queue with gold review state.
          *
-         *     Filters (all optional): ``status`` (``reviewed``/``unreviewed``), ``topic``
-         *     exact match, ``max_confidence`` (keep segments at or below that confidence).
+         *     Filters (optional): ``status`` (``reviewed``/``unreviewed``), ``topic`` exact
+         *     match, ``max_confidence`` (keep segments at or below that confidence).
          */
         get: operations["list_segments_api_datasets__dataset__segments_get"];
         put?: never;
@@ -166,15 +164,12 @@ export interface paths {
         put?: never;
         /**
          * Annotate Segment
-         * @description Write a gold_segment mirroring the base span with corrected labels.
+         * @description Write a relabel/confirm gold mirroring the predicted span with new labels.
          */
         post: operations["annotate_segment_api_datasets__dataset__segments__segment_id__annotate_post"];
         /**
          * Clear Segment Annotation
-         * @description Clear a segment's gold annotation, reverting it to unannotated.
-         *
-         *     Deletes the segment's relabel/confirm gold_segment row(s) + its review_state
-         *     entry so undoing a first annotation reverts the segment to unreviewed.
+         * @description Clear a segment's relabel/confirm gold, reverting it to unannotated.
          */
         delete: operations["clear_segment_annotation_api_datasets__dataset__segments__segment_id__annotate_delete"];
         options?: never;
@@ -211,7 +206,7 @@ export interface paths {
         };
         /**
          * Get Taxonomy
-         * @description Return the dataset's user taxonomy from the metadata provider.
+         * @description Return the dataset's user taxonomy.
          */
         get: operations["get_taxonomy_api_datasets__dataset__taxonomy_get"];
         put?: never;
@@ -309,6 +304,20 @@ export interface components {
             reviewed: boolean;
             /** Segment Id */
             segment_id: number;
+        };
+        /**
+         * ConversationPage
+         * @description A paginated page of conversation summaries for the review queue.
+         */
+        ConversationPage: {
+            /** Items */
+            items?: components["schemas"]["ConversationSummary"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
         };
         /**
          * ConversationSummary
@@ -541,7 +550,13 @@ export interface operations {
     };
     list_conversations_api_datasets__dataset__conversations_get: {
         parameters: {
-            query?: never;
+            query?: {
+                page?: number;
+                page_size?: number;
+                q?: string | null;
+                status?: string | null;
+                topic?: string | null;
+            };
             header?: {
                 authorization?: string | null;
             };
@@ -558,7 +573,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ConversationSummary"][];
+                    "application/json": components["schemas"]["ConversationPage"];
                 };
             };
             /** @description Validation Error */

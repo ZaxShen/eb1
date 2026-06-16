@@ -1,0 +1,84 @@
+-- PostgreSQL schema for the annotation tool.
+--
+-- Replaces the per-dataset SQLite triple (output.db / sample.jsonl / gold.db)
+-- with one Postgres database holding the FULL datasets (~1.85M conversations)
+-- so the labeling site can review them at production scale.
+--
+-- Layout:
+--   dataset       — one row per corpus (wildchat, superdialseg, lmsys).
+--   conversation  — one row per conversation, keyed by (dataset, ext_id) where
+--                   ext_id is the source id (WildChat conversation_hash, etc.).
+--   message       — the ordered, normalized messages of a conversation.
+--   segment       — both the machine "predicted" seed segments (source='predicted',
+--                   one whole-conversation span per conversation) and the human
+--                   gold edits (source in 'relabel' | 'confirm' | 'boundary').
+--                   `base_segment_id` ties a relabel/confirm gold back to the
+--                   predicted segment it mirrors; a boundary edit has it NULL and
+--                   replaces a conversation's spans wholesale (split/merge).
+--                   reviewed_* records the human review bookkeeping.
+--   taxonomy      — per-dataset (topic, subtopic) options for the relabel UI.
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+CREATE TABLE IF NOT EXISTS dataset (
+    name        TEXT PRIMARY KEY,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS conversation (
+    id            BIGSERIAL PRIMARY KEY,
+    dataset       TEXT NOT NULL REFERENCES dataset(name) ON DELETE CASCADE,
+    ext_id        TEXT NOT NULL,
+    message_count INTEGER NOT NULL DEFAULT 0,
+    UNIQUE (dataset, ext_id)
+);
+
+CREATE TABLE IF NOT EXISTS message (
+    id              BIGSERIAL PRIMARY KEY,
+    conversation_id BIGINT NOT NULL REFERENCES conversation(id) ON DELETE CASCADE,
+    idx             INTEGER NOT NULL,
+    role            TEXT,
+    content         TEXT,
+    created_at      TIMESTAMPTZ,
+    UNIQUE (conversation_id, idx)
+);
+
+CREATE TABLE IF NOT EXISTS segment (
+    id               BIGSERIAL PRIMARY KEY,
+    conversation_id  BIGINT NOT NULL REFERENCES conversation(id) ON DELETE CASCADE,
+    chunk_index      INTEGER NOT NULL DEFAULT 0,
+    message_indices  INTEGER[] NOT NULL DEFAULT '{}',
+    summary          TEXT,
+    topic            TEXT,
+    subtopic         TEXT,
+    sentiment        TEXT,
+    label_confidence DOUBLE PRECISION,
+    source           TEXT NOT NULL,        -- 'predicted' | 'relabel' | 'confirm' | 'boundary'
+    base_segment_id  BIGINT REFERENCES segment(id) ON DELETE CASCADE,
+    reviewed_by      TEXT,
+    reviewed_at      TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS taxonomy (
+    dataset     TEXT NOT NULL REFERENCES dataset(name) ON DELETE CASCADE,
+    kind        TEXT NOT NULL DEFAULT 'user',
+    topic       TEXT,
+    subtopic    TEXT,
+    description TEXT
+);
+
+-- Scale + search indexes.
+CREATE INDEX IF NOT EXISTS conversation_dataset_idx ON conversation (dataset);
+CREATE INDEX IF NOT EXISTS conversation_dataset_id_idx ON conversation (dataset, id);
+CREATE INDEX IF NOT EXISTS conversation_ext_id_trgm_idx
+    ON conversation USING gin (ext_id gin_trgm_ops);
+
+CREATE INDEX IF NOT EXISTS message_conversation_idx ON message (conversation_id);
+CREATE INDEX IF NOT EXISTS message_content_trgm_idx
+    ON message USING gin (content gin_trgm_ops);
+
+CREATE INDEX IF NOT EXISTS segment_conversation_idx ON segment (conversation_id);
+CREATE INDEX IF NOT EXISTS segment_source_idx ON segment (source);
+CREATE INDEX IF NOT EXISTS segment_base_idx ON segment (base_segment_id);
+
+CREATE INDEX IF NOT EXISTS taxonomy_dataset_idx ON taxonomy (dataset, kind);

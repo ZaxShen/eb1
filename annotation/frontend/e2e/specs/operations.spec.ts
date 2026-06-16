@@ -8,11 +8,11 @@ import { AnnotationPage } from "../pages/AnnotationPage";
  * Task A now returns as `segments`. Before the fix the stream rendered the
  * predicted field and ignored every edit, so all four of these would fail.
  *
- * Fixture (seed_e2e.py via the mock analyzer): the wildchat conversation
- * `e2ewild0000000a1` is one machine segment spanning its four messages —
- * the ideal split/merge subject. Each test opens it fresh; gold edits persist
- * to the seeded SQLite, so a test reverts what it writes (merge after split;
- * undo) to keep the suite order-independent.
+ * Fixture (seed_e2e.py): the wildchat conversation `e2ewild0000000a1` is one
+ * whole-conversation segment spanning its four messages — the ideal split/merge
+ * subject. Each test opens it fresh; gold edits persist to the seeded Postgres,
+ * so a test reverts what it writes (merge after split; undo) to keep the suite
+ * order-independent.
  */
 
 const WILDCHAT = "wildchat";
@@ -28,7 +28,7 @@ async function open(page: import("@playwright/test").Page, conv = CONV) {
   return app;
 }
 
-// These specs mutate shared backend gold state (one seeded SQLite fixture), so
+// These specs mutate shared backend gold state (one seeded Postgres fixture), so
 // they run serially and each reverts its own write — keeping every assertion
 // (segment counts, reviewed stat) deterministic regardless of order.
 test.describe.configure({ mode: "serial" });

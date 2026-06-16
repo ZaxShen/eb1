@@ -1,14 +1,16 @@
 # UFL Annotation Site
 
-A trimmed data-annotation web app for **user/conversation-level** review of UFL
-machine segments: browse conversations, read each one's full chat stream with
-all its segments overlaid inline, relabel topics/subtopics, and edit boundaries
-(split / merge → gold spans). Without Redis / RabbitMQ / Mongo / Postgres and
-without auth.
+A data-annotation web app for **user/conversation-level** review of UFL machine
+segments: browse conversations, read each one's full chat stream with all its
+segments overlaid inline, relabel topics/subtopics, and edit boundaries
+(split / merge → gold spans). Server-side paginated + searchable so it scales to
+the full datasets (~1.85M conversations).
 
-- **`backend/`** — FastAPI + per-dataset SQLite gold store. Reads machine
-  segments from `datasets/<name>/output.db`, taxonomy from the metadata
-  provider, and writes human gold (corrected topic/subtopic + boundaries).
+- **`backend/`** — FastAPI on **PostgreSQL** (one DB holding every dataset's
+  conversations, messages, predicted seed segments, human gold, and taxonomy).
+  The connection comes from `EB1_ANNOTATION_DSN`; bring the database up with
+  `docker compose -f annotation/docker-compose.yml up -d`. See
+  `architecture/manual/decisions/1-annotation-postgres.md`.
 - **`frontend/`** — React + Vite + TypeScript + Tailwind: a resizable
   **conversation queue** | the selected conversation's **full color-by-role chat
   stream with all segments as inline labeled dividers** + boundary split/merge |
@@ -16,9 +18,13 @@ without auth.
 
 ## One-command dev
 
-Two terminals from the repo root:
+Two terminals from the repo root (start Postgres first):
 
 ```bash
+# Once — bring up the annotation Postgres
+docker compose -f annotation/docker-compose.yml up -d
+export EB1_ANNOTATION_DSN=postgresql://eb1:eb1@localhost:5544/eb1_annotation
+
 # Terminal 1 — backend
 uv run uvicorn annotation.backend.app:app --port 8000 --reload
 

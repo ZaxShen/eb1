@@ -7,6 +7,7 @@ everything; gold ingestion runs against a tmp datasets root.
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -123,7 +124,23 @@ class TestPreSegmentOnNormalized:
 # ── Gold ingestion ────────────────────────────────────────────────────────────
 
 
+@pytest.mark.skipif(
+    not os.environ.get("EB1_ANNOTATION_DSN"),
+    reason="EB1_ANNOTATION_DSN unset; start annotation/docker-compose.yml to run",
+)
 class TestIngestGold:
+    @pytest.fixture(autouse=True)
+    def _pg(self):
+        db.reset_pool()
+        db.apply_schema()
+        with db.get_pool().connection() as conn:
+            conn.execute("DELETE FROM dataset WHERE name = %s", ("superdialseg",))
+            conn.commit()
+        yield
+        with db.get_pool().connection() as conn:
+            conn.execute("DELETE FROM dataset WHERE name = %s", ("superdialseg",))
+            conn.commit()
+
     def _write_sample(self, tmp_path: Path, dialogues: list[dict]) -> Path:
         ds_dir = tmp_path / "superdialseg"
         ds_dir.mkdir(parents=True)
@@ -135,7 +152,7 @@ class TestIngestGold:
 
     def test_ingest_writes_gold_rows(self, tmp_path, superdialseg_dialogues):
         sample = self._write_sample(tmp_path, superdialseg_dialogues)
-        written = ingest_superdialseg_gold.ingest(sample, root=tmp_path)
+        written = ingest_superdialseg_gold.ingest(sample)
 
         expected = sum(
             len(SuperDialsegLoader().gold_segments(d)) for d in superdialseg_dialogues
@@ -143,7 +160,7 @@ class TestIngestGold:
         assert written == expected
 
         conv = superdialseg_dialogues[0]["dialogue_id"]
-        gold = db.read_gold_segments("superdialseg", conv, tmp_path)
+        gold = db.read_gold_segments("superdialseg", conv)
         assert len(gold) == 2
         assert all(g["source"] == "gold" for g in gold)
         assert all(g["base_segment_id"] is None for g in gold)
@@ -151,11 +168,11 @@ class TestIngestGold:
 
     def test_ingest_is_idempotent(self, tmp_path, superdialseg_dialogues):
         sample = self._write_sample(tmp_path, superdialseg_dialogues)
-        ingest_superdialseg_gold.ingest(sample, root=tmp_path)
-        ingest_superdialseg_gold.ingest(sample, root=tmp_path)
+        ingest_superdialseg_gold.ingest(sample)
+        ingest_superdialseg_gold.ingest(sample)
 
         conv = superdialseg_dialogues[0]["dialogue_id"]
-        gold = db.read_gold_segments("superdialseg", conv, tmp_path)
+        gold = db.read_gold_segments("superdialseg", conv)
         assert len(gold) == 2
 
 

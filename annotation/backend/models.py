@@ -67,6 +67,15 @@ class ConversationSummary(BaseModel):
     reviewed: bool = False
 
 
+class ConversationPage(BaseModel):
+    """A paginated page of conversation summaries for the review queue."""
+
+    items: list[ConversationSummary] = Field(default_factory=list)
+    total: int
+    page: int
+    page_size: int
+
+
 class ConversationView(BaseModel):
     """All messages + all machine segments for the boundary-edit view."""
 

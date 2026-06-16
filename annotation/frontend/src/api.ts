@@ -62,6 +62,13 @@ export interface ConversationSummary {
   reviewed: boolean;
 }
 
+export interface ConversationPage {
+  items: ConversationSummary[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
 export interface ConversationView {
   conversation: string;
   messages: Message[];
@@ -177,13 +184,18 @@ export const api = {
 
   listDatasets: () => request<string[]>("/datasets"),
 
+  // The backend conversations-list is server-side paginated + searchable,
+  // returning `{items,total,page,page_size}`. The paginated/virtualized queue UI
+  // is a follow-up; for now this unwraps `items` so the existing queue holds.
+  // A bare array response (component-test mocks) is tolerated as `items`.
   listConversations: async (
     dataset: string,
     filters: ConversationFilters = {},
   ): Promise<ConversationSummary[]> => {
-    const rows = await request<ConversationSummary[]>(
+    const res = await request<ConversationPage | ConversationSummary[]>(
       `/datasets/${encodeURIComponent(dataset)}/conversations`,
     );
+    const rows = Array.isArray(res) ? res : res.items;
     return rows.filter((row) => {
       if (filters.status === "reviewed" && !row.reviewed) return false;
       if (filters.status === "unreviewed" && row.reviewed) return false;
@@ -251,6 +263,7 @@ export type SchemaContract = [
   AssertAssignable<SegmentDetail, Schema["SegmentDetail"]>,
   AssertAssignable<GoldSegment, Schema["GoldSegment"]>,
   AssertAssignable<ConversationSummary, Schema["ConversationSummary"]>,
+  AssertAssignable<ConversationPage, Schema["ConversationPage"]>,
   AssertAssignable<ConversationView, Schema["ConversationView"]>,
   AssertAssignable<TaxonomyEntry, Schema["TaxonomyEntry"]>,
   AssertAssignable<AnnotateResponse, Schema["AnnotateResponse"]>,

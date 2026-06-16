@@ -1,0 +1,39 @@
+# Local PostgreSQL for the annotation tool.
+#
+# The annotation backend reads its connection string from EB1_ANNOTATION_DSN.
+# With this compose file running, use:
+#
+#   export EB1_ANNOTATION_DSN=postgresql://eb1:eb1@localhost:5544/eb1_annotation
+#
+# Bring up / tear down:
+#
+#   docker compose -f annotation/docker-compose.yml up -d
+#   docker compose -f annotation/docker-compose.yml down          # keep data
+#   docker compose -f annotation/docker-compose.yml down -v       # wipe data
+#
+# Port 5544 is non-default on purpose so it never collides with a system
+# Postgres on 5432. The named volume holds the full ~1.85M-conversation corpus
+# across restarts.
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: eb1-annotation-pg
+    environment:
+      POSTGRES_USER: eb1
+      POSTGRES_PASSWORD: eb1
+      POSTGRES_DB: eb1_annotation
+    ports:
+      - "5544:5432"
+    volumes:
+      # postgres:18 recommends mounting the parent dir (data lives in a
+      # versioned subdirectory) so future major upgrades stay clean.
+      - eb1_annotation_pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eb1 -d eb1_annotation"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  eb1_annotation_pgdata:

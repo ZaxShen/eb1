@@ -1,26 +1,27 @@
-"""Ingest SuperDialseg gold segmentation boundaries into the per-dataset gold DB.
+"""Ingest SuperDialseg gold segmentation boundaries into the annotation PG store.
 
 SuperDialseg ships human-authored topic segments: each utterance carries a
 ``segment_id`` and a segment is a maximal run of consecutive utterances sharing
 it. :meth:`SuperDialsegLoader.gold_segments` recovers those spans; this module
-persists them into ``datasets/superdialseg/gold.db`` (the annotation backend's
-gold store) as ``gold_segment`` rows with ``source='gold'`` — the reliable-label
-anchor the evaluation measures machine boundaries against.
+persists them into the annotation backend's PostgreSQL ``segment`` table with
+``source='gold'`` — the reliable-label anchor the evaluation measures machine
+boundaries against. The conversation + its messages are upserted first so the
+gold spans attach to real conversation rows.
 
-Idempotent: every prior ``source='gold'`` row for a conversation is deleted
-before its spans are re-written, so re-running replaces rather than duplicates.
+Idempotent: every prior ``source='gold'`` row for a conversation is replaced on
+re-run. The target database is the annotation ``EB1_ANNOTATION_DSN`` Postgres.
 
 Run::
 
+    docker compose -f annotation/docker-compose.yml up -d
     python -m pipeline.metadata.ingest_superdialseg_gold
 
-This module performs NO MongoDB / PostgreSQL / LLM / network access.
+This module performs NO MongoDB / LLM / network access.
 """
 
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
 from pathlib import Path
 
 from annotation.backend import db
@@ -43,55 +44,39 @@ def _read_dialogues(sample_path: str | Path) -> list[dict]:
     return dialogues
 
 
-def ingest(
-    sample_path: str | Path = SAMPLE_PATH,
-    root: Path | None = None,
-) -> int:
-    """Ingest SuperDialseg gold spans into the gold DB; return spans written.
+def _messages(loader: SuperDialsegLoader, dialogue: dict) -> list[dict]:
+    return [
+        {"role": m.get("type", ""), "content": m.get("message", "")}
+        for m in loader.load_conversation(dialogue)
+    ]
 
-    For each dialogue, prior ``source='gold'`` rows for that conversation are
-    deleted, then one ``gold_segment`` row per recovered span is inserted with
-    ``source='gold'``. Re-running is idempotent (replace per conversation).
+
+def ingest(sample_path: str | Path = SAMPLE_PATH) -> int:
+    """Ingest SuperDialseg gold spans into PG; return total spans written.
+
+    For each dialogue the conversation + messages are upserted, then its
+    ``source='gold'`` segment rows are replaced with one row per recovered span.
+    Re-running is idempotent (replace per conversation).
     """
     loader = SuperDialsegLoader()
     dialogues = _read_dialogues(sample_path)
-    now = datetime.now(tz=timezone.utc).isoformat()
 
-    conn = db.open_gold_db(DATASET, root)
     written = 0
-    try:
-        for dialogue in dialogues:
-            spans = loader.gold_segments(dialogue)
-            if not spans:
-                continue
-            conversation = spans[0]["conversation"]
-            conn.execute(
-                "DELETE FROM gold_segment WHERE conversation = ? AND source = ?",
-                (conversation, GOLD_SOURCE),
-            )
-            for span in spans:
-                conn.execute(
-                    "INSERT INTO gold_segment "
-                    "(conversation, message_indices, topic, subtopic, sentiment, "
-                    "base_segment_id, source, reviewed_by, reviewed_at) "
-                    "VALUES (?, ?, NULL, NULL, NULL, NULL, ?, NULL, ?)",
-                    (
-                        conversation,
-                        json.dumps(span["message_indices"]),
-                        GOLD_SOURCE,
-                        now,
-                    ),
-                )
-                written += 1
-        conn.commit()
-    finally:
-        conn.close()
+    for dialogue in dialogues:
+        spans = loader.gold_segments(dialogue)
+        if not spans:
+            continue
+        conversation = spans[0]["conversation"]
+        conv_id = db.upsert_conversation(
+            DATASET, conversation, _messages(loader, dialogue)
+        )
+        written += db.replace_gold_spans(conv_id, spans, source=GOLD_SOURCE)
     return written
 
 
 def main() -> None:
     written = ingest()
-    print(f"Ingested {written} SuperDialseg gold spans -> {db.gold_db_path(DATASET)}")
+    print(f"Ingested {written} SuperDialseg gold spans -> {DATASET} (Postgres)")
 
 
 if __name__ == "__main__":

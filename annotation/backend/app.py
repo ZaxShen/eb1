@@ -4,10 +4,10 @@ Wires CORS for the Vite dev origin and mounts the ``/api`` router. Run::
 
     uv run uvicorn annotation.backend.app:app --reload
 
-The datasets root defaults to ``datasets/`` and is overridable via the
-``EB1_DATASETS_DIR`` environment variable (used by the E2E harness to isolate
-its fixture data); tests can also override it in-process via
-``annotation.backend.routes.set_datasets_root``.
+The backend reads its PostgreSQL connection from ``EB1_ANNOTATION_DSN`` (see
+``annotation/docker-compose.yml`` and ``annotation.backend.config``). The E2E
+harness and tests point this at an isolated database and seed it via
+``annotation.backend.db.seed_conversations``.
 """
 
 from __future__ import annotations

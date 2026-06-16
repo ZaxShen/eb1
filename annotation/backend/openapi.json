@@ -196,6 +196,37 @@
         "title": "ClearAnnotationResponse",
         "type": "object"
       },
+      "ConversationPage": {
+        "description": "A paginated page of conversation summaries for the review queue.",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ConversationSummary"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "ConversationPage",
+        "type": "object"
+      },
       "ConversationSummary": {
         "description": "One row in the user/conversation review queue.",
         "properties": {
@@ -723,7 +754,7 @@
     },
     "/api/datasets": {
       "get": {
-        "description": "List dataset names that have an ``output.db``.",
+        "description": "List registered dataset names.",
         "operationId": "list_datasets_api_datasets_get",
         "parameters": [
           {
@@ -774,7 +805,7 @@
     },
     "/api/datasets/{dataset}/conversations": {
       "get": {
-        "description": "Return one row per conversation/user for the review queue.\n\nGroups ``run_segment`` rows by conversation (segment count, distinct\ntopics), counts messages via the dataset adapter, and folds in review\nstate from gold.db.",
+        "description": "Return a PAGINATED, searchable page of conversation summaries.\n\n``q`` matches conversation ext_id OR message content. ``status``/``topic``\nfilter on the effective segmentation. Shape: ``{items,total,page,page_size}``.",
         "operationId": "list_conversations_api_datasets__dataset__conversations_get",
         "parameters": [
           {
@@ -784,6 +815,77 @@
             "schema": {
               "title": "Dataset",
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Topic"
             }
           },
           {
@@ -808,11 +910,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/ConversationSummary"
-                  },
-                  "title": "Response List Conversations Api Datasets  Dataset  Conversations Get",
-                  "type": "array"
+                  "$ref": "#/components/schemas/ConversationPage"
                 }
               }
             },
@@ -834,7 +932,7 @@
     },
     "/api/datasets/{dataset}/conversations/{conversation}": {
       "get": {
-        "description": "Return a conversation's messages plus all its segments (boundary view).",
+        "description": "Return a conversation's messages plus its effective + gold segments.",
         "operationId": "get_conversation_api_datasets__dataset__conversations__conversation__get",
         "parameters": [
           {
@@ -899,7 +997,7 @@
     },
     "/api/datasets/{dataset}/conversations/{conversation}/boundaries": {
       "post": {
-        "description": "REPLACE all gold_segments for a conversation with the posted spans.\n\nEach new gold span inherits topic/subtopic/sentiment from the overlapping\npredicted segment when the client leaves them unset, so split children keep\nthe parent's label and a merge takes the primary overlapped segment's label.",
+        "description": "REPLACE all gold for a conversation with the posted spans (split/merge).\n\nEach new span inherits topic/subtopic/sentiment from the overlapping\npredicted segment when the client leaves them unset.",
         "operationId": "replace_boundaries_api_datasets__dataset__conversations__conversation__boundaries_post",
         "parameters": [
           {
@@ -974,7 +1072,7 @@
     },
     "/api/datasets/{dataset}/segments": {
       "get": {
-        "description": "Return the review queue: run_segment rows joined with gold review state.\n\nFilters (all optional): ``status`` (``reviewed``/``unreviewed``), ``topic``\nexact match, ``max_confidence`` (keep segments at or below that confidence).",
+        "description": "Return the predicted-segment review queue with gold review state.\n\nFilters (optional): ``status`` (``reviewed``/``unreviewed``), ``topic`` exact\nmatch, ``max_confidence`` (keep segments at or below that confidence).",
         "operationId": "list_segments_api_datasets__dataset__segments_get",
         "parameters": [
           {
@@ -1147,7 +1245,7 @@
     },
     "/api/datasets/{dataset}/segments/{segment_id}/annotate": {
       "delete": {
-        "description": "Clear a segment's gold annotation, reverting it to unannotated.\n\nDeletes the segment's relabel/confirm gold_segment row(s) + its review_state\nentry so undoing a first annotation reverts the segment to unreviewed.",
+        "description": "Clear a segment's relabel/confirm gold, reverting it to unannotated.",
         "operationId": "clear_segment_annotation_api_datasets__dataset__segments__segment_id__annotate_delete",
         "parameters": [
           {
@@ -1210,7 +1308,7 @@
         "summary": "Clear Segment Annotation"
       },
       "post": {
-        "description": "Write a gold_segment mirroring the base span with corrected labels.",
+        "description": "Write a relabel/confirm gold mirroring the predicted span with new labels.",
         "operationId": "annotate_segment_api_datasets__dataset__segments__segment_id__annotate_post",
         "parameters": [
           {
@@ -1341,7 +1439,7 @@
     },
     "/api/datasets/{dataset}/taxonomy": {
       "get": {
-        "description": "Return the dataset's user taxonomy from the metadata provider.",
+        "description": "Return the dataset's user taxonomy.",
         "operationId": "get_taxonomy_api_datasets__dataset__taxonomy_get",
         "parameters": [
           {

@@ -6,13 +6,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * Self-booting E2E harness: a real browser drives the real Vite frontend, which
- * proxies /api to the real FastAPI backend, which reads a freshly SEEDED SQLite
- * fixture tree. Nothing here touches the repo's real `datasets/`, MongoDB,
- * Postgres, an LLM, or the network.
+ * proxies /api to the real FastAPI backend, which reads a freshly SEEDED
+ * PostgreSQL database. Nothing here touches the repo's real datasets, MongoDB,
+ * an LLM, or the network.
  *
  * webServer boots, in order:
- *   1. backend — seeds the fixture (mock analyzer, no LLM) then `uvicorn` on
- *      port 8200 with EB1_DATASETS_DIR pointed at the fixture;
+ *   1. backend — brings up the docker Postgres (annotation/docker-compose.yml),
+ *      applies the schema + seeds the fixture (no LLM), then runs `uvicorn` on
+ *      port 8200 with EB1_ANNOTATION_DSN pointed at that database;
  *   2. frontend — `vite` dev server on the test port, proxying /api -> 8200.
  *
  * `reuseExistingServer: !CI` so local reruns are fast; CI always boots fresh.
@@ -24,8 +25,14 @@ const BACKEND_PORT = 8200;
 const FRONTEND_PORT = 5273;
 
 const REPO_ROOT = path.resolve(__dirname, "../..");
-const FIXTURE_DIR = path.resolve(__dirname, "e2e/.datasets");
+const COMPOSE_FILE = "annotation/docker-compose.yml";
 const SEED_SCRIPT = "annotation/frontend/e2e/fixtures/seed_e2e.py";
+
+// The annotation backend + seed both read this. Kept in sync with the default
+// in annotation/backend/config.py and the docker-compose host port.
+const ANNOTATION_DSN =
+  process.env.EB1_ANNOTATION_DSN ??
+  "postgresql://eb1:eb1@localhost:5544/eb1_annotation";
 
 export default defineConfig({
   testDir: "./e2e/specs",
@@ -45,16 +52,18 @@ export default defineConfig({
   ],
   webServer: [
     {
-      // Seed a fresh fixture, then start the backend pointed at it. The seed
-      // runs every boot so the dataset is deterministic and self-contained.
+      // Bring up Postgres, apply schema + seed the fixture, then start the
+      // backend pointed at it. The seed runs every boot so the dataset is
+      // deterministic and self-contained.
       command:
-        `uv run python ${SEED_SCRIPT} --out "${FIXTURE_DIR}" && ` +
+        `docker compose -f ${COMPOSE_FILE} up -d --wait && ` +
+        `uv run python ${SEED_SCRIPT} && ` +
         `uv run uvicorn annotation.backend.app:app --port ${BACKEND_PORT}`,
       cwd: REPO_ROOT,
       url: `http://localhost:${BACKEND_PORT}/api/datasets`,
       timeout: 180_000,
       reuseExistingServer: !CI,
-      env: { EB1_DATASETS_DIR: FIXTURE_DIR },
+      env: { EB1_ANNOTATION_DSN: ANNOTATION_DSN },
     },
     {
       command: "npm run dev",

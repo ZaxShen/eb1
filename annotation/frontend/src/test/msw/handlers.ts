@@ -151,7 +151,12 @@ export const handlers = [
   http.get(`${base}/datasets`, () => HttpResponse.json(datasets)),
 
   http.get(`${base}/datasets/:dataset/conversations`, () =>
-    HttpResponse.json(conversations),
+    HttpResponse.json({
+      items: conversations,
+      total: conversations.length,
+      page: 1,
+      page_size: 50,
+    }),
   ),
 
   http.get(`${base}/datasets/:dataset/conversations/:conversation`, () =>
