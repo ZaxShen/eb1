@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Protocol, runtime_checkable
 
 SCHEMA_PATH = Path(__file__).parent / "schema.sql"
+DEFAULT_TAXONOMY_DIR = Path(__file__).resolve().parents[2] / "config" / "taxonomy"
 
 
 @dataclass
@@ -73,10 +74,15 @@ def init_db(db_path: str | Path) -> None:
 class SqliteDatasetProvider:
     """SQLite-backed :class:`MetadataProvider` for one dataset's metadata.db."""
 
-    def __init__(self, db_path: str | Path) -> None:
+    def __init__(
+        self, db_path: str | Path, taxonomy_dir: str | Path | None = None
+    ) -> None:
         self.db_path = Path(db_path)
         if not self.db_path.exists():
             raise FileNotFoundError(f"Metadata DB not found: {self.db_path}")
+        self.taxonomy_dir = (
+            Path(taxonomy_dir) if taxonomy_dir is not None else DEFAULT_TAXONOMY_DIR
+        )
 
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(str(self.db_path))
@@ -101,6 +107,9 @@ class SqliteDatasetProvider:
         )
 
     def taxonomy(self, kind: str) -> list[dict]:
+        json_rows = self._load_taxonomy_json(self.db_path.parent.name, kind)
+        if json_rows is not None:
+            return json_rows
         conn = self._connect()
         try:
             rows = conn.execute(
@@ -109,6 +118,34 @@ class SqliteDatasetProvider:
         finally:
             conn.close()
         return [dict(r) for r in rows]
+
+    def _load_taxonomy_json(self, dataset: str, kind: str) -> list[dict] | None:
+        """Return kind-filtered entries from the exported JSON, or ``None``.
+
+        ``None`` signals "no usable JSON" (missing/empty/malformed) so the caller
+        falls back to SQLite; a present, parseable export yields a (possibly empty)
+        list and short-circuits the DB read.
+        """
+        json_path = self.taxonomy_dir / f"{dataset}.json"
+        if not json_path.is_file():
+            return None
+        try:
+            payload = json.loads(json_path.read_text(encoding="utf-8"))
+            entries = payload["entries"]
+        except (OSError, ValueError, KeyError, TypeError):
+            return None
+        if not isinstance(entries, list):
+            return None
+        return [
+            {
+                "kind": e.get("kind"),
+                "topic": e.get("topic"),
+                "subtopic": e.get("subtopic"),
+                "description": e.get("description"),
+            }
+            for e in entries
+            if isinstance(e, dict) and e.get("kind") == kind
+        ]
 
     def accelerator_rules(self) -> list[dict]:
         conn = self._connect()
