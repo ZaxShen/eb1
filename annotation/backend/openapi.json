@@ -690,6 +690,20 @@
         "title": "TaxonomyEntry",
         "type": "object"
       },
+      "UsedTopics": {
+        "description": "Distinct topic names already used for a dataset, most-frequent first.",
+        "properties": {
+          "topics": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "title": "UsedTopics",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -1516,6 +1530,62 @@
           }
         },
         "summary": "Get Taxonomy"
+      }
+    },
+    "/api/datasets/{dataset}/used-topics": {
+      "get": {
+        "description": "Return distinct topic names already used for the dataset, frequent first.",
+        "operationId": "get_used_topics_api_datasets__dataset__used_topics_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsedTopics"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Used Topics"
       }
     }
   }

@@ -27,6 +27,7 @@ from annotation.backend.models import (
     SegmentSummary,
     Stats,
     TaxonomyEntry,
+    UsedTopics,
 )
 
 auth_router = APIRouter(prefix="/api")
@@ -259,6 +260,13 @@ def get_taxonomy(dataset: str) -> list[TaxonomyEntry]:
         )
         for r in rows
     ]
+
+
+@router.get("/datasets/{dataset}/used-topics", response_model=UsedTopics)
+def get_used_topics(dataset: str) -> UsedTopics:
+    """Return distinct topic names already used for the dataset, frequent first."""
+    _require_dataset(dataset)
+    return UsedTopics(topics=db.used_topics(dataset))
 
 
 @router.post(

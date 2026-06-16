@@ -94,6 +94,12 @@ class TaxonomyEntry(BaseModel):
     description: str | None = None
 
 
+class UsedTopics(BaseModel):
+    """Distinct topic names already used for a dataset, most-frequent first."""
+
+    topics: list[str] = Field(default_factory=list)
+
+
 class AnnotateRequest(BaseModel):
     """Relabel/confirm one base segment's topic/subtopic."""
 

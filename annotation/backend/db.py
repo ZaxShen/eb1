@@ -1038,6 +1038,20 @@ def load_taxonomy(dataset: str) -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def used_topics(dataset: str) -> list[str]:
+    """Return distinct non-null segment topics for ``dataset``, most-frequent first."""
+    pool = get_pool()
+    with pool.connection() as conn:
+        rows = conn.execute(
+            "SELECT s.topic AS topic, COUNT(*) AS n "
+            "FROM segment s JOIN conversation c ON s.conversation_id = c.id "
+            "WHERE c.dataset = %s AND s.topic IS NOT NULL AND s.topic <> '' "
+            "GROUP BY s.topic ORDER BY n DESC, s.topic ASC",
+            (dataset,),
+        ).fetchall()
+    return [r["topic"] for r in rows]
+
+
 def stats(dataset: str) -> dict:
     """Return review progress over the EFFECTIVE set: totals + per-topic counts."""
     pool = get_pool()

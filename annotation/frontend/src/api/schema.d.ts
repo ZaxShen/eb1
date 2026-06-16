@@ -218,6 +218,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/datasets/{dataset}/used-topics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Used Topics
+         * @description Return distinct topic names already used for the dataset, frequent first.
+         */
+        get: operations["get_used_topics_api_datasets__dataset__used_topics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -480,6 +500,14 @@ export interface components {
             subtopic?: string | null;
             /** Topic */
             topic?: string | null;
+        };
+        /**
+         * UsedTopics
+         * @description Distinct topic names already used for a dataset, most-frequent first.
+         */
+        UsedTopics: {
+            /** Topics */
+            topics?: string[];
         };
         /** ValidationError */
         ValidationError: {
@@ -862,6 +890,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TaxonomyEntry"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_used_topics_api_datasets__dataset__used_topics_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                dataset: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsedTopics"];
                 };
             };
             /** @description Validation Error */

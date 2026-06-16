@@ -202,6 +202,57 @@ def test_worklist_ingest_filters_to_listed_ids(_db, tmp_path: Path, monkeypatch)
 
 
 @pytestmark_pg
+def test_used_topics_returns_distinct_frequent_first(_db):
+    db.ingest_batch(
+        DATASET,
+        [
+            {
+                "ext_id": "wltest_solo_a",
+                "messages": [{"role": "User", "content": "hi"}],
+                "gold_segments": [
+                    {"message_indices": [0], "topic": "billing"},
+                ],
+            },
+            {
+                "ext_id": "wltest_solo_b",
+                "messages": [{"role": "User", "content": "yo"}],
+                "gold_segments": [
+                    {"message_indices": [0], "topic": "billing"},
+                    {"message_indices": [0], "topic": "shipping"},
+                ],
+            },
+        ],
+    )
+    topics = db.used_topics(DATASET)
+    seen = [t for t in topics if t in {"billing", "shipping"}]
+    # "billing" appears twice, "shipping" once -> most-frequent first.
+    assert seen == ["billing", "shipping"]
+    assert None not in topics
+
+
+@pytestmark_pg
+def test_used_topics_endpoint(_db):
+    from fastapi.testclient import TestClient
+
+    from annotation.backend.app import create_app
+
+    db.ingest_batch(
+        DATASET,
+        [
+            {
+                "ext_id": "wltest_solo_a",
+                "messages": [{"role": "User", "content": "hi"}],
+                "gold_segments": [{"message_indices": [0], "topic": "refunds"}],
+            }
+        ],
+    )
+    client = TestClient(create_app())
+    resp = client.get(f"/api/datasets/{DATASET}/used-topics")
+    assert resp.status_code == 200
+    assert "refunds" in resp.json()["topics"]
+
+
+@pytestmark_pg
 def test_conversation_view_carries_frozen_boundaries(_db):
     from fastapi.testclient import TestClient
 
