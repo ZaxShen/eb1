@@ -222,6 +222,29 @@ def _iter_superdialseg_dialogues(source: Path) -> Iterator[dict]:
     yield from _load_superdialseg_file(source.read_text(encoding="utf-8"))
 
 
+def _dialogue_records(parsed: object) -> Iterator[dict]:
+    """Yield raw dialogue records from a parsed SuperDialseg JSON payload.
+
+    The gold release nests dialogues under ``{"dial_data": {<variant>: [...]}}``
+    (e.g. ``superseg-v2``); a single ``dial_data`` may hold several variant lists.
+    A bare list of dialogues or a single dialogue object is also accepted, so the
+    already-normalized fixture shape keeps working.
+    """
+    if isinstance(parsed, dict) and "dial_data" in parsed:
+        dial_data = parsed["dial_data"]
+        if isinstance(dial_data, dict):
+            for variant in dial_data.values():
+                if isinstance(variant, list):
+                    yield from variant
+        elif isinstance(dial_data, list):
+            yield from dial_data
+        return
+    if isinstance(parsed, list):
+        yield from parsed
+        return
+    yield parsed
+
+
 def _load_superdialseg_file(text: str) -> Iterator[dict]:
     text = text.strip()
     if not text:
@@ -234,16 +257,22 @@ def _load_superdialseg_file(text: str) -> Iterator[dict]:
             if line:
                 yield _coerce_dialogue(json.loads(line))
         return
-    items = parsed if isinstance(parsed, list) else [parsed]
-    for item in items:
+    for item in _dialogue_records(parsed):
         yield _coerce_dialogue(item)
 
 
 def _coerce_dialogue(item: dict) -> dict:
     """Map a raw SuperDialseg record onto ``{dialogue_id, utterances}``.
 
-    Accepts both the gold release's field names and the already-normalized shape,
-    so ``segment_id`` boundaries survive into ``SuperDialsegLoader.gold_segments``.
+    Accepts both the gold release's field names and the already-normalized shape.
+    ``segment_id`` is derived from the running count of segment-final turns
+    (``segmentation_label == 1`` marks a segment's last turn), so consecutive
+    equal-``segment_id`` runs are exactly the canonical gold segments recovered by
+    :meth:`pipeline.adapters.superdialseg.SuperDialsegLoader.gold_segments`. The
+    raw ``topic_id`` does NOT match those boundaries, so it is carried through as
+    a naming hint rather than used as the boundary key. Precedence: an explicit
+    ``segment_id`` wins; else derive from ``segmentation_label``; else fall back
+    to ``topic_id``; else ``0``.
     """
     dialogue_id = (
         item.get("dialogue_id")
@@ -253,14 +282,24 @@ def _coerce_dialogue(item: dict) -> dict:
     )
     raw = item.get("utterances") or item.get("turns") or item.get("dialogue") or []
     utterances: list[dict] = []
+    running_segment = 0
     for utt in raw:
+        if "segment_id" in utt:
+            segment_id = utt["segment_id"]
+        elif "segmentation_label" in utt:
+            segment_id = running_segment
+        else:
+            segment_id = utt.get("topic_id", 0)
         utterances.append(
             {
                 "speaker": utt.get("speaker") or utt.get("role") or "User",
                 "text": utt.get("text") or utt.get("content") or utt.get("utterance") or "",
-                "segment_id": utt.get("segment_id", utt.get("topic_id", 0)),
+                "segment_id": segment_id,
+                "topic_id": utt.get("topic_id"),
             }
         )
+        if utt.get("segmentation_label") == 1:
+            running_segment += 1
     return {"dialogue_id": str(dialogue_id), "utterances": utterances}
 
 
