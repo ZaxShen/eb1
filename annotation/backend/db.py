@@ -1038,6 +1038,176 @@ def load_taxonomy(dataset: str) -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def create_taxonomy(
+    dataset: str,
+    topic: str,
+    subtopic: str | None = None,
+    description: str | None = None,
+    kind: str = "user",
+) -> None:
+    """Insert a taxonomy option, idempotent on (dataset, kind, topic, subtopic).
+
+    A duplicate create is a no-op (``ON CONFLICT DO NOTHING``); the description
+    of an existing option is left untouched.
+    """
+    pool = get_pool()
+    with pool.connection() as conn:
+        conn.execute(
+            "INSERT INTO taxonomy (dataset, kind, topic, subtopic, description) "
+            "VALUES (%s, %s, %s, %s, %s) "
+            "ON CONFLICT (dataset, kind, topic, subtopic) DO NOTHING",
+            (dataset, kind, topic, subtopic, description),
+        )
+
+
+def rename_taxonomy(
+    dataset: str,
+    topic: str,
+    new_topic: str,
+    subtopic: str | None = None,
+    new_subtopic: str | None = None,
+    kind: str = "user",
+) -> int:
+    """Rename a taxonomy option AND cascade the rename to applied segment labels.
+
+    Topic-level rename (``subtopic`` None): updates the taxonomy entry's topic and
+    every ``segment.topic = topic`` in the dataset. Subtopic-level rename
+    (``subtopic`` given): updates the entry's subtopic and every segment whose
+    ``(topic, subtopic)`` matches. Both happen in one transaction so a rename
+    never orphans a label. Returns the number of cascaded segment rows.
+    """
+    pool = get_pool()
+    with pool.connection() as conn:
+        with conn.transaction():
+            if subtopic is None:
+                conn.execute(
+                    "UPDATE taxonomy SET topic = %s "
+                    "WHERE dataset = %s AND kind = %s AND topic = %s",
+                    (new_topic, dataset, kind, topic),
+                )
+                updated = conn.execute(
+                    "UPDATE segment s SET topic = %s "
+                    "FROM conversation c "
+                    "WHERE s.conversation_id = c.id AND c.dataset = %s "
+                    "AND s.topic = %s",
+                    (new_topic, dataset, topic),
+                ).rowcount
+            else:
+                conn.execute(
+                    "UPDATE taxonomy SET topic = %s, subtopic = %s "
+                    "WHERE dataset = %s AND kind = %s AND topic = %s AND subtopic = %s",
+                    (new_topic, new_subtopic, dataset, kind, topic, subtopic),
+                )
+                updated = conn.execute(
+                    "UPDATE segment s SET topic = %s, subtopic = %s "
+                    "FROM conversation c "
+                    "WHERE s.conversation_id = c.id AND c.dataset = %s "
+                    "AND s.topic = %s AND s.subtopic = %s",
+                    (new_topic, new_subtopic, dataset, topic, subtopic),
+                ).rowcount
+    return updated
+
+
+def merge_taxonomy(
+    dataset: str,
+    from_topic: str,
+    into_topic: str,
+    kind: str = "user",
+) -> int:
+    """Fold ``from_topic`` into ``into_topic``: cascade labels, drop the dup rows.
+
+    Every ``segment.topic = from_topic`` in the dataset becomes ``into_topic``;
+    the ``from_topic`` taxonomy options are re-homed under ``into_topic`` (skipping
+    any that would collide with an existing ``into_topic`` option) and the leftover
+    ``from_topic`` rows are deleted. Returns the number of cascaded segment rows.
+    """
+    pool = get_pool()
+    with pool.connection() as conn:
+        with conn.transaction():
+            updated = conn.execute(
+                "UPDATE segment s SET topic = %s "
+                "FROM conversation c "
+                "WHERE s.conversation_id = c.id AND c.dataset = %s "
+                "AND s.topic = %s",
+                (into_topic, dataset, from_topic),
+            ).rowcount
+            conn.execute(
+                "UPDATE taxonomy SET topic = %s "
+                "WHERE dataset = %s AND kind = %s AND topic = %s "
+                "AND NOT EXISTS ("
+                "  SELECT 1 FROM taxonomy t2 "
+                "  WHERE t2.dataset = taxonomy.dataset AND t2.kind = taxonomy.kind "
+                "  AND t2.topic = %s AND t2.subtopic IS NOT DISTINCT FROM taxonomy.subtopic"
+                ")",
+                (into_topic, dataset, kind, from_topic, into_topic),
+            )
+            conn.execute(
+                "DELETE FROM taxonomy "
+                "WHERE dataset = %s AND kind = %s AND topic = %s",
+                (dataset, kind, from_topic),
+            )
+    return updated
+
+
+def delete_taxonomy(
+    dataset: str,
+    topic: str,
+    subtopic: str | None = None,
+    kind: str = "user",
+) -> int:
+    """Remove a taxonomy option. Applied segment labels are left intact.
+
+    Deleting an option is removing a choice, not erasing history; segments already
+    labelled with it keep their topic/subtopic. Returns the number of taxonomy rows
+    removed.
+    """
+    pool = get_pool()
+    with pool.connection() as conn:
+        if subtopic is None:
+            deleted = conn.execute(
+                "DELETE FROM taxonomy "
+                "WHERE dataset = %s AND kind = %s AND topic = %s AND subtopic IS NULL",
+                (dataset, kind, topic),
+            ).rowcount
+        else:
+            deleted = conn.execute(
+                "DELETE FROM taxonomy "
+                "WHERE dataset = %s AND kind = %s AND topic = %s AND subtopic = %s",
+                (dataset, kind, topic, subtopic),
+            ).rowcount
+    return deleted
+
+
+def export_taxonomy(dataset: str) -> dict:
+    """Return the dataset's taxonomy as the deterministic export JSON payload.
+
+    Shape: ``{"dataset", "kind_default": "user", "entries": [{"kind","topic",
+    "subtopic","description"}]}``, entries sorted by (kind, topic, subtopic) so the
+    output is byte-stable for a given DB state (the pipeline's input, task 16b).
+    """
+    pool = get_pool()
+    with pool.connection() as conn:
+        rows = conn.execute(
+            "SELECT kind, topic, subtopic, description FROM taxonomy "
+            "WHERE dataset = %s "
+            "ORDER BY kind ASC, topic ASC NULLS FIRST, subtopic ASC NULLS FIRST",
+            (dataset,),
+        ).fetchall()
+    return {
+        "dataset": dataset,
+        "kind_default": "user",
+        "entries": [
+            {
+                "kind": r["kind"],
+                "topic": r["topic"],
+                "subtopic": r["subtopic"],
+                "description": r["description"],
+            }
+            for r in rows
+        ],
+    }
+
+
 def used_topics(dataset: str) -> list[str]:
     """Return distinct non-null segment topics for ``dataset``, most-frequent first."""
     pool = get_pool()

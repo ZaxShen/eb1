@@ -83,6 +83,39 @@ export interface TaxonomyEntry {
   description: string | null;
 }
 
+export interface TaxonomyCreateRequest {
+  topic: string;
+  subtopic?: string | null;
+  description?: string | null;
+  kind: string;
+}
+
+export interface TaxonomyRenameRequest {
+  topic: string;
+  new_topic: string;
+  subtopic?: string | null;
+  new_subtopic?: string | null;
+  kind: string;
+}
+
+export interface TaxonomyMergeRequest {
+  from_topic: string;
+  into_topic: string;
+  kind: string;
+}
+
+export interface TaxonomyDeleteSelector {
+  topic: string;
+  subtopic?: string | null;
+  kind?: string;
+}
+
+export interface TaxonomyMutationResponse {
+  dataset: string;
+  cascaded: number;
+  deleted: number;
+}
+
 export interface AnnotateRequest {
   true_topic: string;
   true_subtopic: string;
@@ -245,6 +278,59 @@ export const api = {
       `/datasets/${encodeURIComponent(dataset)}/used-topics`,
     ).then((r) => r.topics),
 
+  // Create a taxonomy option (idempotent server-side). `kind` defaults to
+  // "user" — the open-vocab namespace human edits and combobox proposals land in.
+  createTaxonomy: (
+    dataset: string,
+    body: Omit<TaxonomyCreateRequest, "kind"> & { kind?: string },
+  ) =>
+    request<TaxonomyMutationResponse>(
+      `/datasets/${encodeURIComponent(dataset)}/taxonomy`,
+      {
+        method: "POST",
+        body: JSON.stringify({ kind: "user", ...body }),
+      },
+    ),
+
+  // Rename a taxonomy option; the backend cascades the rename to applied
+  // segment labels so renames never orphan existing annotations.
+  renameTaxonomy: (
+    dataset: string,
+    body: Omit<TaxonomyRenameRequest, "kind"> & { kind?: string },
+  ) =>
+    request<TaxonomyMutationResponse>(
+      `/datasets/${encodeURIComponent(dataset)}/taxonomy`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ kind: "user", ...body }),
+      },
+    ),
+
+  // Fold one topic into another (labels cascade, the duplicate row is dropped).
+  mergeTaxonomy: (
+    dataset: string,
+    body: Omit<TaxonomyMergeRequest, "kind"> & { kind?: string },
+  ) =>
+    request<TaxonomyMutationResponse>(
+      `/datasets/${encodeURIComponent(dataset)}/taxonomy/merge`,
+      {
+        method: "POST",
+        body: JSON.stringify({ kind: "user", ...body }),
+      },
+    ),
+
+  // Delete a taxonomy option by selector (topic + optional subtopic). Already
+  // applied segment labels are left intact server-side.
+  deleteTaxonomy: (dataset: string, selector: TaxonomyDeleteSelector) =>
+    request<TaxonomyMutationResponse>(
+      `/datasets/${encodeURIComponent(dataset)}/taxonomy${qs({
+        topic: selector.topic,
+        subtopic: selector.subtopic ?? undefined,
+        kind: selector.kind ?? "user",
+      })}`,
+      { method: "DELETE" },
+    ),
+
   annotate: (dataset: string, segmentId: number, body: AnnotateRequest) =>
     request<AnnotateResponse>(
       `/datasets/${encodeURIComponent(dataset)}/segments/${segmentId}/annotate`,
@@ -283,6 +369,13 @@ export type SchemaContract = [
   AssertAssignable<ConversationPage, Schema["ConversationPage"]>,
   AssertAssignable<ConversationView, Schema["ConversationView"]>,
   AssertAssignable<TaxonomyEntry, Schema["TaxonomyEntry"]>,
+  AssertAssignable<TaxonomyCreateRequest, Schema["TaxonomyCreateRequest"]>,
+  AssertAssignable<TaxonomyRenameRequest, Schema["TaxonomyRenameRequest"]>,
+  AssertAssignable<TaxonomyMergeRequest, Schema["TaxonomyMergeRequest"]>,
+  AssertAssignable<
+    TaxonomyMutationResponse,
+    Schema["TaxonomyMutationResponse"]
+  >,
   AssertAssignable<AnnotateResponse, Schema["AnnotateResponse"]>,
   AssertAssignable<ClearAnnotationResponse, Schema["ClearAnnotationResponse"]>,
   AssertAssignable<BoundaryResponse, Schema["BoundaryResponse"]>,

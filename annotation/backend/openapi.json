@@ -650,6 +650,47 @@
         "title": "Stats",
         "type": "object"
       },
+      "TaxonomyCreateRequest": {
+        "description": "Create a taxonomy option (idempotent on dataset/kind/topic/subtopic).",
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "kind": {
+            "default": "user",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtopic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subtopic"
+          },
+          "topic": {
+            "title": "Topic",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic"
+        ],
+        "title": "TaxonomyCreateRequest",
+        "type": "object"
+      },
       "TaxonomyEntry": {
         "description": "One taxonomy (topic, subtopic) row from the metadata provider.",
         "properties": {
@@ -688,6 +729,100 @@
           }
         },
         "title": "TaxonomyEntry",
+        "type": "object"
+      },
+      "TaxonomyMergeRequest": {
+        "description": "Fold ``from_topic`` into ``into_topic`` (labels cascade, dup rows dropped).",
+        "properties": {
+          "from_topic": {
+            "title": "From Topic",
+            "type": "string"
+          },
+          "into_topic": {
+            "title": "Into Topic",
+            "type": "string"
+          },
+          "kind": {
+            "default": "user",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "from_topic",
+          "into_topic"
+        ],
+        "title": "TaxonomyMergeRequest",
+        "type": "object"
+      },
+      "TaxonomyMutationResponse": {
+        "description": "Result of a taxonomy create/rename/merge/delete write.",
+        "properties": {
+          "cascaded": {
+            "default": 0,
+            "title": "Cascaded",
+            "type": "integer"
+          },
+          "dataset": {
+            "title": "Dataset",
+            "type": "string"
+          },
+          "deleted": {
+            "default": 0,
+            "title": "Deleted",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "dataset"
+        ],
+        "title": "TaxonomyMutationResponse",
+        "type": "object"
+      },
+      "TaxonomyRenameRequest": {
+        "description": "Rename a taxonomy option, cascading to applied segment labels.\n\nTopic-level rename leaves ``subtopic``/``new_subtopic`` unset; subtopic-level\nrename sets both the matched ``subtopic`` and the ``new_subtopic`` it becomes.",
+        "properties": {
+          "kind": {
+            "default": "user",
+            "title": "Kind",
+            "type": "string"
+          },
+          "new_subtopic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New Subtopic"
+          },
+          "new_topic": {
+            "title": "New Topic",
+            "type": "string"
+          },
+          "subtopic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subtopic"
+          },
+          "topic": {
+            "title": "Topic",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic",
+          "new_topic"
+        ],
+        "title": "TaxonomyRenameRequest",
         "type": "object"
       },
       "UsedTopics": {
@@ -1473,6 +1608,95 @@
       }
     },
     "/api/datasets/{dataset}/taxonomy": {
+      "delete": {
+        "description": "Remove a taxonomy option. Already-applied segment labels are left intact.",
+        "operationId": "delete_taxonomy_api_datasets__dataset__taxonomy_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "topic",
+            "required": true,
+            "schema": {
+              "title": "Topic",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "subtopic",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Subtopic"
+            }
+          },
+          {
+            "in": "query",
+            "name": "kind",
+            "required": false,
+            "schema": {
+              "default": "user",
+              "title": "Kind",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxonomyMutationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Taxonomy"
+      },
       "get": {
         "description": "Return the dataset's user taxonomy.",
         "operationId": "get_taxonomy_api_datasets__dataset__taxonomy_get",
@@ -1530,6 +1754,200 @@
           }
         },
         "summary": "Get Taxonomy"
+      },
+      "patch": {
+        "description": "Rename a taxonomy option, cascading the rename to applied segment labels.",
+        "operationId": "rename_taxonomy_api_datasets__dataset__taxonomy_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaxonomyRenameRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxonomyMutationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Rename Taxonomy"
+      },
+      "post": {
+        "description": "Add a taxonomy option (idempotent: a duplicate create is a no-op).",
+        "operationId": "create_taxonomy_api_datasets__dataset__taxonomy_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaxonomyCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxonomyMutationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Taxonomy"
+      }
+    },
+    "/api/datasets/{dataset}/taxonomy/merge": {
+      "post": {
+        "description": "Fold one topic into another: cascade labels then drop the duplicate rows.",
+        "operationId": "merge_taxonomy_api_datasets__dataset__taxonomy_merge_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaxonomyMergeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxonomyMutationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Merge Taxonomy"
       }
     },
     "/api/datasets/{dataset}/used-topics": {

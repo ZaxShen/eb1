@@ -7,6 +7,7 @@ import {
   Redo2,
   Undo2,
   UserRound,
+  Tags,
 } from "lucide-react";
 import { toast } from "sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -48,6 +49,7 @@ import ConversationStream from "./components/ConversationStream";
 import StatisticsPanel from "./components/StatisticsPanel";
 import AnnotationPanel from "./components/AnnotationPanel";
 import SegmentFieldsPanel from "./components/SegmentFieldsPanel";
+import TaxonomyManager from "./components/TaxonomyManager";
 import {
   AuthProvider,
   GOOGLE_CLIENT_ID,
@@ -129,6 +131,7 @@ function AnnotationApp() {
   const [taxonomyEntries, setTaxonomyEntries] = useState<TaxonomyEntry[]>([]);
   const [usedTopics, setUsedTopics] = useState<string[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
+  const [taxonomyManagerOpen, setTaxonomyManagerOpen] = useState(false);
 
   const [topic, setTopic] = useState("");
   const [subtopic, setSubtopic] = useState("");
@@ -162,6 +165,23 @@ function AnnotationApp() {
     (ds: string) => {
       api.getStats(ds).then(setStats).catch(fail);
     },
+    [fail],
+  );
+
+  // Refetch taxonomy + used-topics together so the labeling combobox reflects a
+  // taxonomy edit (add/rename/merge/delete) immediately. Returns a promise the
+  // manager + combobox add-new flow await before re-rendering.
+  const refreshTaxonomy = useCallback(
+    (ds: string) =>
+      Promise.all([
+        api.getTaxonomy(ds).then(setTaxonomyEntries),
+        api.usedTopics(ds).then(setUsedTopics),
+      ]).then(
+        () => undefined,
+        (e) => {
+          fail(e);
+        },
+      ),
     [fail],
   );
 
@@ -200,10 +220,9 @@ function AnnotationApp() {
     setFilters({});
     setSearch("");
     setPage(1);
-    api.getTaxonomy(dataset).then(setTaxonomyEntries).catch(fail);
-    api.usedTopics(dataset).then(setUsedTopics).catch(fail);
+    void refreshTaxonomy(dataset);
     refreshStats(dataset);
-  }, [dataset, refreshStats, fail]);
+  }, [dataset, refreshTaxonomy, refreshStats]);
 
   // A new filter or search resets to the first page; changing the page keeps
   // the current filter/search. Either way the queue refetches server-side.
@@ -352,6 +371,23 @@ function AnnotationApp() {
     history,
     fail,
   ]);
+
+  // "Add '<name>' to taxonomy" from the labeling combobox: formalize the typed
+  // name (kind=user) then refetch so it joins the suggestions. The combobox
+  // commits it as the segment topic once this resolves.
+  const handleAddTopic = useCallback(
+    async (name: string) => {
+      if (!dataset || name.trim() === "") return;
+      try {
+        await api.createTaxonomy(dataset, { topic: name.trim(), kind: "user" });
+        await refreshTaxonomy(dataset);
+        toast.success(`Added "${name.trim()}" to taxonomy`);
+      } catch (e) {
+        fail(e);
+      }
+    },
+    [dataset, refreshTaxonomy, fail],
+  );
 
   const handleConfirmAi = useCallback(() => {
     if (!selectedSegment) return;
@@ -506,6 +542,15 @@ function AnnotationApp() {
             </Select>
           </div>
           <div className="ml-auto flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setTaxonomyManagerOpen(true)}
+              disabled={!dataset}
+            >
+              <Tags className="size-4" />
+              Manage taxonomy
+            </Button>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -638,6 +683,7 @@ function AnnotationApp() {
                     reviewedBy={reviewedBy}
                     reviewedByLocked={ssoEnabled}
                     saving={saving}
+                    onAddTopic={handleAddTopic}
                     onTopicChange={(t) => {
                       setTopic(t);
                       setSubtopic("");
@@ -663,6 +709,16 @@ function AnnotationApp() {
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
+      <TaxonomyManager
+        open={taxonomyManagerOpen}
+        onOpenChange={(next) => {
+          setTaxonomyManagerOpen(next);
+          if (!next && dataset) void refreshTaxonomy(dataset);
+        }}
+        dataset={dataset}
+        entries={taxonomyEntries}
+        onChanged={() => refreshTaxonomy(dataset)}
+      />
       <Toaster theme={theme} position="bottom-right" />
     </TooltipProvider>
   );

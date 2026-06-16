@@ -211,7 +211,39 @@ export interface paths {
          */
         get: operations["get_taxonomy_api_datasets__dataset__taxonomy_get"];
         put?: never;
-        post?: never;
+        /**
+         * Create Taxonomy
+         * @description Add a taxonomy option (idempotent: a duplicate create is a no-op).
+         */
+        post: operations["create_taxonomy_api_datasets__dataset__taxonomy_post"];
+        /**
+         * Delete Taxonomy
+         * @description Remove a taxonomy option. Already-applied segment labels are left intact.
+         */
+        delete: operations["delete_taxonomy_api_datasets__dataset__taxonomy_delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Rename Taxonomy
+         * @description Rename a taxonomy option, cascading the rename to applied segment labels.
+         */
+        patch: operations["rename_taxonomy_api_datasets__dataset__taxonomy_patch"];
+        trace?: never;
+    };
+    "/api/datasets/{dataset}/taxonomy/merge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Merge Taxonomy
+         * @description Fold one topic into another: cascade labels then drop the duplicate rows.
+         */
+        post: operations["merge_taxonomy_api_datasets__dataset__taxonomy_merge_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -490,6 +522,23 @@ export interface components {
             unreviewed: number;
         };
         /**
+         * TaxonomyCreateRequest
+         * @description Create a taxonomy option (idempotent on dataset/kind/topic/subtopic).
+         */
+        TaxonomyCreateRequest: {
+            /** Description */
+            description?: string | null;
+            /**
+             * Kind
+             * @default user
+             */
+            kind: string;
+            /** Subtopic */
+            subtopic?: string | null;
+            /** Topic */
+            topic: string;
+        };
+        /**
          * TaxonomyEntry
          * @description One taxonomy (topic, subtopic) row from the metadata provider.
          */
@@ -500,6 +549,61 @@ export interface components {
             subtopic?: string | null;
             /** Topic */
             topic?: string | null;
+        };
+        /**
+         * TaxonomyMergeRequest
+         * @description Fold ``from_topic`` into ``into_topic`` (labels cascade, dup rows dropped).
+         */
+        TaxonomyMergeRequest: {
+            /** From Topic */
+            from_topic: string;
+            /** Into Topic */
+            into_topic: string;
+            /**
+             * Kind
+             * @default user
+             */
+            kind: string;
+        };
+        /**
+         * TaxonomyMutationResponse
+         * @description Result of a taxonomy create/rename/merge/delete write.
+         */
+        TaxonomyMutationResponse: {
+            /**
+             * Cascaded
+             * @default 0
+             */
+            cascaded: number;
+            /** Dataset */
+            dataset: string;
+            /**
+             * Deleted
+             * @default 0
+             */
+            deleted: number;
+        };
+        /**
+         * TaxonomyRenameRequest
+         * @description Rename a taxonomy option, cascading to applied segment labels.
+         *
+         *     Topic-level rename leaves ``subtopic``/``new_subtopic`` unset; subtopic-level
+         *     rename sets both the matched ``subtopic`` and the ``new_subtopic`` it becomes.
+         */
+        TaxonomyRenameRequest: {
+            /**
+             * Kind
+             * @default user
+             */
+            kind: string;
+            /** New Subtopic */
+            new_subtopic?: string | null;
+            /** New Topic */
+            new_topic: string;
+            /** Subtopic */
+            subtopic?: string | null;
+            /** Topic */
+            topic: string;
         };
         /**
          * UsedTopics
@@ -890,6 +994,154 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TaxonomyEntry"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_taxonomy_api_datasets__dataset__taxonomy_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                dataset: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaxonomyCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxonomyMutationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_taxonomy_api_datasets__dataset__taxonomy_delete: {
+        parameters: {
+            query: {
+                topic: string;
+                subtopic?: string | null;
+                kind?: string;
+            };
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                dataset: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxonomyMutationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rename_taxonomy_api_datasets__dataset__taxonomy_patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                dataset: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaxonomyRenameRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxonomyMutationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    merge_taxonomy_api_datasets__dataset__taxonomy_merge_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                dataset: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaxonomyMergeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxonomyMutationResponse"];
                 };
             };
             /** @description Validation Error */

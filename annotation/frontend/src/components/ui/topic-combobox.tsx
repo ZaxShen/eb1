@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,13 @@ interface TopicComboboxProps {
   suggestions: string[];
   onChange: (value: string) => void;
   onCommit?: (value: string) => void;
+  /**
+   * Formalize the typed name into the taxonomy. Offered as an explicit
+   * "Add '<name>'" action when the typed text matches no existing suggestion.
+   * Receives the trimmed name and should resolve once persisted; the combobox
+   * then commits it as the value.
+   */
+  onAddNew?: (value: string) => void | Promise<void>;
   placeholder?: string;
   ariaLabel?: string;
   label?: (suggestion: string) => string;
@@ -24,6 +32,7 @@ function TopicCombobox({
   suggestions,
   onChange,
   onCommit,
+  onAddNew,
   placeholder,
   ariaLabel,
   label = (s) => s,
@@ -43,6 +52,13 @@ function TopicCombobox({
     return out;
   }, [suggestions, value]);
 
+  // The typed name is novel when, trimmed, it matches no suggestion
+  // case-insensitively — the trigger for the explicit "Add to taxonomy" action.
+  const trimmed = value.trim();
+  const isNovel =
+    trimmed !== "" &&
+    !suggestions.some((s) => s.toLowerCase() === trimmed.toLowerCase());
+
   React.useEffect(() => {
     if (!open) return;
     const onPointerDown = (e: PointerEvent) => {
@@ -56,6 +72,11 @@ function TopicCombobox({
     onChange(next);
     onCommit?.(next);
     setOpen(false);
+  };
+
+  const addNew = async () => {
+    await onAddNew?.(trimmed);
+    commit(trimmed);
   };
 
   return (
@@ -82,7 +103,7 @@ function TopicCombobox({
         }}
         className="h-8 text-sm"
       />
-      {open && filtered.length > 0 && (
+      {open && (filtered.length > 0 || (isNovel && onAddNew)) && (
         <ul
           role="listbox"
           className="absolute z-50 mt-1 max-h-48 w-full overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10"
@@ -103,6 +124,20 @@ function TopicCombobox({
               </button>
             </li>
           ))}
+          {isNovel && onAddNew && (
+            <li>
+              <button
+                type="button"
+                role="option"
+                aria-selected={false}
+                onClick={() => void addNew()}
+                className="flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-left text-sm text-primary outline-none hover:bg-accent focus-visible:bg-accent"
+              >
+                <Plus className="size-3.5" />
+                Add ‘{trimmed}’ to taxonomy
+              </button>
+            </li>
+          )}
         </ul>
       )}
     </div>
