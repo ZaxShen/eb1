@@ -227,6 +227,125 @@ def upsert_conversation(
     return int(conv_id)
 
 
+def ensure_dataset(dataset: str, description: str | None = None) -> None:
+    """Register ``dataset`` if absent (idempotent). Used before a batch ingest."""
+    pool = get_pool()
+    with pool.connection() as conn:
+        conn.execute(
+            "INSERT INTO dataset (name, description) VALUES (%s, %s) "
+            "ON CONFLICT (name) DO NOTHING",
+            (dataset, description),
+        )
+
+
+def existing_ext_ids(dataset: str, ext_ids: list[str]) -> set[str]:
+    """Return the subset of ``ext_ids`` already present for ``dataset``.
+
+    Lets a resumable ingest skip conversations it has already loaded without a
+    round-trip per row.
+    """
+    if not ext_ids:
+        return set()
+    pool = get_pool()
+    with pool.connection() as conn:
+        rows = conn.execute(
+            "SELECT ext_id FROM conversation WHERE dataset = %s AND ext_id = ANY(%s)",
+            (dataset, list(ext_ids)),
+        ).fetchall()
+    return {r["ext_id"] for r in rows}
+
+
+def ingest_batch(dataset: str, conversations: list[dict]) -> int:
+    """Idempotently upsert a BATCH of conversations + messages + segments into PG.
+
+    Each conversation dict is::
+
+        {
+          "ext_id": "<source id>",
+          "messages": [{"role","content","created_at"?}, ...],
+          "gold_segments": [   # optional; SuperDialseg only
+            {"message_indices":[...], "topic"?, "subtopic"?, "sentiment"?}, ...
+          ],
+        }
+
+    For every conversation this writes exactly ONE whole-conversation
+    ``source='predicted'`` segment spanning all message indices (topic NULL) —
+    the seed humans segment from — plus, when ``gold_segments`` is given, one
+    ``source='gold'`` row per span. Idempotent on ``(dataset, ext_id)``: an
+    existing conversation's messages and its predicted/gold seed rows are
+    replaced (human edit rows in other sources are left untouched). The whole
+    batch commits in one transaction. Returns the number of conversations
+    written.
+    """
+    if not conversations:
+        return 0
+    now = _utcnow()
+    pool = get_pool()
+    with pool.connection() as conn:
+        with conn.transaction():
+            conn.execute(
+                "INSERT INTO dataset (name) VALUES (%s) ON CONFLICT (name) DO NOTHING",
+                (dataset,),
+            )
+            for conv in conversations:
+                ext_id = conv["ext_id"]
+                messages = conv.get("messages", [])
+                conn.execute(
+                    "INSERT INTO conversation (dataset, ext_id, message_count) "
+                    "VALUES (%s, %s, %s) ON CONFLICT (dataset, ext_id) "
+                    "DO UPDATE SET message_count = EXCLUDED.message_count",
+                    (dataset, ext_id, len(messages)),
+                )
+                conv_id = conn.execute(
+                    "SELECT id FROM conversation WHERE dataset = %s AND ext_id = %s",
+                    (dataset, ext_id),
+                ).fetchone()["id"]
+                conn.execute(
+                    "DELETE FROM message WHERE conversation_id = %s", (conv_id,)
+                )
+                for idx, m in enumerate(messages):
+                    conn.execute(
+                        "INSERT INTO message "
+                        "(conversation_id, idx, role, content, created_at) "
+                        "VALUES (%s, %s, %s, %s, %s)",
+                        (
+                            conv_id,
+                            idx,
+                            m.get("role", ""),
+                            m.get("content", ""),
+                            m.get("created_at"),
+                        ),
+                    )
+                conn.execute(
+                    "DELETE FROM segment WHERE conversation_id = %s "
+                    "AND source IN ('predicted','gold')",
+                    (conv_id,),
+                )
+                conn.execute(
+                    "INSERT INTO segment "
+                    "(conversation_id, chunk_index, message_indices, source) "
+                    "VALUES (%s, 0, %s, 'predicted')",
+                    (conv_id, list(range(len(messages)))),
+                )
+                for i, span in enumerate(conv.get("gold_segments") or []):
+                    conn.execute(
+                        "INSERT INTO segment "
+                        "(conversation_id, chunk_index, message_indices, topic, "
+                        "subtopic, sentiment, source, reviewed_at) "
+                        "VALUES (%s, %s, %s, %s, %s, %s, 'gold', %s)",
+                        (
+                            conv_id,
+                            i,
+                            list(span.get("message_indices", [])),
+                            span.get("topic"),
+                            span.get("subtopic"),
+                            span.get("sentiment"),
+                            now,
+                        ),
+                    )
+    return len(conversations)
+
+
 def replace_gold_spans(
     conv_id: int,
     spans: list[dict],
