@@ -46,6 +46,19 @@ export class AnnotationPage {
     await expect(this.datasetTrigger()).toContainText(name);
   }
 
+  // --- Labeler picker (per-labeler worklist) -----------------------------
+
+  private labelerTrigger(): Locator {
+    return this.page.getByRole("combobox", { name: "Labeler" });
+  }
+
+  /** Pick a labeler slot (e.g. "labeler_a"), filtering the queue to its worklist. */
+  async selectLabeler(name: string): Promise<void> {
+    await this.labelerTrigger().click();
+    await this.page.getByRole("option", { name, exact: true }).click();
+    await expect(this.labelerTrigger()).toContainText(name);
+  }
+
   // --- Conversation queue ------------------------------------------------
 
   /** Locator over the conversation queue cards. Each card button carries the
@@ -178,6 +191,17 @@ export class AnnotationPage {
       await panel.getByRole("combobox").nth(1).click();
       await this.page.getByRole("option", { name: sub, exact: true }).click();
     }
+  }
+
+  /**
+   * Type a free-text topic name into the True Topic combobox and commit it with
+   * Enter — the open-vocab naming path (no dropdown required).
+   */
+  async nameTopic(topic: string): Promise<void> {
+    const input = this.page.getByRole("combobox", { name: "True Topic" });
+    await input.click();
+    await input.fill(topic);
+    await input.press("Enter");
   }
 
   /** Click Save (persist the current annotation). */

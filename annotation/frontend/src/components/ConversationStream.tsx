@@ -223,6 +223,11 @@ const ConversationStream = ({
     return map;
   }, [view]);
 
+  // Frozen-boundary datasets (e.g. SuperDialseg gold): the gold segmentation is
+  // authoritative, so the re-segmentation controls are hidden entirely while
+  // segments stay selectable for naming.
+  const frozen = view?.frozen_boundaries ?? false;
+
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
@@ -288,7 +293,9 @@ const ConversationStream = ({
                 segment={segment}
                 current={isSelected}
                 onMergePrev={
-                  segIdx > 0 ? () => handleMergePrev(segIdx) : undefined
+                  !frozen && segIdx > 0
+                    ? () => handleMergePrev(segIdx)
+                    : undefined
                 }
               />
               <div className="flex flex-col gap-0.5 pb-2">
@@ -303,7 +310,7 @@ const ConversationStream = ({
                     msg={msg}
                     prevMsg={messages[i - 1]}
                     onSplitHere={
-                      i > 0
+                      !frozen && i > 0
                         ? () => handleSplitHere(segIdx, msg.index)
                         : undefined
                     }

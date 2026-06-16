@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Moon, Sun, Database, LogOut, Redo2, Undo2 } from "lucide-react";
+import {
+  Moon,
+  Sun,
+  Database,
+  LogOut,
+  Redo2,
+  Undo2,
+  UserRound,
+} from "lucide-react";
 import { toast } from "sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import {
@@ -49,6 +57,34 @@ import SignInGate from "./auth/SignInGate";
 
 const PAGE_SIZE = 50;
 
+const LABELERS = ["labeler_a", "labeler_b"] as const;
+type Labeler = (typeof LABELERS)[number];
+const LABELER_KEY = "ufl.labeler";
+// Radix Select forbids an empty-string item value, so the "no slot" option uses
+// a sentinel that maps back to "" (unfiltered) at the boundary.
+const NO_LABELER = "__all__";
+
+function isLabeler(value: string | null): value is Labeler {
+  return value === "labeler_a" || value === "labeler_b";
+}
+
+// Persisted labeler slot driving the per-labeler worklist filter (?labeler=).
+// Empty string = no slot picked = unfiltered queue.
+function useLabeler() {
+  const [labeler, setLabelerState] = useState<Labeler | "">(() => {
+    if (typeof window === "undefined") return "";
+    const stored = window.localStorage.getItem(LABELER_KEY);
+    return isLabeler(stored) ? stored : "";
+  });
+  const setLabeler = useCallback((next: Labeler | "") => {
+    setLabelerState(next);
+    if (typeof window === "undefined") return;
+    if (next) window.localStorage.setItem(LABELER_KEY, next);
+    else window.localStorage.removeItem(LABELER_KEY);
+  }, []);
+  return { labeler, setLabeler };
+}
+
 function useTheme() {
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") return "dark";
@@ -68,6 +104,7 @@ function useTheme() {
 function AnnotationApp() {
   const { theme, toggle } = useTheme();
   const { ssoEnabled, user, signOut } = useAuth();
+  const { labeler, setLabeler } = useLabeler();
 
   const [datasets, setDatasets] = useState<string[]>([]);
   const [dataset, setDataset] = useState("");
@@ -90,6 +127,7 @@ function AnnotationApp() {
   );
 
   const [taxonomyEntries, setTaxonomyEntries] = useState<TaxonomyEntry[]>([]);
+  const [usedTopics, setUsedTopics] = useState<string[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
 
   const [topic, setTopic] = useState("");
@@ -128,7 +166,13 @@ function AnnotationApp() {
   );
 
   const refreshQueue = useCallback(
-    (ds: string, f: ConversationFilters, p: number, q: string) => {
+    (
+      ds: string,
+      f: ConversationFilters,
+      p: number,
+      q: string,
+      lab: Labeler | "",
+    ) => {
       setQueueLoading(true);
       api
         .listConversations(ds, {
@@ -136,6 +180,7 @@ function AnnotationApp() {
           page: p,
           pageSize: PAGE_SIZE,
           q: q || undefined,
+          labeler: lab || undefined,
         })
         .then((res) => {
           setConversations(res.items);
@@ -156,6 +201,7 @@ function AnnotationApp() {
     setSearch("");
     setPage(1);
     api.getTaxonomy(dataset).then(setTaxonomyEntries).catch(fail);
+    api.usedTopics(dataset).then(setUsedTopics).catch(fail);
     refreshStats(dataset);
   }, [dataset, refreshStats, fail]);
 
@@ -171,10 +217,16 @@ function AnnotationApp() {
     setPage(1);
   }, []);
 
+  // Picking/clearing a labeler is a new filter view: jump back to page 1 so the
+  // queue shows that labeler's worklist from the top.
+  useEffect(() => {
+    setPage(1);
+  }, [labeler]);
+
   useEffect(() => {
     if (!dataset) return;
-    refreshQueue(dataset, filters, page, search);
-  }, [dataset, filters, page, search, refreshQueue]);
+    refreshQueue(dataset, filters, page, search, labeler);
+  }, [dataset, filters, page, search, labeler, refreshQueue]);
 
   const selectSegment = useCallback((segment: SegmentSummary) => {
     setSelectedSegment(segment);
@@ -224,7 +276,7 @@ function AnnotationApp() {
 
   const afterWrite = useCallback(() => {
     if (!dataset) return;
-    refreshQueue(dataset, filters, page, search);
+    refreshQueue(dataset, filters, page, search, labeler);
     refreshStats(dataset);
     if (selectedConversation) loadConversation(selectedConversation);
   }, [
@@ -232,6 +284,7 @@ function AnnotationApp() {
     filters,
     page,
     search,
+    labeler,
     refreshQueue,
     refreshStats,
     selectedConversation,
@@ -427,6 +480,31 @@ function AnnotationApp() {
               </SelectContent>
             </Select>
           </div>
+          <div className="flex items-center gap-2">
+            <UserRound className="size-4 text-muted-foreground" />
+            <Select
+              value={labeler || NO_LABELER}
+              onValueChange={(v) =>
+                setLabeler(v === NO_LABELER ? "" : (v as Labeler))
+              }
+            >
+              <SelectTrigger
+                size="sm"
+                className="min-w-[140px]"
+                aria-label="Labeler"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NO_LABELER}>All labelers</SelectItem>
+                {LABELERS.map((l) => (
+                  <SelectItem key={l} value={l}>
+                    {l}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="ml-auto flex items-center gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -554,6 +632,7 @@ function AnnotationApp() {
                   <AnnotationPanel
                     segment={selectedSegment}
                     taxonomy={taxonomy}
+                    usedTopics={usedTopics}
                     topic={topic}
                     subtopic={subtopic}
                     reviewedBy={reviewedBy}

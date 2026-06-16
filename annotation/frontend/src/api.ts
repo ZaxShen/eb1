@@ -71,6 +71,7 @@ export interface ConversationPage {
 
 export interface ConversationView {
   conversation: string;
+  frozen_boundaries: boolean;
   messages: Message[];
   segments: SegmentSummary[];
   gold_segments: GoldSegment[];
@@ -117,6 +118,10 @@ export interface BoundaryResponse {
   gold_segments_written: number;
 }
 
+export interface UsedTopics {
+  topics: string[];
+}
+
 export interface Stats {
   total: number;
   reviewed: number;
@@ -133,6 +138,7 @@ export interface SegmentFilters {
 export interface ConversationFilters {
   status?: "reviewed" | "unreviewed";
   topic?: string;
+  labeler?: string;
 }
 
 export interface ConversationQuery extends ConversationFilters {
@@ -204,6 +210,7 @@ export const api = {
         q: query.q,
         status: query.status,
         topic: query.topic,
+        labeler: query.labeler,
       })}`,
     ),
 
@@ -230,6 +237,13 @@ export const api = {
     request<TaxonomyEntry[]>(
       `/datasets/${encodeURIComponent(dataset)}/taxonomy`,
     ),
+
+  // Distinct topic names already saved for this dataset (most-frequent first).
+  // Unioned with the taxonomy in the topic combobox for open-vocab suggestions.
+  usedTopics: (dataset: string): Promise<string[]> =>
+    request<UsedTopics>(
+      `/datasets/${encodeURIComponent(dataset)}/used-topics`,
+    ).then((r) => r.topics),
 
   annotate: (dataset: string, segmentId: number, body: AnnotateRequest) =>
     request<AnnotateResponse>(
@@ -274,5 +288,6 @@ export type SchemaContract = [
   AssertAssignable<BoundaryResponse, Schema["BoundaryResponse"]>,
   AssertAssignable<AuthConfig, Schema["AuthConfig"]>,
   AssertAssignable<Stats, Schema["Stats"]>,
+  AssertAssignable<UsedTopics, Schema["UsedTopics"]>,
 ];
 
