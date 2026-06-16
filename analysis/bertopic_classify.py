@@ -59,6 +59,7 @@ def classify_segments(
 
     from bertopic import BERTopic
     from hdbscan import HDBSCAN
+    from sklearn.feature_extraction.text import CountVectorizer
     from umap import UMAP
 
     if embeddings is None:
@@ -84,6 +85,7 @@ def classify_segments(
     model = BERTopic(
         umap_model=umap_model,
         hdbscan_model=hdbscan_model,
+        vectorizer_model=CountVectorizer(stop_words="english"),
         min_topic_size=min_topic_size,
         calculate_probabilities=False,
         verbose=False,
@@ -92,11 +94,11 @@ def classify_segments(
     leaf_topics, _ = model.fit_transform(texts, embeddings)
 
     leaf_ids = [t for t in set(leaf_topics) if t != -1]
-    parent_of = _build_parent_map(model, texts, embeddings, leaf_ids, random_state)
-
     leaf_name: dict[int, str] = {-1: UNCLASSIFIED}
     for tid in leaf_ids:
         leaf_name[tid] = _topic_name(model, tid)
+
+    parent_of = _build_parent_map(model, texts, leaf_topics, leaf_ids, leaf_name)
 
     out: list[tuple[str, str]] = []
     for leaf in leaf_topics:
@@ -106,36 +108,40 @@ def classify_segments(
     return out
 
 
-def _build_parent_map(
-    model, texts, embeddings, leaf_ids, random_state
-) -> dict[int, str]:
+def _build_parent_map(model, texts, leaf_topics, leaf_ids, leaf_name) -> dict[int, str]:
     """Map each leaf topic id to a coarser parent-topic name.
 
-    Reduces the fitted model to ``~sqrt(n_leaf_topics)`` topics on a copy and reads
-    the leaf->parent assignment from the resulting topic mapping; falls back to the
-    leaf's own name when reduction is degenerate (<2 leaf topics).
+    Reduces the fitted model to ``~sqrt(n_leaf_topics)`` topics IN PLACE, then reads
+    the leaf->parent assignment from the reduced per-document topics
+    (``model.topics_``, order-aligned to ``texts``). ``leaf_name`` must already be
+    captured (reduction mutates the model). Falls back to leaf names when reduction
+    is degenerate or fails.
     """
     import math
 
     n_leaf = len(leaf_ids)
     if n_leaf < 2:
-        return {tid: _topic_name(model, tid) for tid in leaf_ids}
+        return dict(leaf_name)
 
     n_parent = max(2, round(math.sqrt(n_leaf)))
     if n_parent >= n_leaf:
-        return {tid: _topic_name(model, tid) for tid in leaf_ids}
+        return {tid: leaf_name[tid] for tid in leaf_ids}
 
     try:
-        reduced = model.reduce_topics(texts, nr_topics=n_parent, embeddings=embeddings)
-        mappings = reduced.topic_mapper_.get_mappings()
+        model.reduce_topics(texts, nr_topics=n_parent)
+        reduced_per_doc = list(model.topics_)
     except (ValueError, IndexError, KeyError, RuntimeError):
         log.warning("topic reduction failed; using leaf names as parents")
-        return {tid: _topic_name(model, tid) for tid in leaf_ids}
+        return {tid: leaf_name[tid] for tid in leaf_ids}
 
+    leaf_to_parent_id = dict(zip(leaf_topics, reduced_per_doc))
+    name_cache: dict[int, str] = {}
     parent_of: dict[int, str] = {}
     for tid in leaf_ids:
-        parent_id = mappings.get(tid, tid)
-        parent_of[tid] = _topic_name(reduced, parent_id)
+        pid = leaf_to_parent_id.get(tid, tid)
+        if pid not in name_cache:
+            name_cache[pid] = UNCLASSIFIED if pid == -1 else _topic_name(model, pid)
+        parent_of[tid] = name_cache[pid]
     return parent_of
 
 
