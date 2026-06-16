@@ -83,6 +83,7 @@ class ConversationView(BaseModel):
     messages: list[Message]
     segments: list[SegmentSummary]
     gold_segments: list[GoldSegment]
+    frozen_boundaries: bool = False
 
 
 class TaxonomyEntry(BaseModel):

@@ -56,7 +56,8 @@ export interface paths {
          * @description Return a PAGINATED, searchable page of conversation summaries.
          *
          *     ``q`` matches conversation ext_id OR message content. ``status``/``topic``
-         *     filter on the effective segmentation. Shape: ``{items,total,page,page_size}``.
+         *     filter on the effective segmentation. ``labeler`` restricts the page to that
+         *     labeler's worklist assignments. Shape: ``{items,total,page,page_size}``.
          */
         get: operations["list_conversations_api_datasets__dataset__conversations_get"];
         put?: never;
@@ -347,6 +348,11 @@ export interface components {
         ConversationView: {
             /** Conversation */
             conversation: string;
+            /**
+             * Frozen Boundaries
+             * @default false
+             */
+            frozen_boundaries: boolean;
             /** Gold Segments */
             gold_segments: components["schemas"]["GoldSegment"][];
             /** Messages */
@@ -556,6 +562,7 @@ export interface operations {
                 q?: string | null;
                 status?: string | null;
                 topic?: string | null;
+                labeler?: string | null;
             };
             header?: {
                 authorization?: string | null;

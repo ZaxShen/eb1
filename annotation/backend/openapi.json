@@ -275,6 +275,11 @@
             "title": "Conversation",
             "type": "string"
           },
+          "frozen_boundaries": {
+            "default": false,
+            "title": "Frozen Boundaries",
+            "type": "boolean"
+          },
           "gold_segments": {
             "items": {
               "$ref": "#/components/schemas/GoldSegment"
@@ -805,7 +810,7 @@
     },
     "/api/datasets/{dataset}/conversations": {
       "get": {
-        "description": "Return a PAGINATED, searchable page of conversation summaries.\n\n``q`` matches conversation ext_id OR message content. ``status``/``topic``\nfilter on the effective segmentation. Shape: ``{items,total,page,page_size}``.",
+        "description": "Return a PAGINATED, searchable page of conversation summaries.\n\n``q`` matches conversation ext_id OR message content. ``status``/``topic``\nfilter on the effective segmentation. ``labeler`` restricts the page to that\nlabeler's worklist assignments. Shape: ``{items,total,page,page_size}``.",
         "operationId": "list_conversations_api_datasets__dataset__conversations_get",
         "parameters": [
           {
@@ -886,6 +891,22 @@
                 }
               ],
               "title": "Topic"
+            }
+          },
+          {
+            "in": "query",
+            "name": "labeler",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Labeler"
             }
           },
           {

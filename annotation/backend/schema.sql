@@ -17,6 +17,9 @@
 --                   replaces a conversation's spans wholesale (split/merge).
 --                   reviewed_* records the human review bookkeeping.
 --   taxonomy      — per-dataset (topic, subtopic) options for the relabel UI.
+--   worklist      — sampled (dataset, ext_id, labeler) assignments that gate the
+--                   per-labeler review queue (SuperDialseg name-only labeling). An
+--                   overlap dialogue (double-labeled) has one row per labeler.
 
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
@@ -67,6 +70,18 @@ CREATE TABLE IF NOT EXISTS taxonomy (
     description TEXT
 );
 
+CREATE TABLE IF NOT EXISTS worklist (
+    id          BIGSERIAL PRIMARY KEY,
+    dataset     TEXT NOT NULL REFERENCES dataset(name) ON DELETE CASCADE,
+    ext_id      TEXT NOT NULL,
+    labeler     TEXT NOT NULL,
+    is_overlap  BOOLEAN NOT NULL DEFAULT FALSE,
+    seg_bucket  TEXT,
+    len_bucket  TEXT,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (dataset, ext_id, labeler)
+);
+
 -- Scale + search indexes.
 CREATE INDEX IF NOT EXISTS conversation_dataset_idx ON conversation (dataset);
 CREATE INDEX IF NOT EXISTS conversation_dataset_id_idx ON conversation (dataset, id);
@@ -82,3 +97,5 @@ CREATE INDEX IF NOT EXISTS segment_source_idx ON segment (source);
 CREATE INDEX IF NOT EXISTS segment_base_idx ON segment (base_segment_id);
 
 CREATE INDEX IF NOT EXISTS taxonomy_dataset_idx ON taxonomy (dataset, kind);
+
+CREATE INDEX IF NOT EXISTS worklist_dataset_labeler_idx ON worklist (dataset, labeler);

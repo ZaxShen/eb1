@@ -23,9 +23,11 @@ MongoDB, no LLM.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import time
 from collections.abc import Iterator
+from pathlib import Path
 
 from annotation.backend import db
 from annotation.ingest import sources
@@ -91,16 +93,30 @@ def _batched(stream: Iterator[dict], size: int) -> Iterator[list[dict]]:
         yield batch
 
 
+def _load_worklist_rows(path: str | Path) -> list[dict]:
+    """Read a sampler worklist JSON (list of assignment rows) off disk."""
+    rows = json.loads(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(rows, list):
+        raise SystemExit(f"Worklist {path!r} must be a JSON array of assignment rows.")
+    return rows
+
+
 def ingest(
     dataset: str,
     limit: int | None = None,
     batch_size: int = 1000,
     skip_existing: bool = True,
+    worklist: str | Path | None = None,
 ) -> dict:
     """Stream + ingest one dataset; return ``{written, skipped, batches}``.
 
     Streams raw rows, normalizes per batch, skips ext_ids already loaded (when
     ``skip_existing``), upserts the rest, and prints per-batch progress.
+
+    When ``worklist`` is given, only conversations whose ext_id appears in the
+    sampler worklist are ingested (gold included), and the worklist's per-labeler
+    assignments are loaded into the ``worklist`` table afterward — the per-labeler
+    review queue is served off those rows. Without it, behavior is unchanged.
     """
     if dataset not in _STREAM_FNS:
         raise SystemExit(
@@ -110,6 +126,13 @@ def ingest(
 
     db.apply_schema()
     db.ensure_dataset(dataset)
+
+    worklist_rows = _load_worklist_rows(worklist) if worklist is not None else None
+    worklist_ids: set[str] | None = (
+        {str(r["dialogue_id"]) for r in worklist_rows}
+        if worklist_rows is not None
+        else None
+    )
 
     loader = _ADAPTERS[dataset]()
     # Resolve the stream by attribute so tests can monkeypatch ``sources.*``.
@@ -125,8 +148,11 @@ def ingest(
         convs: list[dict] = []
         for row in raw_batch:
             conv = _normalize(dataset, loader, row)
-            if conv is not None:
-                convs.append(conv)
+            if conv is None:
+                continue
+            if worklist_ids is not None and conv["ext_id"] not in worklist_ids:
+                continue
+            convs.append(conv)
 
         if skip_existing and convs:
             present = db.existing_ext_ids(dataset, [c["ext_id"] for c in convs])
@@ -142,12 +168,26 @@ def ingest(
             flush=True,
         )
 
+    worklist_loaded = 0
+    if worklist_rows is not None:
+        worklist_loaded = db.load_worklist(dataset, worklist_rows)
+        print(
+            f"[{dataset}] worklist: {worklist_loaded} (ext_id, labeler) "
+            f"assignments loaded.",
+            flush=True,
+        )
+
     print(
         f"[{dataset}] done: {written} conversations written, "
         f"{skipped} skipped over {batch_no} batch(es).",
         flush=True,
     )
-    return {"written": written, "skipped": skipped, "batches": batch_no}
+    return {
+        "written": written,
+        "skipped": skipped,
+        "batches": batch_no,
+        "worklist_loaded": worklist_loaded,
+    }
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -178,6 +218,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Re-upsert conversations that already exist (default: skip them).",
     )
+    parser.add_argument(
+        "--worklist",
+        type=Path,
+        default=None,
+        help=(
+            "Sampler worklist JSON: ingest ONLY its dialogue ids (gold included) "
+            "and load its per-labeler assignments into the worklist table."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -189,6 +238,7 @@ def main(argv: list[str] | None = None) -> int:
             limit=args.limit,
             batch_size=args.batch,
             skip_existing=not args.no_skip_existing,
+            worklist=args.worklist,
         )
     finally:
         db.reset_pool()

@@ -34,6 +34,11 @@ from annotation.backend.config import annotation_dsn
 
 SCHEMA_PATH = Path(__file__).parent / "schema.sql"
 
+# Datasets whose gold boundaries are frozen: humans name topics over the gold
+# segmentation but cannot re-segment. Data-driven so a route/view can surface a
+# ``frozen_boundaries`` flag without hardcoding it in a component.
+FROZEN_BOUNDARY_DATASETS = frozenset({"superdialseg"})
+
 _POOL: ConnectionPool | None = None
 _POOL_DSN: str | None = None
 _POOL_LOCK = threading.Lock()
@@ -41,6 +46,11 @@ _POOL_LOCK = threading.Lock()
 
 def _utcnow() -> datetime:
     return datetime.now(tz=timezone.utc)
+
+
+def frozen_boundaries(dataset: str) -> bool:
+    """True when ``dataset``'s gold boundaries are read-only (name topics only)."""
+    return dataset in FROZEN_BOUNDARY_DATASETS
 
 
 def _strip_nul(value: str) -> str:
@@ -391,6 +401,61 @@ def replace_gold_spans(
 
 
 # ---------------------------------------------------------------------------
+# Worklist (per-labeler sampled assignments)
+# ---------------------------------------------------------------------------
+
+
+def load_worklist(dataset: str, rows: list[dict]) -> int:
+    """Upsert worklist rows from the sampler JSON. Returns rows written.
+
+    Each sampler row is ``{dialogue_id, seg_bucket, len_bucket, assigned_to:[...],
+    is_overlap}`` and expands to ONE DB row per labeler in ``assigned_to`` — an
+    overlap dialogue (two labelers) yields two rows. Idempotent on
+    ``(dataset, ext_id, labeler)``: re-running updates the strata/overlap fields
+    in place rather than accumulating duplicates.
+    """
+    if not rows:
+        return 0
+    pool = get_pool()
+    written = 0
+    with pool.connection() as conn:
+        with conn.transaction():
+            conn.execute(
+                "INSERT INTO dataset (name) VALUES (%s) ON CONFLICT (name) DO NOTHING",
+                (dataset,),
+            )
+            for row in rows:
+                ext_id = str(row["dialogue_id"])
+                is_overlap = bool(row.get("is_overlap"))
+                seg_bucket = row.get("seg_bucket")
+                len_bucket = row.get("len_bucket")
+                for labeler in row.get("assigned_to") or []:
+                    conn.execute(
+                        "INSERT INTO worklist "
+                        "(dataset, ext_id, labeler, is_overlap, seg_bucket, len_bucket) "
+                        "VALUES (%s, %s, %s, %s, %s, %s) "
+                        "ON CONFLICT (dataset, ext_id, labeler) DO UPDATE SET "
+                        "is_overlap = EXCLUDED.is_overlap, "
+                        "seg_bucket = EXCLUDED.seg_bucket, "
+                        "len_bucket = EXCLUDED.len_bucket",
+                        (dataset, ext_id, labeler, is_overlap, seg_bucket, len_bucket),
+                    )
+                    written += 1
+    return written
+
+
+def worklist_ext_ids(dataset: str, labeler: str) -> set[str]:
+    """Return the ext_ids assigned to ``labeler`` for ``dataset`` (may be empty)."""
+    pool = get_pool()
+    with pool.connection() as conn:
+        rows = conn.execute(
+            "SELECT ext_id FROM worklist WHERE dataset = %s AND labeler = %s",
+            (dataset, labeler),
+        ).fetchall()
+    return {r["ext_id"] for r in rows}
+
+
+# ---------------------------------------------------------------------------
 # Lookups
 # ---------------------------------------------------------------------------
 
@@ -678,14 +743,18 @@ def list_conversations(
     q: str | None = None,
     status: str | None = None,
     topic: str | None = None,
+    labeler: str | None = None,
 ) -> dict:
     """Return a PAGINATED, searchable page of conversation summaries.
 
     ``q`` matches a conversation's ext_id OR any message content (trigram ILIKE).
     ``status`` (``reviewed``/``unreviewed``) and ``topic`` filter on the EFFECTIVE
-    segmentation. Returns ``{items, total, page, page_size}`` where ``total`` is
-    the count AFTER the ``q`` search but BEFORE status/topic (which are computed
-    per-conversation on the page). Items are summaries:
+    segmentation. ``labeler`` restricts the page to ext_ids assigned to that
+    labeler in ``worklist`` (the per-labeler queue); pagination/search compose
+    over the filtered set. Returns ``{items, total, page, page_size}`` where
+    ``total`` is the count AFTER the ``q``/``labeler`` filters but BEFORE
+    status/topic (which are computed per-conversation on the page). Items are
+    summaries:
     ``{conversation, message_count, segment_count, topics, reviewed_count, reviewed}``.
     """
     page = max(1, page)
@@ -695,6 +764,14 @@ def list_conversations(
 
     where = [sql.SQL("c.dataset = %s")]
     params: list[object] = [dataset]
+    if labeler:
+        where.append(
+            sql.SQL(
+                "EXISTS (SELECT 1 FROM worklist w WHERE w.dataset = c.dataset "
+                "AND w.ext_id = c.ext_id AND w.labeler = %s)"
+            )
+        )
+        params.append(labeler)
     if q:
         like = f"%{q}%"
         where.append(

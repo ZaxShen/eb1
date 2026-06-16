@@ -178,15 +178,23 @@ def list_conversations(
     q: str | None = Query(default=None),
     status: str | None = Query(default=None),
     topic: str | None = Query(default=None),
+    labeler: str | None = Query(default=None),
 ) -> ConversationPage:
     """Return a PAGINATED, searchable page of conversation summaries.
 
     ``q`` matches conversation ext_id OR message content. ``status``/``topic``
-    filter on the effective segmentation. Shape: ``{items,total,page,page_size}``.
+    filter on the effective segmentation. ``labeler`` restricts the page to that
+    labeler's worklist assignments. Shape: ``{items,total,page,page_size}``.
     """
     _require_dataset(dataset)
     result = db.list_conversations(
-        dataset, page=page, page_size=page_size, q=q, status=status, topic=topic
+        dataset,
+        page=page,
+        page_size=page_size,
+        q=q,
+        status=status,
+        topic=topic,
+        labeler=labeler,
     )
     return ConversationPage(
         items=[ConversationSummary(**row) for row in result["items"]],
@@ -234,6 +242,7 @@ def get_conversation(dataset: str, conversation: str) -> ConversationView:
         messages=[Message(**m) for m in detail["messages"]],
         segments=segments,
         gold_segments=gold,
+        frozen_boundaries=db.frozen_boundaries(dataset),
     )
 
 
