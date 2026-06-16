@@ -27,6 +27,8 @@ class SegmentSummary(BaseModel):
     subtopic: str | None = None
     sentiment: str | None = None
     label_confidence: float | None = None
+    bertopic_topic: str | None = None
+    bertopic_subtopic: str | None = None
     reviewed: bool = False
     true_topic: str | None = None
     true_subtopic: str | None = None

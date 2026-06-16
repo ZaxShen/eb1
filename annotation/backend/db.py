@@ -543,6 +543,8 @@ def _seg_dict(row: dict) -> dict:
         "subtopic": row["subtopic"],
         "sentiment": row["sentiment"],
         "label_confidence": row["label_confidence"],
+        "bertopic_topic": row.get("bertopic_topic"),
+        "bertopic_subtopic": row.get("bertopic_subtopic"),
         "source": row["source"],
         "base_segment_id": row["base_segment_id"],
         "reviewed_by": row["reviewed_by"],
@@ -642,6 +644,8 @@ def _effective_from(conv_ext: str, predicted: list[dict], gold: list[dict]) -> l
                     "subtopic": g["subtopic"] if g is not None else s["subtopic"],
                     "sentiment": s["sentiment"],
                     "label_confidence": s["label_confidence"],
+                    "bertopic_topic": s.get("bertopic_topic"),
+                    "bertopic_subtopic": s.get("bertopic_subtopic"),
                     "base_segment_id": s["id"],
                 }
             )
@@ -665,6 +669,8 @@ def _effective_from(conv_ext: str, predicted: list[dict], gold: list[dict]) -> l
                 if g["sentiment"] is not None
                 else inherited["sentiment"],
                 "label_confidence": None,
+                "bertopic_topic": g.get("bertopic_topic"),
+                "bertopic_subtopic": g.get("bertopic_subtopic"),
                 "base_segment_id": g["base_segment_id"],
             }
         )
@@ -712,6 +718,67 @@ def read_gold_segments(dataset: str, conversation: str) -> list[dict]:
         }
         for g in gold
     ]
+
+
+# ---------------------------------------------------------------------------
+# BERTopic groundwork (gold-segment texts + label writes)
+# ---------------------------------------------------------------------------
+
+
+def gold_segment_texts(dataset: str) -> list[dict]:
+    """Return concatenated utterance text per ``source='gold'`` segment.
+
+    For each gold segment in ``dataset`` looks up its conversation's messages at
+    the segment's ``message_indices`` (in order) and joins their content with
+    newlines. Returns ``[{segment_id, conversation, text}, ...]`` ordered by
+    conversation ext_id then segment id — the BERTopic runner's input corpus.
+    """
+    pool = get_pool()
+    with pool.connection() as conn:
+        rows = conn.execute(
+            "SELECT s.id, s.conversation_id, s.message_indices, c.ext_id "
+            "FROM segment s JOIN conversation c ON c.id = s.conversation_id "
+            "WHERE c.dataset = %s AND s.source = 'gold' "
+            "ORDER BY c.ext_id, s.id",
+            (dataset,),
+        ).fetchall()
+        out: list[dict] = []
+        for row in rows:
+            messages = serialize_messages(row["conversation_id"], conn)
+            by_index = {m["index"]: m["message"] for m in messages}
+            text = "\n".join(
+                by_index[i]
+                for i in (row["message_indices"] or [])
+                if i in by_index
+            )
+            out.append(
+                {
+                    "segment_id": row["id"],
+                    "conversation": row["ext_id"],
+                    "text": text,
+                }
+            )
+    return out
+
+
+def write_bertopic_labels(rows: list[dict]) -> int:
+    """UPDATE ``bertopic_topic``/``bertopic_subtopic`` by segment id.
+
+    Each row is ``{segment_id, topic, subtopic}``. Idempotent: re-running with the
+    same rows is a no-op. One transaction. Returns the number of rows applied.
+    """
+    if not rows:
+        return 0
+    pool = get_pool()
+    with pool.connection() as conn:
+        with conn.transaction():
+            for row in rows:
+                conn.execute(
+                    "UPDATE segment SET bertopic_topic = %s, bertopic_subtopic = %s "
+                    "WHERE id = %s",
+                    (row.get("topic"), row.get("subtopic"), row["segment_id"]),
+                )
+    return len(rows)
 
 
 # ---------------------------------------------------------------------------

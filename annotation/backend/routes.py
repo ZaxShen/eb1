@@ -76,6 +76,8 @@ def _effective_summary(
         subtopic=seg["subtopic"],
         sentiment=seg["sentiment"],
         label_confidence=seg["label_confidence"],
+        bertopic_topic=seg.get("bertopic_topic"),
+        bertopic_subtopic=seg.get("bertopic_subtopic"),
         reviewed=base_id is not None and base_id in reviewed_ids,
         true_topic=gold.get("topic"),
         true_subtopic=gold.get("subtopic"),

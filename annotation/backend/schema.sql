@@ -62,6 +62,12 @@ CREATE TABLE IF NOT EXISTS segment (
     reviewed_at      TIMESTAMPTZ
 );
 
+-- BERTopic topic-classification labels on gold segments (issue 19). Distinct
+-- from topic/subtopic (eb1 prediction / human relabel). Added via ALTER so
+-- existing databases migrate idempotently on apply_schema.
+ALTER TABLE segment ADD COLUMN IF NOT EXISTS bertopic_topic    TEXT;
+ALTER TABLE segment ADD COLUMN IF NOT EXISTS bertopic_subtopic TEXT;
+
 CREATE TABLE IF NOT EXISTS taxonomy (
     dataset     TEXT NOT NULL REFERENCES dataset(name) ON DELETE CASCADE,
     kind        TEXT NOT NULL DEFAULT 'user',

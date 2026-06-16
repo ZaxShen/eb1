@@ -477,6 +477,10 @@ export interface components {
          * @description A machine segment as listed in the review queue.
          */
         SegmentSummary: {
+            /** Bertopic Subtopic */
+            bertopic_subtopic?: string | null;
+            /** Bertopic Topic */
+            bertopic_topic?: string | null;
             /** Chunk Index */
             chunk_index: number;
             /** Conversation */

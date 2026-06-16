@@ -508,6 +508,28 @@
       "SegmentSummary": {
         "description": "A machine segment as listed in the review queue.",
         "properties": {
+          "bertopic_subtopic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bertopic Subtopic"
+          },
+          "bertopic_topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bertopic Topic"
+          },
           "chunk_index": {
             "title": "Chunk Index",
             "type": "integer"
