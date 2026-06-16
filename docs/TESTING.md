@@ -44,7 +44,7 @@ cd annotation/frontend && npm run test:e2e
 bash scripts/test-all.sh
 ```
 
-Run `scripts/test-all.sh` locally before pushing. (CI is deferred for now — wire `.github/workflows/` to call the same script when you want it.)
+Run `scripts/test-all.sh` locally before pushing. CI (`.github/workflows/ci.yml`) runs the same layers but is **disabled for now** (manual-run only) — re-enable auto-runs by uncommenting the `push`/`pull_request` triggers.
 
 ## Frontend-vs-backend bisection
 
