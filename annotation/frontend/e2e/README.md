@@ -22,7 +22,9 @@ npm run test:e2e           # boots backend + frontend itself, then runs the spec
 `playwright.config.ts`'s `webServer` boots everything for you:
 
 1. **Postgres** — `docker compose -f annotation/docker-compose.yml up -d --wait`
-   starts the `postgres:18-alpine` service on host port 5544.
+   starts the `postgres:18-alpine` service on host port 5544, then
+   `docker exec eb1-annotation-pg createdb -U eb1 eb1_annotation_e2e` creates the
+   dedicated e2e database (idempotent — a no-op if it already exists).
 2. **Seed** — runs `e2e/fixtures/seed_e2e.py`, which applies the schema and seeds
    each dataset from its committed sample (no LLM, no network): one
    whole-conversation `predicted` segment per conversation.
@@ -30,6 +32,12 @@ npm run test:e2e           # boots backend + frontend itself, then runs the spec
    `EB1_ANNOTATION_DSN` pointed at that database.
 4. **Frontend** — `vite` dev server on the test port with `VITE_API_PORT=8200`,
    which proxies `/api` to the backend.
+
+> **Dedicated, reset-on-run DB.** The harness defaults `EB1_ANNOTATION_DSN` to
+> `postgresql://eb1:eb1@localhost:5544/eb1_annotation_e2e` — a throwaway DB on the
+> same container, **never** the production `eb1_annotation` DB. The seed RESETS it
+> on every run, so it must never point at production labeling data. An explicit
+> `EB1_ANNOTATION_DSN` override (to another non-prod DB) still wins.
 
 `reuseExistingServer` is on locally (fast reruns) and off in CI (`CI=1`).
 

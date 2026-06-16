@@ -6,6 +6,14 @@ Seeds a fresh, self-contained dataset into the annotation Postgres addressed by
 up, runs this, then boots the backend against the same database. Everything here
 is offline and stable.
 
+.. warning::
+
+   This script RESETS every dataset it touches (``reset=True``). The harness
+   points it at a DEDICATED throwaway database (``eb1_annotation_e2e``), never
+   the production ``eb1_annotation`` DB. If you run it standalone, set
+   ``EB1_ANNOTATION_DSN`` to that dedicated DB — pointing it at production will
+   destroy real labeling data.
+
 Per dataset ``<ds>`` it reads the committed JSONL sample
 (``samples/<ds>.jsonl``), normalizes each row through the dataset adapter, and
 seeds each conversation as ONE whole-conversation ``predicted`` segment (the new
@@ -14,10 +22,11 @@ from there). A fixed ``mock_topic`` label is attached so split/merge inheritance
 and "Confirm AI" relabel have a topic to carry — matching the prior SQLite mock
 fixture the specs were written against.
 
-Run standalone::
+Run standalone (against the dedicated e2e DB, NOT production)::
 
     docker compose -f annotation/docker-compose.yml up -d
-    export EB1_ANNOTATION_DSN=postgresql://eb1:eb1@localhost:5544/eb1_annotation
+    docker exec eb1-annotation-pg createdb -U eb1 eb1_annotation_e2e 2>/dev/null || true
+    export EB1_ANNOTATION_DSN=postgresql://eb1:eb1@localhost:5544/eb1_annotation_e2e
     uv run python annotation/frontend/e2e/fixtures/seed_e2e.py
 """
 

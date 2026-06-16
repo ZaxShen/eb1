@@ -28,11 +28,13 @@ const REPO_ROOT = path.resolve(__dirname, "../..");
 const COMPOSE_FILE = "annotation/docker-compose.yml";
 const SEED_SCRIPT = "annotation/frontend/e2e/fixtures/seed_e2e.py";
 
-// The annotation backend + seed both read this. Kept in sync with the default
-// in annotation/backend/config.py and the docker-compose host port.
+// The annotation backend + seed both read this. The e2e harness uses a
+// DEDICATED throwaway database (`eb1_annotation_e2e`) on the same Postgres
+// container — NEVER the production `eb1_annotation` DB — because the seed
+// RESETS it on every run. An explicit EB1_ANNOTATION_DSN override still wins.
 const ANNOTATION_DSN =
   process.env.EB1_ANNOTATION_DSN ??
-  "postgresql://eb1:eb1@localhost:5544/eb1_annotation";
+  "postgresql://eb1:eb1@localhost:5544/eb1_annotation_e2e";
 
 export default defineConfig({
   testDir: "./e2e/specs",
@@ -57,6 +59,7 @@ export default defineConfig({
       // deterministic and self-contained.
       command:
         `docker compose -f ${COMPOSE_FILE} up -d --wait && ` +
+        `docker exec eb1-annotation-pg createdb -U eb1 eb1_annotation_e2e 2>/dev/null; ` +
         `uv run python ${SEED_SCRIPT} && ` +
         `uv run uvicorn annotation.backend.app:app --port ${BACKEND_PORT}`,
       cwd: REPO_ROOT,
