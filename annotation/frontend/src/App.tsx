@@ -61,7 +61,7 @@ const PAGE_SIZE = 50;
 
 const LABELERS = ["labeler_a", "labeler_b"] as const;
 type Labeler = (typeof LABELERS)[number];
-const LABELER_KEY = "ufl.labeler";
+const LABELER_KEY = "eb1.labeler";
 // Radix Select forbids an empty-string item value, so the "no slot" option uses
 // a sentinel that maps back to "" (unfiltered) at the boundary.
 const NO_LABELER = "__all__";
@@ -495,7 +495,7 @@ function AnnotationApp() {
       <div className="flex h-full flex-col bg-muted text-foreground">
         <header className="flex items-center gap-3 border-b border-border bg-background px-4 py-2">
           <h1 className="text-sm font-semibold tracking-tight">
-            UFL Annotation
+            eb1 Annotation
           </h1>
           <div className="flex items-center gap-2">
             <Database className="size-4 text-muted-foreground" />

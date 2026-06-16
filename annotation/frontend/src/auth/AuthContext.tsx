@@ -31,7 +31,7 @@ interface AuthState {
   signOut: () => void;
 }
 
-const STORAGE_KEY = "ufl-annotation-auth";
+const STORAGE_KEY = "eb1-annotation-auth";
 
 export const GOOGLE_CLIENT_ID: string | null =
   import.meta.env.VITE_GOOGLE_CLIENT_ID || null;

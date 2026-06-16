@@ -1,4 +1,4 @@
-# Domain-neutral analyzer profile — universal UFL pipeline (WildChat slice).
+# Domain-neutral analyzer profile — universal eb1 pipeline (WildChat slice).
 #
 # Pure user/assistant path: the dataset-adapter layer normalizes public
 # bot-human corpora into the internal message shape, then the SAME core

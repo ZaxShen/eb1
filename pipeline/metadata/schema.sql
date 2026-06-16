@@ -1,4 +1,4 @@
--- Per-dataset metadata schema for the universal UFL pipeline.
+-- Per-dataset metadata schema for the universal eb1 pipeline.
 --
 -- One SQLite file per dataset (datasets/<name>/metadata.db). Each table
 -- externalizes a domain knob the segmentation engine consumes at runtime:

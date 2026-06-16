@@ -1,4 +1,4 @@
-"""Dataset-adapter layer for the universal UFL pipeline.
+"""Dataset-adapter layer for the universal eb1 pipeline.
 
 Adapters normalize public bot-human chat corpora into the pipeline's existing
 internal message shape so the core segmentation architecture runs unchanged.

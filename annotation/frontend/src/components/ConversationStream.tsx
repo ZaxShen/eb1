@@ -26,7 +26,7 @@ import {
   isSameMinute,
 } from "../lib/utils";
 
-// Bubble color-by-role, mirroring ufl-dev RoleStyleLight/Dark via semantic
+// Bubble color-by-role, mirroring eb1-dev RoleStyleLight/Dark via semantic
 // tokens: assistant=role-assistant, automated=role-automated, team=role-team,
 // user/system=neutral secondary.
 const ROLE_STYLE: Record<string, string> = {
