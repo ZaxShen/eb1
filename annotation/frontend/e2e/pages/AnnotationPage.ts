@@ -48,12 +48,11 @@ export class AnnotationPage {
 
   // --- Conversation queue ------------------------------------------------
 
-  /** Locator over the conversation queue cards (one button per conversation). */
+  /** Locator over the conversation queue cards. Each card button carries the
+   * "<n> msg" message-count line, which the filter/pagination controls don't —
+   * so this never picks up the search/status/page buttons in the queue. */
   conversations(): Locator {
-    return this.page
-      .getByRole("heading", { name: "Conversations" })
-      .locator("xpath=ancestor::div[1]/following-sibling::*")
-      .getByRole("button");
+    return this.page.getByRole("button").filter({ hasText: /\d+ msg/ });
   }
 
   /** A single conversation card located by its conversation id text. */
@@ -65,6 +64,40 @@ export class AnnotationPage {
   async openConversation(id: string): Promise<void> {
     await this.conversation(id).click();
     await expect(this.segments().first()).toBeVisible();
+  }
+
+  // --- Queue search + pagination -----------------------------------------
+
+  searchBox(): Locator {
+    return this.page.getByRole("searchbox", { name: /search conversations/i });
+  }
+
+  /** Type a query into the debounced queue search. */
+  async searchConversations(query: string): Promise<void> {
+    const box = this.searchBox();
+    await box.click();
+    await box.fill(query);
+  }
+
+  /** Clear the queue search box. */
+  async clearSearch(): Promise<void> {
+    await this.searchBox().fill("");
+  }
+
+  async nextPage(): Promise<void> {
+    await this.page.getByRole("button", { name: "Next page" }).click();
+  }
+
+  async prevPage(): Promise<void> {
+    await this.page.getByRole("button", { name: "Previous page" }).click();
+  }
+
+  /** The "<start>–<end> of <total>" range text shown in the queue footer. */
+  async queueRange(): Promise<string> {
+    const text =
+      (await this.page.getByText(/\d[\d,]*\s+of\s+[\d,]+/).first().textContent()) ??
+      "";
+    return text.trim();
   }
 
   // --- Segment stream ----------------------------------------------------

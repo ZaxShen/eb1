@@ -47,6 +47,8 @@ import {
 } from "./auth/AuthContext";
 import SignInGate from "./auth/SignInGate";
 
+const PAGE_SIZE = 50;
+
 function useTheme() {
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") return "dark";
@@ -72,6 +74,9 @@ function AnnotationApp() {
 
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [filters, setFilters] = useState<ConversationFilters>({});
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [queueTotal, setQueueTotal] = useState(0);
   const [queueLoading, setQueueLoading] = useState(false);
 
   const [selectedConversation, setSelectedConversation] = useState<
@@ -123,11 +128,19 @@ function AnnotationApp() {
   );
 
   const refreshQueue = useCallback(
-    (ds: string, f: ConversationFilters) => {
+    (ds: string, f: ConversationFilters, p: number, q: string) => {
       setQueueLoading(true);
       api
-        .listConversations(ds, f)
-        .then(setConversations)
+        .listConversations(ds, {
+          ...f,
+          page: p,
+          pageSize: PAGE_SIZE,
+          q: q || undefined,
+        })
+        .then((res) => {
+          setConversations(res.items);
+          setQueueTotal(res.total);
+        })
         .catch(fail)
         .finally(() => setQueueLoading(false));
     },
@@ -139,14 +152,29 @@ function AnnotationApp() {
     setSelectedConversation(null);
     setView(null);
     setSelectedSegment(null);
+    setFilters({});
+    setSearch("");
+    setPage(1);
     api.getTaxonomy(dataset).then(setTaxonomyEntries).catch(fail);
     refreshStats(dataset);
   }, [dataset, refreshStats, fail]);
 
+  // A new filter or search resets to the first page; changing the page keeps
+  // the current filter/search. Either way the queue refetches server-side.
+  const setFiltersAndReset = useCallback((next: ConversationFilters) => {
+    setFilters(next);
+    setPage(1);
+  }, []);
+
+  const setSearchAndReset = useCallback((q: string) => {
+    setSearch(q);
+    setPage(1);
+  }, []);
+
   useEffect(() => {
     if (!dataset) return;
-    refreshQueue(dataset, filters);
-  }, [dataset, filters, refreshQueue]);
+    refreshQueue(dataset, filters, page, search);
+  }, [dataset, filters, page, search, refreshQueue]);
 
   const selectSegment = useCallback((segment: SegmentSummary) => {
     setSelectedSegment(segment);
@@ -196,12 +224,14 @@ function AnnotationApp() {
 
   const afterWrite = useCallback(() => {
     if (!dataset) return;
-    refreshQueue(dataset, filters);
+    refreshQueue(dataset, filters, page, search);
     refreshStats(dataset);
     if (selectedConversation) loadConversation(selectedConversation);
   }, [
     dataset,
     filters,
+    page,
+    search,
     refreshQueue,
     refreshStats,
     selectedConversation,
@@ -474,11 +504,16 @@ function AnnotationApp() {
                 conversations={conversations}
                 selectedConversation={selectedConversation}
                 filters={filters}
+                search={search}
+                page={page}
+                pageSize={PAGE_SIZE}
+                total={queueTotal}
                 taxonomy={taxonomy}
                 loading={queueLoading}
-                total={conversations.length}
                 onSelect={loadConversation}
-                onFiltersChange={setFilters}
+                onFiltersChange={setFiltersAndReset}
+                onSearchChange={setSearchAndReset}
+                onPageChange={setPage}
               />
             </Card>
           </ResizablePanel>
@@ -507,7 +542,7 @@ function AnnotationApp() {
                     stats={stats}
                     filters={filters}
                     taxonomy={taxonomy}
-                    onFiltersChange={setFilters}
+                    onFiltersChange={setFiltersAndReset}
                   />
                 </Card>
               </ResizablePanel>

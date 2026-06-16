@@ -55,6 +55,37 @@ test.describe("annotation app smoke", () => {
     expect(await app.segmentCount()).toBe(expected);
   });
 
+  test("the queue is paginated: shows a total range, not an unbounded list", async ({
+    page,
+  }) => {
+    const app = new AnnotationPage(page);
+    await app.goto();
+    await app.selectDataset("wildchat");
+
+    await expect(app.conversation(WILDCHAT_CONV)).toBeVisible();
+    // The footer surfaces the server `total` as a range ("1–N of N"); the
+    // fixture seeds two conversations, so it never streams every row.
+    await expect.poll(() => app.queueRange()).toMatch(/\bof\s+\d+/);
+    expect(await app.conversations().count()).toBeGreaterThan(0);
+  });
+
+  test("the search box filters the queue server-side", async ({ page }) => {
+    const app = new AnnotationPage(page);
+    await app.goto();
+    await app.selectDataset("wildchat");
+    await expect(app.conversation(WILDCHAT_CONV)).toBeVisible();
+
+    await app.searchConversations(WILDCHAT_CONV);
+
+    // Only the matching conversation survives the server-side filter.
+    await expect(app.conversation(WILDCHAT_CONV)).toBeVisible();
+    await expect.poll(() => app.conversations().count()).toBe(1);
+
+    // Clearing the search restores the full first page.
+    await app.clearSearch();
+    await expect.poll(() => app.conversations().count()).toBeGreaterThan(1);
+  });
+
   test("selecting a segment shows its id and message_indices", async ({
     page,
   }) => {

@@ -47,7 +47,7 @@ describe("api client request shapes", () => {
   });
 
   it("listConversations issues a GET to the dataset conversations path", async () => {
-    const fetchMock = mockFetch([]);
+    const fetchMock = mockFetch({ items: [], total: 0, page: 1, page_size: 50 });
     await api.listConversations("WildChat");
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -57,6 +57,26 @@ describe("api client request shapes", () => {
     expect(init?.headers).toMatchObject({
       "Content-Type": "application/json",
     });
+  });
+
+  it("listConversations encodes pagination + search query params", async () => {
+    const fetchMock = mockFetch({ items: [], total: 0, page: 2, page_size: 25 });
+    await api.listConversations("WildChat", {
+      page: 2,
+      pageSize: 25,
+      q: "refund",
+      status: "unreviewed",
+      topic: "billing",
+    });
+
+    const [url] = fetchMock.mock.calls[0];
+    const parsed = new URL(url as string, "http://localhost");
+    expect(parsed.pathname).toBe("/api/datasets/WildChat/conversations");
+    expect(parsed.searchParams.get("page")).toBe("2");
+    expect(parsed.searchParams.get("page_size")).toBe("25");
+    expect(parsed.searchParams.get("q")).toBe("refund");
+    expect(parsed.searchParams.get("status")).toBe("unreviewed");
+    expect(parsed.searchParams.get("topic")).toBe("billing");
   });
 
   it("annotate POSTs the request body to the segment annotate path", async () => {

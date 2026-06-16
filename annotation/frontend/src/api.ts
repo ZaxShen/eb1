@@ -135,6 +135,12 @@ export interface ConversationFilters {
   topic?: string;
 }
 
+export interface ConversationQuery extends ConversationFilters {
+  page?: number;
+  pageSize?: number;
+  q?: string;
+}
+
 let authToken: string | null = null;
 
 export function setAuthToken(token: string | null): void {
@@ -185,24 +191,21 @@ export const api = {
   listDatasets: () => request<string[]>("/datasets"),
 
   // The backend conversations-list is server-side paginated + searchable,
-  // returning `{items,total,page,page_size}`. The paginated/virtualized queue UI
-  // is a follow-up; for now this unwraps `items` so the existing queue holds.
-  // A bare array response (component-test mocks) is tolerated as `items`.
-  listConversations: async (
+  // returning `{items,total,page,page_size}`. Query params (page/page_size/q/
+  // status/topic) drive a SINGLE page so the queue never loads all ~1.85M rows.
+  listConversations: (
     dataset: string,
-    filters: ConversationFilters = {},
-  ): Promise<ConversationSummary[]> => {
-    const res = await request<ConversationPage | ConversationSummary[]>(
-      `/datasets/${encodeURIComponent(dataset)}/conversations`,
-    );
-    const rows = Array.isArray(res) ? res : res.items;
-    return rows.filter((row) => {
-      if (filters.status === "reviewed" && !row.reviewed) return false;
-      if (filters.status === "unreviewed" && row.reviewed) return false;
-      if (filters.topic && !row.topics.includes(filters.topic)) return false;
-      return true;
-    });
-  },
+    query: ConversationQuery = {},
+  ): Promise<ConversationPage> =>
+    request<ConversationPage>(
+      `/datasets/${encodeURIComponent(dataset)}/conversations${qs({
+        page: query.page,
+        page_size: query.pageSize,
+        q: query.q,
+        status: query.status,
+        topic: query.topic,
+      })}`,
+    ),
 
   listSegments: (dataset: string, filters: SegmentFilters = {}) =>
     request<SegmentSummary[]>(

@@ -1,8 +1,18 @@
-import { MessagesSquare, RotateCcw, Tag, User } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  MessagesSquare,
+  RotateCcw,
+  Search,
+  Tag,
+  User,
+} from "lucide-react";
 import type { ConversationFilters, ConversationSummary } from "../api";
 import type { TaxonomyMap } from "../lib/taxonomy";
 import { sortedTopics } from "../lib/taxonomy";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -23,14 +33,20 @@ interface ConversationQueueProps {
   conversations: ConversationSummary[];
   selectedConversation: string | null;
   filters: ConversationFilters;
+  search: string;
+  page: number;
+  pageSize: number;
+  total: number;
   taxonomy: TaxonomyMap;
   loading: boolean;
-  total: number;
   onSelect: (conversation: string) => void;
   onFiltersChange: (filters: ConversationFilters) => void;
+  onSearchChange: (q: string) => void;
+  onPageChange: (page: number) => void;
 }
 
 const ALL_TOPICS = "__all__";
+const SEARCH_DEBOUNCE_MS = 300;
 
 const ConversationCard = ({
   conversation,
@@ -85,18 +101,44 @@ const ConversationQueue = ({
   conversations,
   selectedConversation,
   filters,
+  search,
+  page,
+  pageSize,
+  total,
   taxonomy,
   loading,
-  total,
   onSelect,
   onFiltersChange,
+  onSearchChange,
+  onPageChange,
 }: ConversationQueueProps) => {
   const topics = sortedTopics(taxonomy);
   const update = (patch: Partial<ConversationFilters>) =>
     onFiltersChange({ ...filters, ...patch });
 
+  // Local mirror of the search box so typing is instant; the committed `q`
+  // (which triggers a server refetch) is debounced off it.
+  const [searchInput, setSearchInput] = useState(search);
+  const onSearchChangeRef = useRef(onSearchChange);
+  onSearchChangeRef.current = onSearchChange;
+
+  // Keep the input in sync when `search` is reset externally (e.g. dataset swap).
+  useEffect(() => {
+    setSearchInput(search);
+  }, [search]);
+
+  useEffect(() => {
+    if (searchInput === search) return;
+    const handle = setTimeout(() => {
+      onSearchChangeRef.current(searchInput);
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(handle);
+  }, [searchInput, search]);
+
   const hasActiveFilters =
-    filters.status !== undefined || filters.topic !== undefined;
+    filters.status !== undefined ||
+    filters.topic !== undefined ||
+    search !== "";
 
   const statusOptions: {
     value: ConversationFilters["status"];
@@ -106,6 +148,16 @@ const ConversationQueue = ({
     { value: "unreviewed", label: "Unreviewed" },
     { value: "reviewed", label: "Reviewed" },
   ];
+
+  const pageCount = total > 0 ? Math.ceil(total / pageSize) : 1;
+  const rangeStart = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const rangeEnd = Math.min(page * pageSize, total);
+
+  const resetAll = () => {
+    setSearchInput("");
+    onSearchChange("");
+    onFiltersChange({});
+  };
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -117,17 +169,25 @@ const ConversationQueue = ({
           {hasActiveFilters && (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon-xs"
-                  onClick={() => onFiltersChange({})}
-                >
+                <Button variant="ghost" size="icon-xs" onClick={resetAll}>
                   <RotateCcw />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Reset all filters</TooltipContent>
+              <TooltipContent>Reset search and filters</TooltipContent>
             </Tooltip>
           )}
+        </div>
+
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="search"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Search conversations…"
+            aria-label="Search conversations"
+            className="pl-8"
+          />
         </div>
 
         <div className="flex items-center gap-1 rounded-md bg-muted p-0.5">
@@ -200,9 +260,40 @@ const ConversationQueue = ({
       </ScrollArea>
 
       <Separator />
-      <div className="px-4 py-1.5 text-center text-xs text-muted-foreground">
-        {conversations.length} shown · {total} total conversation
-        {total !== 1 ? "s" : ""}
+
+      <div className="flex items-center justify-between gap-2 px-3 py-2">
+        <span className="text-xs text-muted-foreground" aria-live="polite">
+          {total === 0 ? (
+            "0 conversations"
+          ) : (
+            <>
+              {rangeStart}–{rangeEnd} of {total.toLocaleString()}
+            </>
+          )}
+        </span>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="outline"
+            size="icon-xs"
+            onClick={() => onPageChange(page - 1)}
+            disabled={loading || page <= 1}
+            aria-label="Previous page"
+          >
+            <ChevronLeft />
+          </Button>
+          <span className="min-w-[3.5rem] text-center text-xs text-muted-foreground tabular-nums">
+            {page} / {pageCount}
+          </span>
+          <Button
+            variant="outline"
+            size="icon-xs"
+            onClick={() => onPageChange(page + 1)}
+            disabled={loading || page >= pageCount}
+            aria-label="Next page"
+          >
+            <ChevronRight />
+          </Button>
+        </div>
       </div>
     </div>
   );

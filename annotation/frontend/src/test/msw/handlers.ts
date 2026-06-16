@@ -150,14 +150,32 @@ export const handlers = [
 
   http.get(`${base}/datasets`, () => HttpResponse.json(datasets)),
 
-  http.get(`${base}/datasets/:dataset/conversations`, () =>
-    HttpResponse.json({
-      items: conversations,
-      total: conversations.length,
-      page: 1,
-      page_size: 50,
-    }),
-  ),
+  // Server-driven pagination + search: honor page/page_size/q/status/topic so
+  // component tests exercise the real refetch-on-change contract.
+  http.get(`${base}/datasets/:dataset/conversations`, ({ request }) => {
+    const url = new URL(request.url);
+    const page = Number(url.searchParams.get("page") ?? "1");
+    const pageSize = Number(url.searchParams.get("page_size") ?? "50");
+    const q = (url.searchParams.get("q") ?? "").toLowerCase();
+    const status = url.searchParams.get("status");
+    const topic = url.searchParams.get("topic");
+
+    const filtered = conversations.filter((c) => {
+      if (q && !c.conversation.toLowerCase().includes(q)) return false;
+      if (status === "reviewed" && !c.reviewed) return false;
+      if (status === "unreviewed" && c.reviewed) return false;
+      if (topic && !c.topics.includes(topic)) return false;
+      return true;
+    });
+
+    const start = (page - 1) * pageSize;
+    return HttpResponse.json({
+      items: filtered.slice(start, start + pageSize),
+      total: filtered.length,
+      page,
+      page_size: pageSize,
+    });
+  }),
 
   http.get(`${base}/datasets/:dataset/conversations/:conversation`, () =>
     HttpResponse.json(conversationView),
