@@ -26,7 +26,11 @@ from annotation.backend.models import (
     SegmentDetail,
     SegmentSummary,
     Stats,
+    TaxonomyCreateRequest,
     TaxonomyEntry,
+    TaxonomyMergeRequest,
+    TaxonomyMutationResponse,
+    TaxonomyRenameRequest,
     UsedTopics,
 )
 
@@ -260,6 +264,75 @@ def get_taxonomy(dataset: str) -> list[TaxonomyEntry]:
         )
         for r in rows
     ]
+
+
+@router.post(
+    "/datasets/{dataset}/taxonomy", response_model=TaxonomyMutationResponse
+)
+def create_taxonomy(
+    dataset: str, request: TaxonomyCreateRequest
+) -> TaxonomyMutationResponse:
+    """Add a taxonomy option (idempotent: a duplicate create is a no-op)."""
+    _require_dataset(dataset)
+    db.create_taxonomy(
+        dataset,
+        topic=request.topic,
+        subtopic=request.subtopic,
+        description=request.description,
+        kind=request.kind,
+    )
+    return TaxonomyMutationResponse(dataset=dataset)
+
+
+@router.patch(
+    "/datasets/{dataset}/taxonomy", response_model=TaxonomyMutationResponse
+)
+def rename_taxonomy(
+    dataset: str, request: TaxonomyRenameRequest
+) -> TaxonomyMutationResponse:
+    """Rename a taxonomy option, cascading the rename to applied segment labels."""
+    _require_dataset(dataset)
+    cascaded = db.rename_taxonomy(
+        dataset,
+        topic=request.topic,
+        new_topic=request.new_topic,
+        subtopic=request.subtopic,
+        new_subtopic=request.new_subtopic,
+        kind=request.kind,
+    )
+    return TaxonomyMutationResponse(dataset=dataset, cascaded=cascaded)
+
+
+@router.post(
+    "/datasets/{dataset}/taxonomy/merge", response_model=TaxonomyMutationResponse
+)
+def merge_taxonomy(
+    dataset: str, request: TaxonomyMergeRequest
+) -> TaxonomyMutationResponse:
+    """Fold one topic into another: cascade labels then drop the duplicate rows."""
+    _require_dataset(dataset)
+    cascaded = db.merge_taxonomy(
+        dataset,
+        from_topic=request.from_topic,
+        into_topic=request.into_topic,
+        kind=request.kind,
+    )
+    return TaxonomyMutationResponse(dataset=dataset, cascaded=cascaded)
+
+
+@router.delete(
+    "/datasets/{dataset}/taxonomy", response_model=TaxonomyMutationResponse
+)
+def delete_taxonomy(
+    dataset: str,
+    topic: str = Query(...),
+    subtopic: str | None = Query(default=None),
+    kind: str = Query(default="user"),
+) -> TaxonomyMutationResponse:
+    """Remove a taxonomy option. Already-applied segment labels are left intact."""
+    _require_dataset(dataset)
+    deleted = db.delete_taxonomy(dataset, topic=topic, subtopic=subtopic, kind=kind)
+    return TaxonomyMutationResponse(dataset=dataset, deleted=deleted)
 
 
 @router.get("/datasets/{dataset}/used-topics", response_model=UsedTopics)

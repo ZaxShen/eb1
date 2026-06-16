@@ -100,6 +100,45 @@ class UsedTopics(BaseModel):
     topics: list[str] = Field(default_factory=list)
 
 
+class TaxonomyCreateRequest(BaseModel):
+    """Create a taxonomy option (idempotent on dataset/kind/topic/subtopic)."""
+
+    topic: str
+    subtopic: str | None = None
+    description: str | None = None
+    kind: str = "user"
+
+
+class TaxonomyRenameRequest(BaseModel):
+    """Rename a taxonomy option, cascading to applied segment labels.
+
+    Topic-level rename leaves ``subtopic``/``new_subtopic`` unset; subtopic-level
+    rename sets both the matched ``subtopic`` and the ``new_subtopic`` it becomes.
+    """
+
+    topic: str
+    new_topic: str
+    subtopic: str | None = None
+    new_subtopic: str | None = None
+    kind: str = "user"
+
+
+class TaxonomyMergeRequest(BaseModel):
+    """Fold ``from_topic`` into ``into_topic`` (labels cascade, dup rows dropped)."""
+
+    from_topic: str
+    into_topic: str
+    kind: str = "user"
+
+
+class TaxonomyMutationResponse(BaseModel):
+    """Result of a taxonomy create/rename/merge/delete write."""
+
+    dataset: str
+    cascaded: int = 0
+    deleted: int = 0
+
+
 class AnnotateRequest(BaseModel):
     """Relabel/confirm one base segment's topic/subtopic."""
 

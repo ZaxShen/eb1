@@ -70,6 +70,12 @@ CREATE TABLE IF NOT EXISTS taxonomy (
     description TEXT
 );
 
+-- One (dataset, kind, topic, subtopic) option exists at most once so create and
+-- merge are idempotent. NULLS NOT DISTINCT (PG15+) treats a NULL subtopic as a
+-- single value, so a topic-only option cannot be duplicated either.
+CREATE UNIQUE INDEX IF NOT EXISTS taxonomy_option_uidx
+    ON taxonomy (dataset, kind, topic, subtopic) NULLS NOT DISTINCT;
+
 CREATE TABLE IF NOT EXISTS worklist (
     id          BIGSERIAL PRIMARY KEY,
     dataset     TEXT NOT NULL REFERENCES dataset(name) ON DELETE CASCADE,
