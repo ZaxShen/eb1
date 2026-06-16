@@ -46,6 +46,9 @@ target-version = "py313"
 [tool.ruff.lint]
 select = ["E", "F", "I"]
 
+[tool.ruff.lint.per-file-ignores]
+"pipeline/main.py" = ["E402"]  # load_dotenv() must run before config/db imports
+
 [tool.black]
 line-length = 100
 target-version = ["py313"]

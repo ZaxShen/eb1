@@ -102,7 +102,8 @@ class TestCrossSourceGuard:
             loader.INITIAL_TAXONOMY.update(original_user_taxonomy)
 
     def test_bot_only_true_skips_upsert_when_topic_in_user_taxonomy(self, monkeypatch):
-        """When bot_only=True and topic exists in INITIAL_TAXONOMY, update_one must NOT be called."""
+        """When bot_only=True and topic exists in INITIAL_TAXONOMY, update_one must NOT be
+        called."""
         from pipeline.segmentation.segmenter import _ensure_taxonomy_entry
 
         original_bot_taxonomy = dict(loader.BOT_TAXONOMY)

@@ -87,7 +87,8 @@ class FakeCursor:
 
 
 class FakeCollection:
-    """Minimal MongoDB collection mock supporting distinct(), find(), find_one(), count_documents()."""
+    """Minimal MongoDB collection mock supporting distinct(), find(), find_one(),
+    count_documents()."""
 
     def __init__(self, docs: list[dict]):
         self._docs = docs
@@ -800,7 +801,12 @@ class TestG07PreSegmentCompleteness:
         chats = [{"_id": chat_id, "user": uid}]
         messages = [
             {"_id": mid0, "chat": chat_id, "type": "user"},
-            {"_id": mid_noreply, "chat": chat_id, "type": "system", "message": "[Tool Call] noReply"},
+            {
+                "_id": mid_noreply,
+                "chat": chat_id,
+                "type": "system",
+                "message": "[Tool Call] noReply",
+            },
         ]
         # Both messages covered
         segments = [{"user_id": uid, "chat_messages": [str(mid0), str(mid_noreply)]}]
