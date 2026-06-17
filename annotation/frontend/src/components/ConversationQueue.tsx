@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
+  Inbox,
   MessagesSquare,
   RotateCcw,
   Search,
@@ -20,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -32,6 +34,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { topicColorClass } from "../lib/badges";
 import { cn, formatLabel } from "../lib/utils";
 
 interface ConversationQueueProps {
@@ -62,46 +65,83 @@ const ConversationCard = ({
   conversation: ConversationSummary;
   isSelected: boolean;
   onClick: () => void;
-}) => (
-  <button
-    onClick={onClick}
-    className={cn(
-      "w-full rounded-lg border px-2.5 py-3 text-left transition-colors hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-      isSelected
-        ? "border-primary/40 bg-accent ring-1 ring-primary/30"
-        : "border-transparent",
-    )}
-  >
-    <div className="mb-1.5 flex items-center gap-2">
-      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-secondary text-muted-foreground">
-        <User className="size-3.5" />
-      </span>
-      <span className="flex-1 truncate text-sm font-medium">
-        {conversation.conversation}
-      </span>
-      {conversation.reviewed && (
-        <span
-          className="size-2 shrink-0 rounded-full bg-positive"
-          title="All segments reviewed"
-        />
-      )}
-    </div>
+}) => {
+  const { message_count, segment_count, reviewed_count, topics } = conversation;
+  const reviewPct =
+    segment_count > 0 ? Math.round((reviewed_count / segment_count) * 100) : 0;
+  const inProgress = reviewed_count > 0 && reviewed_count < segment_count;
 
-    <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-      <span className="flex items-center gap-1">
-        <MessagesSquare className="size-3" />
-        {conversation.message_count} msg
-      </span>
-      <span>
-        {conversation.segment_count} segment
-        {conversation.segment_count !== 1 ? "s" : ""}
-      </span>
-      <span>
-        {conversation.reviewed_count}/{conversation.segment_count} reviewed
-      </span>
-    </div>
-  </button>
-);
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "group w-full rounded-lg border px-2.5 py-2.5 text-left transition-colors hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        isSelected
+          ? "border-primary/40 bg-accent ring-1 ring-primary/30"
+          : "border-transparent",
+      )}
+    >
+      <div className="flex items-center gap-2">
+        <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-colors group-hover:bg-background">
+          <User className="size-3.5" />
+        </span>
+        <span className="flex-1 truncate font-mono text-[13px] font-medium tracking-tight">
+          {conversation.conversation}
+        </span>
+        {conversation.reviewed && (
+          <span
+            className="size-2 shrink-0 rounded-full bg-positive ring-2 ring-positive/20"
+            title="All segments reviewed"
+          />
+        )}
+      </div>
+
+      {topics.length > 0 && (
+        <div className="mt-1.5 flex flex-wrap gap-1">
+          {topics.slice(0, 3).map((t) => (
+            <span
+              key={t}
+              className={cn(
+                "rounded-full border px-1.5 py-px text-[10px] font-medium leading-tight",
+                topicColorClass(t),
+              )}
+            >
+              {formatLabel(t)}
+            </span>
+          ))}
+          {topics.length > 3 && (
+            <span className="text-[10px] leading-5 text-muted-foreground">
+              +{topics.length - 3}
+            </span>
+          )}
+        </div>
+      )}
+
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1">
+          <MessagesSquare className="size-3" />
+          {message_count} msg
+        </span>
+        <span>
+          {segment_count} segment{segment_count !== 1 ? "s" : ""}
+        </span>
+        {inProgress && (
+          <span className="ml-auto flex items-center gap-1.5">
+            <span className="h-1 w-10 overflow-hidden rounded-full bg-muted">
+              <span
+                className="block h-full rounded-full bg-primary/70"
+                style={{ width: `${reviewPct}%` }}
+              />
+            </span>
+            <span className="tabular-nums">
+              {reviewed_count}/{segment_count}
+            </span>
+          </span>
+        )}
+      </div>
+    </button>
+  );
+};
 
 const ConversationQueue = ({
   conversations,
@@ -323,13 +363,29 @@ const ConversationQueue = ({
       <ScrollArea className="min-h-0 flex-1">
         <div className="p-2">
           {loading && (
-            <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-              Loading…
+            <div className="flex flex-col gap-1">
+              {Array.from({ length: 7 }).map((_, i) => (
+                <div key={i} className="rounded-lg px-2.5 py-2.5">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="size-6 shrink-0 rounded-full" />
+                    <Skeleton className="h-3.5 w-40" />
+                  </div>
+                  <Skeleton className="mt-2 h-2.5 w-28" />
+                </div>
+              ))}
             </div>
           )}
           {!loading && conversations.length === 0 && (
-            <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-              No conversations found
+            <div className="flex h-40 flex-col items-center justify-center gap-2 px-4 text-center">
+              <span className="flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                <Inbox className="size-5" />
+              </span>
+              <p className="text-sm font-medium">No conversations found</p>
+              <p className="text-xs text-muted-foreground">
+                {hasActiveFilters
+                  ? "Try clearing search or filters."
+                  : "Nothing in this dataset yet."}
+              </p>
             </div>
           )}
           {!loading && conversations.length > 0 && (
