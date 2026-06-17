@@ -277,7 +277,12 @@ const ConversationQueue = ({
             <SelectItem value={ALL_TOPICS}>All BERTopic topics</SelectItem>
             {bertopicLabels.topics.map((t) => (
               <SelectItem key={t.topic} value={t.topic}>
-                {formatLabel(t.topic)} ({t.count})
+                <span className="flex-1 min-w-0 truncate">
+                  {formatLabel(t.topic)}
+                </span>
+                <span className="text-muted-foreground text-xs tabular-nums">
+                  {t.count}
+                </span>
               </SelectItem>
             ))}
           </SelectContent>
@@ -301,7 +306,12 @@ const ConversationQueue = ({
             <SelectItem value={ALL_TOPICS}>All BERTopic subtopics</SelectItem>
             {bertopicSubtopics.map((s) => (
               <SelectItem key={s.subtopic} value={s.subtopic}>
-                {formatLabel(s.subtopic)} ({s.count})
+                <span className="flex-1 min-w-0 truncate">
+                  {formatLabel(s.subtopic)}
+                </span>
+                <span className="text-muted-foreground text-xs tabular-nums">
+                  {s.count}
+                </span>
               </SelectItem>
             ))}
           </SelectContent>

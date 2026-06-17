@@ -246,23 +246,32 @@ describe("ConversationQueue (BERTopic filters)", () => {
     await user.click(
       screen.getByRole("combobox", { name: "BERTopic topic" }),
     );
+    const refunds = screen.getByRole("option", { name: /Refunds/ });
+    // Name and count render as separate elements, not "Refunds (7)" inline.
+    expect(within(refunds).getByText("Refunds")).toBeInTheDocument();
+    expect(within(refunds).getByText("7")).toBeInTheDocument();
+    expect(refunds.textContent).not.toContain("(");
     expect(
-      screen.getByRole("option", { name: /Refunds \(7\)/ }),
+      screen.getByRole("option", { name: /Logins/ }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("option", { name: /Logins \(3\)/ }),
-    ).toBeInTheDocument();
+    // The "All BERTopic topics" sentinel row carries no count.
+    const allTopics = screen.getByRole("option", {
+      name: "All BERTopic topics",
+    });
+    expect(allTopics.textContent).toBe("All BERTopic topics");
     // Close and open the subtopic dropdown.
     await user.keyboard("{Escape}");
 
     await user.click(
       screen.getByRole("combobox", { name: "BERTopic subtopic" }),
     );
+    const doubleCharge = screen.getByRole("option", {
+      name: /Double Charge/,
+    });
+    expect(within(doubleCharge).getByText("Double Charge")).toBeInTheDocument();
+    expect(within(doubleCharge).getByText("4")).toBeInTheDocument();
     expect(
-      screen.getByRole("option", { name: /Double Charge \(4\)/ }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("option", { name: /Mfa Reset \(3\)/ }),
+      screen.getByRole("option", { name: /Mfa Reset/ }),
     ).toBeInTheDocument();
   });
 
@@ -279,7 +288,7 @@ describe("ConversationQueue (BERTopic filters)", () => {
     await user.click(
       screen.getByRole("combobox", { name: "BERTopic topic" }),
     );
-    await user.click(screen.getByRole("option", { name: /Logins \(3\)/ }));
+    await user.click(screen.getByRole("option", { name: /Logins/ }));
 
     await waitFor(() =>
       expect(screen.queryByText("conv-001")).not.toBeInTheDocument(),
@@ -302,16 +311,16 @@ describe("ConversationQueue (BERTopic filters)", () => {
     await user.click(
       screen.getByRole("combobox", { name: "BERTopic topic" }),
     );
-    await user.click(screen.getByRole("option", { name: /Refunds \(7\)/ }));
+    await user.click(screen.getByRole("option", { name: /Refunds/ }));
 
     await user.click(
       screen.getByRole("combobox", { name: "BERTopic subtopic" }),
     );
     expect(
-      screen.getByRole("option", { name: /Double Charge \(4\)/ }),
+      screen.getByRole("option", { name: /Double Charge/ }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("option", { name: /Late Refund \(3\)/ }),
+      screen.getByRole("option", { name: /Late Refund/ }),
     ).toBeInTheDocument();
     // The login subtopic is excluded now that "refunds" is the chosen topic.
     expect(
