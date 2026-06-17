@@ -15,6 +15,9 @@ from annotation.backend.models import (
     AnnotateRequest,
     AnnotateResponse,
     AuthConfig,
+    BertopicLabels,
+    BertopicSubtopicCount,
+    BertopicTopicCount,
     BoundaryRequest,
     BoundaryResponse,
     ClearAnnotationResponse,
@@ -186,12 +189,16 @@ def list_conversations(
     status: str | None = Query(default=None),
     topic: str | None = Query(default=None),
     labeler: str | None = Query(default=None),
+    bertopic_topic: str | None = Query(default=None),
+    bertopic_subtopic: str | None = Query(default=None),
 ) -> ConversationPage:
     """Return a PAGINATED, searchable page of conversation summaries.
 
     ``q`` matches conversation ext_id OR message content. ``status``/``topic``
     filter on the effective segmentation. ``labeler`` restricts the page to that
-    labeler's worklist assignments. Shape: ``{items,total,page,page_size}``.
+    labeler's worklist assignments. ``bertopic_topic``/``bertopic_subtopic``
+    restrict to conversations with a gold segment carrying that BERTopic label.
+    Shape: ``{items,total,page,page_size}``.
     """
     _require_dataset(dataset)
     result = db.list_conversations(
@@ -202,6 +209,8 @@ def list_conversations(
         status=status,
         topic=topic,
         labeler=labeler,
+        bertopic_topic=bertopic_topic,
+        bertopic_subtopic=bertopic_subtopic,
     )
     return ConversationPage(
         items=[ConversationSummary(**row) for row in result["items"]],
@@ -342,6 +351,17 @@ def get_used_topics(dataset: str) -> UsedTopics:
     """Return distinct topic names already used for the dataset, frequent first."""
     _require_dataset(dataset)
     return UsedTopics(topics=db.used_topics(dataset))
+
+
+@router.get("/datasets/{dataset}/bertopic-labels", response_model=BertopicLabels)
+def get_bertopic_labels(dataset: str) -> BertopicLabels:
+    """Return distinct BERTopic topics + subtopics with per-conversation counts."""
+    _require_dataset(dataset)
+    labels = db.bertopic_labels(dataset)
+    return BertopicLabels(
+        topics=[BertopicTopicCount(**t) for t in labels["topics"]],
+        subtopics=[BertopicSubtopicCount(**s) for s in labels["subtopics"]],
+    )
 
 
 @router.post(

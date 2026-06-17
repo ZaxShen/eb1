@@ -102,6 +102,28 @@ class UsedTopics(BaseModel):
     topics: list[str] = Field(default_factory=list)
 
 
+class BertopicTopicCount(BaseModel):
+    """A distinct BERTopic topic with its per-conversation count."""
+
+    topic: str
+    count: int
+
+
+class BertopicSubtopicCount(BaseModel):
+    """A distinct BERTopic subtopic with its parent topic and per-conversation count."""
+
+    subtopic: str
+    topic: str | None = None
+    count: int
+
+
+class BertopicLabels(BaseModel):
+    """Distinct BERTopic topics + subtopics (with parent topic) and counts."""
+
+    topics: list[BertopicTopicCount] = Field(default_factory=list)
+    subtopics: list[BertopicSubtopicCount] = Field(default_factory=list)
+
+
 class TaxonomyCreateRequest(BaseModel):
     """Create a taxonomy option (idempotent on dataset/kind/topic/subtopic)."""
 
