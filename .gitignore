@@ -47,6 +47,10 @@ backups/
 *.dump
 cluster_review.json
 
+# Local database data + datasets (never commit; DB lives in a docker volume,
+# backups in backups/, raw dataset payloads in data/)
+data/
+
 # LaTeX build artifacts (under docs/papers/<slug>/)
 docs/papers/**/paper.pdf
 docs/papers/**/*.aux
