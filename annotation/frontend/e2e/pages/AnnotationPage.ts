@@ -97,6 +97,13 @@ export class AnnotationPage {
     await this.searchBox().fill("");
   }
 
+  /** Pick a BERTopic topic in the queue's BERTopic-topic dropdown, narrowing
+   * the list to conversations whose gold segments carry that BERTopic label. */
+  async selectBertopicTopic(label: RegExp | string): Promise<void> {
+    await this.page.getByRole("combobox", { name: "BERTopic topic" }).click();
+    await this.page.getByRole("option", { name: label }).click();
+  }
+
   async nextPage(): Promise<void> {
     await this.page.getByRole("button", { name: "Next page" }).click();
   }

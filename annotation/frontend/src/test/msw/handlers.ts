@@ -1,6 +1,7 @@
 import { http, HttpResponse } from "msw";
 import type {
   AuthConfig,
+  BertopicLabels,
   ConversationSummary,
   ConversationView,
   Stats,
@@ -77,6 +78,28 @@ export const conversations: ConversationSummary[] = [
     reviewed: true,
   },
 ];
+
+// BERTopic gold-segment labels per conversation, driving both the
+// `/bertopic-labels` options endpoint and the `?bertopic_topic=`/
+// `?bertopic_subtopic=` filter the conversations handler honors below.
+export const bertopicByConversation: Record<
+  string,
+  { topic: string; subtopic: string }[]
+> = {
+  "conv-001": [{ topic: "refunds", subtopic: "double_charge" }],
+  "conv-002": [{ topic: "logins", subtopic: "mfa_reset" }],
+};
+
+export const bertopicLabels: BertopicLabels = {
+  topics: [
+    { topic: "refunds", count: 1 },
+    { topic: "logins", count: 1 },
+  ],
+  subtopics: [
+    { subtopic: "double_charge", topic: "refunds", count: 1 },
+    { subtopic: "mfa_reset", topic: "logins", count: 1 },
+  ],
+};
 
 // A conversation detail that carries BOTH the machine `segments` and the
 // human `gold_segments` — the two arrays the re-segment feature confuses.
@@ -189,6 +212,8 @@ export const handlers = [
     const status = url.searchParams.get("status");
     const topic = url.searchParams.get("topic");
     const labeler = url.searchParams.get("labeler");
+    const bertopicTopic = url.searchParams.get("bertopic_topic");
+    const bertopicSubtopic = url.searchParams.get("bertopic_subtopic");
 
     const filtered = conversations.filter((c) => {
       if (q && !c.conversation.toLowerCase().includes(q)) return false;
@@ -196,6 +221,11 @@ export const handlers = [
       if (status === "unreviewed" && c.reviewed) return false;
       if (topic && !c.topics.includes(topic)) return false;
       if (labeler && !worklist[labeler]?.includes(c.conversation)) return false;
+      const bt = bertopicByConversation[c.conversation] ?? [];
+      if (bertopicTopic && !bt.some((b) => b.topic === bertopicTopic))
+        return false;
+      if (bertopicSubtopic && !bt.some((b) => b.subtopic === bertopicSubtopic))
+        return false;
       return true;
     });
 
@@ -293,6 +323,10 @@ export const handlers = [
 
   http.get(`${base}/datasets/:dataset/used-topics`, () =>
     HttpResponse.json({ topics: usedTopics }),
+  ),
+
+  http.get(`${base}/datasets/:dataset/bertopic-labels`, () =>
+    HttpResponse.json(bertopicLabels),
   ),
 
   http.get(`${base}/datasets/:dataset/stats`, () => HttpResponse.json(stats)),
