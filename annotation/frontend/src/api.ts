@@ -172,6 +172,24 @@ export interface ConversationFilters {
   status?: "reviewed" | "unreviewed";
   topic?: string;
   labeler?: string;
+  bertopic_topic?: string;
+  bertopic_subtopic?: string;
+}
+
+export interface BertopicTopicCount {
+  topic: string;
+  count: number;
+}
+
+export interface BertopicSubtopicCount {
+  subtopic: string;
+  topic: string | null;
+  count: number;
+}
+
+export interface BertopicLabels {
+  topics: BertopicTopicCount[];
+  subtopics: BertopicSubtopicCount[];
 }
 
 export interface ConversationQuery extends ConversationFilters {
@@ -244,6 +262,8 @@ export const api = {
         status: query.status,
         topic: query.topic,
         labeler: query.labeler,
+        bertopic_topic: query.bertopic_topic,
+        bertopic_subtopic: query.bertopic_subtopic,
       })}`,
     ),
 
@@ -277,6 +297,13 @@ export const api = {
     request<UsedTopics>(
       `/datasets/${encodeURIComponent(dataset)}/used-topics`,
     ).then((r) => r.topics),
+
+  // Distinct BERTopic topics + subtopics (each with a per-conversation count)
+  // for the queue's BERTopic filter dropdowns, ordered most-frequent first.
+  bertopicLabels: (dataset: string): Promise<BertopicLabels> =>
+    request<BertopicLabels>(
+      `/datasets/${encodeURIComponent(dataset)}/bertopic-labels`,
+    ),
 
   // Create a taxonomy option (idempotent server-side). `kind` defaults to
   // "user" — the open-vocab namespace human edits and combobox proposals land in.
@@ -382,5 +409,8 @@ export type SchemaContract = [
   AssertAssignable<AuthConfig, Schema["AuthConfig"]>,
   AssertAssignable<Stats, Schema["Stats"]>,
   AssertAssignable<UsedTopics, Schema["UsedTopics"]>,
+  AssertAssignable<BertopicLabels, Schema["BertopicLabels"]>,
+  AssertAssignable<BertopicTopicCount, Schema["BertopicTopicCount"]>,
+  AssertAssignable<BertopicSubtopicCount, Schema["BertopicSubtopicCount"]>,
 ];
 

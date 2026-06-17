@@ -10,6 +10,7 @@ import {
 } from "../test/renderWithProviders";
 import {
   api,
+  type BertopicLabels,
   type ConversationFilters,
   type ConversationSummary,
 } from "../api";
@@ -34,7 +35,13 @@ if (!("ResizeObserver" in globalThis)) {
 
 const PAGE_SIZE = 50;
 
-function Harness() {
+const EMPTY_BERTOPIC: BertopicLabels = { topics: [], subtopics: [] };
+
+function Harness({
+  bertopicLabels = EMPTY_BERTOPIC,
+}: {
+  bertopicLabels?: BertopicLabels;
+}) {
   const [items, setItems] = useState<ConversationSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -71,6 +78,7 @@ function Harness() {
         pageSize={PAGE_SIZE}
         total={total}
         taxonomy={buildTaxonomyMap([])}
+        bertopicLabels={bertopicLabels}
         loading={loading}
         onSelect={setSelected}
         onFiltersChange={(f) => {
@@ -190,5 +198,124 @@ describe("ConversationQueue (MSW pagination + search)", () => {
     expect(
       within(screen.getByTestId("selected")).getByText("conv-001"),
     ).toBeInTheDocument();
+  });
+});
+
+const BERTOPIC_LABELS: BertopicLabels = {
+  topics: [
+    { topic: "refunds", count: 7 },
+    { topic: "logins", count: 3 },
+  ],
+  subtopics: [
+    { subtopic: "double_charge", topic: "refunds", count: 4 },
+    { subtopic: "late_refund", topic: "refunds", count: 3 },
+    { subtopic: "mfa_reset", topic: "logins", count: 3 },
+  ],
+};
+
+// Captures the bertopic_* params each refetch sends so the assertions read the
+// production filter contract, not a stub.
+function bertopicCapturingHandler(seen: URLSearchParams[]) {
+  server.use(
+    http.get(`/api/datasets/:dataset/conversations`, ({ request }) => {
+      const url = new URL(request.url);
+      seen.push(url.searchParams);
+      const bt = url.searchParams.get("bertopic_topic");
+      const all = makeConversations(2);
+      const items = bt === "logins" ? all.slice(0, 1) : all;
+      return HttpResponse.json({
+        items,
+        total: items.length,
+        page: 1,
+        page_size: PAGE_SIZE,
+      });
+    }),
+  );
+}
+
+describe("ConversationQueue (BERTopic filters)", () => {
+  it("renders both BERTopic dropdowns populated from labels with counts", async () => {
+    const user = userEvent.setup();
+    usePagedHandler(makeConversations(2));
+    renderWithProviders(<Harness bertopicLabels={BERTOPIC_LABELS} />);
+
+    await waitFor(() =>
+      expect(screen.getByText("conv-000")).toBeInTheDocument(),
+    );
+
+    await user.click(
+      screen.getByRole("combobox", { name: "BERTopic topic" }),
+    );
+    expect(
+      screen.getByRole("option", { name: /Refunds \(7\)/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: /Logins \(3\)/ }),
+    ).toBeInTheDocument();
+    // Close and open the subtopic dropdown.
+    await user.keyboard("{Escape}");
+
+    await user.click(
+      screen.getByRole("combobox", { name: "BERTopic subtopic" }),
+    );
+    expect(
+      screen.getByRole("option", { name: /Double Charge \(4\)/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: /Mfa Reset \(3\)/ }),
+    ).toBeInTheDocument();
+  });
+
+  it("selecting a BERTopic topic refetches with bertopic_topic and narrows the queue", async () => {
+    const user = userEvent.setup();
+    const seen: URLSearchParams[] = [];
+    bertopicCapturingHandler(seen);
+    renderWithProviders(<Harness bertopicLabels={BERTOPIC_LABELS} />);
+
+    await waitFor(() =>
+      expect(screen.getByText("conv-001")).toBeInTheDocument(),
+    );
+
+    await user.click(
+      screen.getByRole("combobox", { name: "BERTopic topic" }),
+    );
+    await user.click(screen.getByRole("option", { name: /Logins \(3\)/ }));
+
+    await waitFor(() =>
+      expect(screen.queryByText("conv-001")).not.toBeInTheDocument(),
+    );
+    expect(screen.getByText("conv-000")).toBeInTheDocument();
+    expect(
+      seen.some((p) => p.get("bertopic_topic") === "logins"),
+    ).toBe(true);
+  });
+
+  it("subtopic options narrow to the chosen topic's children", async () => {
+    const user = userEvent.setup();
+    usePagedHandler(makeConversations(2));
+    renderWithProviders(<Harness bertopicLabels={BERTOPIC_LABELS} />);
+
+    await waitFor(() =>
+      expect(screen.getByText("conv-000")).toBeInTheDocument(),
+    );
+
+    await user.click(
+      screen.getByRole("combobox", { name: "BERTopic topic" }),
+    );
+    await user.click(screen.getByRole("option", { name: /Refunds \(7\)/ }));
+
+    await user.click(
+      screen.getByRole("combobox", { name: "BERTopic subtopic" }),
+    );
+    expect(
+      screen.getByRole("option", { name: /Double Charge \(4\)/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: /Late Refund \(3\)/ }),
+    ).toBeInTheDocument();
+    // The login subtopic is excluded now that "refunds" is the chosen topic.
+    expect(
+      screen.queryByRole("option", { name: /Mfa Reset/ }),
+    ).not.toBeInTheDocument();
   });
 });

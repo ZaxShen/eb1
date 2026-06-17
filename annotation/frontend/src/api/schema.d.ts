@@ -44,6 +44,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/datasets/{dataset}/bertopic-labels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Bertopic Labels
+         * @description Return distinct BERTopic topics + subtopics with per-conversation counts.
+         */
+        get: operations["get_bertopic_labels_api_datasets__dataset__bertopic_labels_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/datasets/{dataset}/conversations": {
         parameters: {
             query?: never;
@@ -57,7 +77,9 @@ export interface paths {
          *
          *     ``q`` matches conversation ext_id OR message content. ``status``/``topic``
          *     filter on the effective segmentation. ``labeler`` restricts the page to that
-         *     labeler's worklist assignments. Shape: ``{items,total,page,page_size}``.
+         *     labeler's worklist assignments. ``bertopic_topic``/``bertopic_subtopic``
+         *     restrict to conversations with a gold segment carrying that BERTopic label.
+         *     Shape: ``{items,total,page,page_size}``.
          */
         get: operations["list_conversations_api_datasets__dataset__conversations_get"];
         put?: never;
@@ -308,6 +330,38 @@ export interface components {
         AuthConfig: {
             /** Sso Enabled */
             sso_enabled: boolean;
+        };
+        /**
+         * BertopicLabels
+         * @description Distinct BERTopic topics + subtopics (with parent topic) and counts.
+         */
+        BertopicLabels: {
+            /** Subtopics */
+            subtopics?: components["schemas"]["BertopicSubtopicCount"][];
+            /** Topics */
+            topics?: components["schemas"]["BertopicTopicCount"][];
+        };
+        /**
+         * BertopicSubtopicCount
+         * @description A distinct BERTopic subtopic with its parent topic and per-conversation count.
+         */
+        BertopicSubtopicCount: {
+            /** Count */
+            count: number;
+            /** Subtopic */
+            subtopic: string;
+            /** Topic */
+            topic?: string | null;
+        };
+        /**
+         * BertopicTopicCount
+         * @description A distinct BERTopic topic with its per-conversation count.
+         */
+        BertopicTopicCount: {
+            /** Count */
+            count: number;
+            /** Topic */
+            topic: string;
         };
         /**
          * BoundaryRequest
@@ -690,6 +744,39 @@ export interface operations {
             };
         };
     };
+    get_bertopic_labels_api_datasets__dataset__bertopic_labels_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                dataset: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BertopicLabels"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_conversations_api_datasets__dataset__conversations_get: {
         parameters: {
             query?: {
@@ -699,6 +786,8 @@ export interface operations {
                 status?: string | null;
                 topic?: string | null;
                 labeler?: string | null;
+                bertopic_topic?: string | null;
+                bertopic_subtopic?: string | null;
             };
             header?: {
                 authorization?: string | null;

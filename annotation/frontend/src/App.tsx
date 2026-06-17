@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import {
   api,
+  type BertopicLabels,
   type BoundarySpan,
   type ConversationFilters,
   type ConversationSummary,
@@ -130,6 +131,10 @@ function AnnotationApp() {
 
   const [taxonomyEntries, setTaxonomyEntries] = useState<TaxonomyEntry[]>([]);
   const [usedTopics, setUsedTopics] = useState<string[]>([]);
+  const [bertopicLabels, setBertopicLabels] = useState<BertopicLabels>({
+    topics: [],
+    subtopics: [],
+  });
   const [stats, setStats] = useState<Stats | null>(null);
   const [taxonomyManagerOpen, setTaxonomyManagerOpen] = useState(false);
 
@@ -185,6 +190,17 @@ function AnnotationApp() {
     [fail],
   );
 
+  // BERTopic topic/subtopic filter options for the queue, refreshed per dataset.
+  const refreshBertopicLabels = useCallback(
+    (ds: string) => {
+      api
+        .bertopicLabels(ds)
+        .then(setBertopicLabels)
+        .catch(() => setBertopicLabels({ topics: [], subtopics: [] }));
+    },
+    [],
+  );
+
   const refreshQueue = useCallback(
     (
       ds: string,
@@ -222,7 +238,8 @@ function AnnotationApp() {
     setPage(1);
     void refreshTaxonomy(dataset);
     refreshStats(dataset);
-  }, [dataset, refreshTaxonomy, refreshStats]);
+    refreshBertopicLabels(dataset);
+  }, [dataset, refreshTaxonomy, refreshStats, refreshBertopicLabels]);
 
   // A new filter or search resets to the first page; changing the page keeps
   // the current filter/search. Either way the queue refetches server-side.
@@ -632,6 +649,7 @@ function AnnotationApp() {
                 pageSize={PAGE_SIZE}
                 total={queueTotal}
                 taxonomy={taxonomy}
+                bertopicLabels={bertopicLabels}
                 loading={queueLoading}
                 onSelect={loadConversation}
                 onFiltersChange={setFiltersAndReset}

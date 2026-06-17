@@ -68,6 +68,21 @@ WORKLIST: dict[str, list[dict]] = {
 SEED_TOPIC = "mock_topic"
 SEED_SUBTOPIC = "mock subtopic"
 
+# BERTopic gold labels for the queue's BERTopic filter, keyed by dataset then
+# conversation ext_id: each named conversation gets one whole-conversation
+# ``source='gold'`` segment carrying a distinct BERTopic topic/subtopic, so
+# picking a BERTopic topic in the queue narrows it to exactly that conversation.
+# Scoped to ``e2e_superdialseg_0002`` — a conversation no other spec opens — so
+# the injected gold segment never disturbs the labeling/operations fixtures.
+BERTOPIC_GOLD: dict[str, dict[str, dict]] = {
+    "superdialseg": {
+        "e2e_superdialseg_0002": {
+            "bertopic_topic": "billing_disputes",
+            "bertopic_subtopic": "double_charge",
+        },
+    },
+}
+
 # A tiny relabel taxonomy so the annotation panel's selects have options.
 TAXONOMY = [
     {"topic": SEED_TOPIC, "subtopic": SEED_SUBTOPIC, "description": "Seeded fixture label."},
@@ -83,6 +98,42 @@ def _read_rows(path: Path) -> list[dict]:
         if line:
             rows.append(json.loads(line))
     return rows
+
+
+def _seed_bertopic_gold(name: str, conversations: list[dict]) -> int:
+    """Attach one BERTopic-labeled ``source='gold'`` segment per conversation.
+
+    The queue's BERTopic filter restricts to conversations with a gold segment
+    carrying the chosen label, so the e2e flow needs gold rows whose
+    ``bertopic_topic``/``bertopic_subtopic`` columns are set. Idempotent: the
+    seed resets the dataset on every run.
+    """
+    labels = BERTOPIC_GOLD.get(name)
+    if not labels:
+        return 0
+    by_ext = {conv["ext_id"]: conv for conv in conversations}
+    written = 0
+    pool = db.get_pool()
+    with pool.connection() as conn:
+        with conn.transaction():
+            for ext_id, label in labels.items():
+                conv = by_ext.get(ext_id)
+                conv_id = db.conversation_id(name, ext_id)
+                if conv is None or conv_id is None:
+                    continue
+                conn.execute(
+                    "INSERT INTO segment (conversation_id, chunk_index, "
+                    "message_indices, source, bertopic_topic, bertopic_subtopic) "
+                    "VALUES (%s, 0, %s, 'gold', %s, %s)",
+                    (
+                        conv_id,
+                        list(range(len(conv["messages"]))),
+                        label["bertopic_topic"],
+                        label["bertopic_subtopic"],
+                    ),
+                )
+                written += 1
+    return written
 
 
 def build_dataset(name: str) -> dict:
@@ -113,12 +164,14 @@ def build_dataset(name: str) -> dict:
         )
 
     db.seed_conversations(name, conversations, taxonomy=TAXONOMY, reset=True)
+    bertopic = _seed_bertopic_gold(name, conversations)
     worklist = WORKLIST.get(name, [])
     if worklist:
         db.load_worklist(name, worklist)
     return {
         "conversations": len(conversations),
         "segments": len(conversations),
+        "bertopic": bertopic,
         "worklist": len(worklist),
     }
 

@@ -5,10 +5,15 @@ import {
   MessagesSquare,
   RotateCcw,
   Search,
+  Sparkles,
   Tag,
   User,
 } from "lucide-react";
-import type { ConversationFilters, ConversationSummary } from "../api";
+import type {
+  BertopicLabels,
+  ConversationFilters,
+  ConversationSummary,
+} from "../api";
 import type { TaxonomyMap } from "../lib/taxonomy";
 import { sortedTopics } from "../lib/taxonomy";
 import { Button } from "@/components/ui/button";
@@ -38,6 +43,7 @@ interface ConversationQueueProps {
   pageSize: number;
   total: number;
   taxonomy: TaxonomyMap;
+  bertopicLabels: BertopicLabels;
   loading: boolean;
   onSelect: (conversation: string) => void;
   onFiltersChange: (filters: ConversationFilters) => void;
@@ -106,6 +112,7 @@ const ConversationQueue = ({
   pageSize,
   total,
   taxonomy,
+  bertopicLabels,
   loading,
   onSelect,
   onFiltersChange,
@@ -115,6 +122,14 @@ const ConversationQueue = ({
   const topics = sortedTopics(taxonomy);
   const update = (patch: Partial<ConversationFilters>) =>
     onFiltersChange({ ...filters, ...patch });
+
+  // BERTopic subtopic options narrow to the picked topic's children; with no
+  // topic chosen every subtopic is offered.
+  const bertopicSubtopics = filters.bertopic_topic
+    ? bertopicLabels.subtopics.filter(
+        (s) => s.topic === filters.bertopic_topic,
+      )
+    : bertopicLabels.subtopics;
 
   // Local mirror of the search box so typing is instant; the committed `q`
   // (which triggers a server refetch) is debounced off it.
@@ -138,6 +153,8 @@ const ConversationQueue = ({
   const hasActiveFilters =
     filters.status !== undefined ||
     filters.topic !== undefined ||
+    filters.bertopic_topic !== undefined ||
+    filters.bertopic_subtopic !== undefined ||
     search !== "";
 
   const statusOptions: {
@@ -222,6 +239,69 @@ const ConversationQueue = ({
             {topics.map((t) => (
               <SelectItem key={t} value={t}>
                 {taxonomy[t]?.name ?? formatLabel(t)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={filters.bertopic_topic ?? ALL_TOPICS}
+          onValueChange={(v) => {
+            const next = v === ALL_TOPICS ? undefined : v;
+            // A topic switch invalidates a subtopic that isn't its child.
+            const keepSub =
+              filters.bertopic_subtopic !== undefined &&
+              (next === undefined ||
+                bertopicLabels.subtopics.some(
+                  (s) =>
+                    s.subtopic === filters.bertopic_subtopic &&
+                    s.topic === next,
+                ));
+            update({
+              bertopic_topic: next,
+              bertopic_subtopic: keepSub
+                ? filters.bertopic_subtopic
+                : undefined,
+            });
+          }}
+        >
+          <SelectTrigger
+            size="sm"
+            className="w-full"
+            aria-label="BERTopic topic"
+          >
+            <Sparkles className="size-3.5 text-muted-foreground" />
+            <SelectValue placeholder="All BERTopic topics" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_TOPICS}>All BERTopic topics</SelectItem>
+            {bertopicLabels.topics.map((t) => (
+              <SelectItem key={t.topic} value={t.topic}>
+                {formatLabel(t.topic)} ({t.count})
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={filters.bertopic_subtopic ?? ALL_TOPICS}
+          onValueChange={(v) =>
+            update({ bertopic_subtopic: v === ALL_TOPICS ? undefined : v })
+          }
+        >
+          <SelectTrigger
+            size="sm"
+            className="w-full"
+            aria-label="BERTopic subtopic"
+          >
+            <Sparkles className="size-3.5 text-muted-foreground" />
+            <SelectValue placeholder="All BERTopic subtopics" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_TOPICS}>All BERTopic subtopics</SelectItem>
+            {bertopicSubtopics.map((s) => (
+              <SelectItem key={s.subtopic} value={s.subtopic}>
+                {formatLabel(s.subtopic)} ({s.count})
               </SelectItem>
             ))}
           </SelectContent>

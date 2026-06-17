@@ -75,6 +75,76 @@
         "title": "AuthConfig",
         "type": "object"
       },
+      "BertopicLabels": {
+        "description": "Distinct BERTopic topics + subtopics (with parent topic) and counts.",
+        "properties": {
+          "subtopics": {
+            "items": {
+              "$ref": "#/components/schemas/BertopicSubtopicCount"
+            },
+            "title": "Subtopics",
+            "type": "array"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/BertopicTopicCount"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "title": "BertopicLabels",
+        "type": "object"
+      },
+      "BertopicSubtopicCount": {
+        "description": "A distinct BERTopic subtopic with its parent topic and per-conversation count.",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "subtopic": {
+            "title": "Subtopic",
+            "type": "string"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic"
+          }
+        },
+        "required": [
+          "subtopic",
+          "count"
+        ],
+        "title": "BertopicSubtopicCount",
+        "type": "object"
+      },
+      "BertopicTopicCount": {
+        "description": "A distinct BERTopic topic with its per-conversation count.",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "topic": {
+            "title": "Topic",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic",
+          "count"
+        ],
+        "title": "BertopicTopicCount",
+        "type": "object"
+      },
       "BoundaryRequest": {
         "description": "Replace a conversation's gold spans (split/merge).",
         "properties": {
@@ -979,9 +1049,65 @@
         "summary": "List Datasets"
       }
     },
+    "/api/datasets/{dataset}/bertopic-labels": {
+      "get": {
+        "description": "Return distinct BERTopic topics + subtopics with per-conversation counts.",
+        "operationId": "get_bertopic_labels_api_datasets__dataset__bertopic_labels_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BertopicLabels"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Bertopic Labels"
+      }
+    },
     "/api/datasets/{dataset}/conversations": {
       "get": {
-        "description": "Return a PAGINATED, searchable page of conversation summaries.\n\n``q`` matches conversation ext_id OR message content. ``status``/``topic``\nfilter on the effective segmentation. ``labeler`` restricts the page to that\nlabeler's worklist assignments. Shape: ``{items,total,page,page_size}``.",
+        "description": "Return a PAGINATED, searchable page of conversation summaries.\n\n``q`` matches conversation ext_id OR message content. ``status``/``topic``\nfilter on the effective segmentation. ``labeler`` restricts the page to that\nlabeler's worklist assignments. ``bertopic_topic``/``bertopic_subtopic``\nrestrict to conversations with a gold segment carrying that BERTopic label.\nShape: ``{items,total,page,page_size}``.",
         "operationId": "list_conversations_api_datasets__dataset__conversations_get",
         "parameters": [
           {
@@ -1078,6 +1204,38 @@
                 }
               ],
               "title": "Labeler"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bertopic_topic",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bertopic Topic"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bertopic_subtopic",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bertopic Subtopic"
             }
           },
           {

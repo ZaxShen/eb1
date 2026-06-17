@@ -811,15 +811,19 @@ def list_conversations(
     status: str | None = None,
     topic: str | None = None,
     labeler: str | None = None,
+    bertopic_topic: str | None = None,
+    bertopic_subtopic: str | None = None,
 ) -> dict:
     """Return a PAGINATED, searchable page of conversation summaries.
 
     ``q`` matches a conversation's ext_id OR any message content (trigram ILIKE).
     ``status`` (``reviewed``/``unreviewed``) and ``topic`` filter on the EFFECTIVE
     segmentation. ``labeler`` restricts the page to ext_ids assigned to that
-    labeler in ``worklist`` (the per-labeler queue); pagination/search compose
-    over the filtered set. Returns ``{items, total, page, page_size}`` where
-    ``total`` is the count AFTER the ``q``/``labeler`` filters but BEFORE
+    labeler in ``worklist`` (the per-labeler queue). ``bertopic_topic`` /
+    ``bertopic_subtopic`` restrict to conversations with a ``source='gold'``
+    segment carrying that BERTopic label; pagination/search compose over the
+    filtered set. Returns ``{items, total, page, page_size}`` where ``total`` is
+    the count AFTER the ``q``/``labeler``/``bertopic_*`` filters but BEFORE
     status/topic (which are computed per-conversation on the page). Items are
     summaries:
     ``{conversation, message_count, segment_count, topics, reviewed_count, reviewed}``.
@@ -839,6 +843,22 @@ def list_conversations(
             )
         )
         params.append(labeler)
+    if bertopic_topic:
+        where.append(
+            sql.SQL(
+                "EXISTS (SELECT 1 FROM segment s WHERE s.conversation_id = c.id "
+                "AND s.source = 'gold' AND s.bertopic_topic = %s)"
+            )
+        )
+        params.append(bertopic_topic)
+    if bertopic_subtopic:
+        where.append(
+            sql.SQL(
+                "EXISTS (SELECT 1 FROM segment s WHERE s.conversation_id = c.id "
+                "AND s.source = 'gold' AND s.bertopic_subtopic = %s)"
+            )
+        )
+        params.append(bertopic_subtopic)
     if q:
         like = f"%{q}%"
         where.append(
@@ -1287,6 +1307,46 @@ def used_topics(dataset: str) -> list[str]:
             (dataset,),
         ).fetchall()
     return [r["topic"] for r in rows]
+
+
+def bertopic_labels(dataset: str) -> dict:
+    """Return distinct BERTopic topics + subtopics with per-conversation counts.
+
+    ``count`` is the number of DISTINCT conversations holding a ``source='gold'``
+    segment with that label; NULL labels are excluded and rows are ordered by
+    count desc (then label asc). Subtopic rows carry their parent ``topic`` so
+    the frontend can narrow subtopics by selected topic. Shape:
+    ``{topics: [{topic, count}], subtopics: [{subtopic, topic, count}]}``.
+    """
+    pool = get_pool()
+    with pool.connection() as conn:
+        topics = conn.execute(
+            "SELECT s.bertopic_topic AS topic, "
+            "COUNT(DISTINCT s.conversation_id) AS count "
+            "FROM segment s JOIN conversation c ON c.id = s.conversation_id "
+            "WHERE c.dataset = %s AND s.source = 'gold' "
+            "AND s.bertopic_topic IS NOT NULL "
+            "GROUP BY s.bertopic_topic "
+            "ORDER BY count DESC, s.bertopic_topic ASC",
+            (dataset,),
+        ).fetchall()
+        subtopics = conn.execute(
+            "SELECT s.bertopic_subtopic AS subtopic, s.bertopic_topic AS topic, "
+            "COUNT(DISTINCT s.conversation_id) AS count "
+            "FROM segment s JOIN conversation c ON c.id = s.conversation_id "
+            "WHERE c.dataset = %s AND s.source = 'gold' "
+            "AND s.bertopic_subtopic IS NOT NULL "
+            "GROUP BY s.bertopic_subtopic, s.bertopic_topic "
+            "ORDER BY count DESC, s.bertopic_subtopic ASC",
+            (dataset,),
+        ).fetchall()
+    return {
+        "topics": [{"topic": r["topic"], "count": r["count"]} for r in topics],
+        "subtopics": [
+            {"subtopic": r["subtopic"], "topic": r["topic"], "count": r["count"]}
+            for r in subtopics
+        ],
+    }
 
 
 def stats(dataset: str) -> dict:
