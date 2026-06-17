@@ -1,5 +1,12 @@
 import { useMemo, type ReactNode } from "react";
-import { Check, ChevronLeft, ChevronRight, Save } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  MousePointerClick,
+  Save,
+} from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { SegmentSummary } from "../api";
 import type { TaxonomyMap } from "../lib/taxonomy";
 import { sortedTopics, subtopicsFor } from "../lib/taxonomy";
@@ -70,9 +77,11 @@ const AnnotationPanel = ({
 
   if (!segment) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-        Select a segment in the stream
-      </div>
+      <EmptyState
+        icon={MousePointerClick}
+        title="Select a segment in the stream"
+        hint="Click a segment to edit its topic and labels."
+      />
     );
   }
 

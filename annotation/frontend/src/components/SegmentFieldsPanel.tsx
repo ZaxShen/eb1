@@ -1,4 +1,6 @@
 import { Fragment, type ReactNode } from "react";
+import { ListChecks } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { SegmentSummary } from "../api";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -30,9 +32,11 @@ const FieldRow = ({
 const SegmentFieldsPanel = ({ segment }: SegmentFieldsPanelProps) => {
   if (!segment) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-        Select a segment
-      </div>
+      <EmptyState
+        icon={ListChecks}
+        title="Select a segment"
+        hint="Its fields and metadata will show here."
+      />
     );
   }
 

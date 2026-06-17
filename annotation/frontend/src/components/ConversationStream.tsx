@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { ArrowUpToLine, Scissors } from "lucide-react";
+import { ArrowUpToLine, MessagesSquare, Scissors } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 import type {
   ConversationView,
   Message,
@@ -238,9 +239,11 @@ const ConversationStream = ({
 
   if (!view) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-        Select a conversation
-      </div>
+      <EmptyState
+        icon={MessagesSquare}
+        title="Select a conversation"
+        hint="Pick one from the queue to review its segments."
+      />
     );
   }
 
