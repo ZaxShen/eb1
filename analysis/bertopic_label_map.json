@@ -1,0 +1,1109 @@
+{
+  "dataset": "superdialseg",
+  "pairs": [
+    {
+      "topic_raw": "address / registration / id / plates",
+      "subtopic_raw": "surrender / plates / vehicle / personalized",
+      "topic": "Vehicle Registration & ID",
+      "subtopic": "Surrendering Plates"
+    },
+    {
+      "topic_raw": "address / registration / id / plates",
+      "subtopic_raw": "changes / irp / fax / irp6",
+      "topic": "Vehicle Registration & ID",
+      "subtopic": "IRP Record Changes"
+    },
+    {
+      "topic_raw": "address / registration / id / plates",
+      "subtopic_raw": "update / address / change / safe",
+      "topic": "Vehicle Registration & ID",
+      "subtopic": "Updating Your Address"
+    },
+    {
+      "topic_raw": "address / registration / id / plates",
+      "subtopic_raw": "weeks / mailing / id / document",
+      "topic": "Vehicle Registration & ID",
+      "subtopic": "ID Mailing Times"
+    },
+    {
+      "topic_raw": "address / registration / id / plates",
+      "subtopic_raw": "id / replace / non / expired",
+      "topic": "Vehicle Registration & ID",
+      "subtopic": "Replacing Your ID"
+    },
+    {
+      "topic_raw": "address / registration / id / plates",
+      "subtopic_raw": "21 / turning / birthday / soon",
+      "topic": "Vehicle Registration & ID",
+      "subtopic": "Turning 21 ID Update"
+    },
+    {
+      "topic_raw": "address / registration / id / plates",
+      "subtopic_raw": "snowmobile / register / dealer / vehicle",
+      "topic": "Vehicle Registration & ID",
+      "subtopic": "Registering A Snowmobile"
+    },
+    {
+      "topic_raw": "address / registration / id / plates",
+      "subtopic_raw": "alternate / address / mv44 / sent",
+      "topic": "Vehicle Registration & ID",
+      "subtopic": "Alternate Mailing Address"
+    },
+    {
+      "topic_raw": "address / registration / id / plates",
+      "subtopic_raw": "real / travel / id / second",
+      "topic": "Vehicle Registration & ID",
+      "subtopic": "Real ID For Travel"
+    },
+    {
+      "topic_raw": "address / registration / id / plates",
+      "subtopic_raw": "address / voter / postal / political",
+      "topic": "Vehicle Registration & ID",
+      "subtopic": "Address And Voter Records"
+    },
+    {
+      "topic_raw": "address / registration / id / plates",
+      "subtopic_raw": "irp / changes / add / common",
+      "topic": "Vehicle Registration & ID",
+      "subtopic": "Common IRP Changes"
+    },
+    {
+      "topic_raw": "address / registration / id / plates",
+      "subtopic_raw": "title / lien / remove / lienholder",
+      "topic": "Vehicle Registration & ID",
+      "subtopic": "Title Liens And Lienholders"
+    },
+    {
+      "topic_raw": "address / registration / id / plates",
+      "subtopic_raw": "complaint / shop / repair / resolve",
+      "topic": "Vehicle Registration & ID",
+      "subtopic": "Repair Shop Complaints"
+    },
+    {
+      "topic_raw": "address / registration / id / plates",
+      "subtopic_raw": "sticker / refund / forms / eligibile",
+      "topic": "Vehicle Registration & ID",
+      "subtopic": "Registration Sticker Refunds"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "aid / financial / school / promissory",
+      "topic": "Federal Student Aid",
+      "subtopic": "Promissory Note Basics"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "share / counselors / potential / mentors",
+      "topic": "Federal Student Aid",
+      "subtopic": "IT Standards Library"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "plus / parent / direct / loan",
+      "topic": "Federal Student Aid",
+      "subtopic": "Parent PLUS Loans"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "checklists / steps / fun / studying",
+      "topic": "Federal Student Aid",
+      "subtopic": "College Prep Checklists"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "forbearance / general / vmli / discretionary",
+      "topic": "Federal Student Aid",
+      "subtopic": "Loan Forbearance Options"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "renewal / log / form / app",
+      "topic": "Federal Student Aid",
+      "subtopic": "Renewing Your Application"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "discharge / closes / loan / closed",
+      "topic": "Federal Student Aid",
+      "subtopic": "Closed School Loan Discharge"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "renew / fafsa / year / academic",
+      "topic": "Federal Student Aid",
+      "subtopic": "Annual FAFSA Renewal"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "schools / list / order / state",
+      "topic": "Federal Student Aid",
+      "subtopic": "Listing Schools On FAFSA"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "reviews / final / program / review",
+      "topic": "Federal Student Aid",
+      "subtopic": "School Program Reviews"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "incomedriven / income / size / payment",
+      "topic": "Federal Student Aid",
+      "subtopic": "Income-Driven Repayment"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "father / parents / legal / parent",
+      "topic": "Federal Student Aid",
+      "subtopic": "Parent Info On FAFSA"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "checklist / checklists / grade / studies",
+      "topic": "Federal Student Aid",
+      "subtopic": "Checklists For Parents"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "sar / verification / selected / data",
+      "topic": "Federal Student Aid",
+      "subtopic": "Student Aid Report"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "fafsa4caster / aid / fafsa / basically",
+      "topic": "Federal Student Aid",
+      "subtopic": "Maximizing College Aid"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "extended / repayment / plan / lower",
+      "topic": "Federal Student Aid",
+      "subtopic": "Extended Repayment Plan"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "loans / william / ford / extended",
+      "topic": "Federal Student Aid",
+      "subtopic": "Eligible Federal Loans"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "outstanding / ffel / 30000 / direct",
+      "topic": "Federal Student Aid",
+      "subtopic": "Outstanding FFEL Balances"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "forgiveness / pslf / public / tribal",
+      "topic": "Federal Student Aid",
+      "subtopic": "Public Service Loan Forgiveness"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "list / schools / fafsa / determine",
+      "topic": "Federal Student Aid",
+      "subtopic": "Maximum Schools On FAFSA"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "correct / fafsa / processed / paper",
+      "topic": "Federal Student Aid",
+      "subtopic": "Correcting Your FAFSA"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "magi / adjustment / tax / adjusted",
+      "topic": "Federal Student Aid",
+      "subtopic": "Adjusted Tax Income"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "youtube / videos / playlist / college",
+      "topic": "Federal Student Aid",
+      "subtopic": "Video Resources"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "citizenship / nonus / citizen / citizens",
+      "topic": "Federal Student Aid",
+      "subtopic": "Non-Citizen Eligibility"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "tuition / expenses / tax / discounts",
+      "topic": "Federal Student Aid",
+      "subtopic": "Education Tax Benefits"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "fafsa / form / asking / amounts",
+      "topic": "Federal Student Aid",
+      "subtopic": "Filling Out The FAFSA"
+    },
+    {
+      "topic_raw": "aid / loan / federal / student",
+      "subtopic_raw": "obligation / tpd / permanently / monitoring",
+      "topic": "Federal Student Aid",
+      "subtopic": "Total And Permanent Disability Discharge"
+    },
+    {
+      "topic_raw": "appeal / hearing / decision / request",
+      "subtopic_raw": "appeal / reconsideration / council / appeals",
+      "topic": "Appeals & Hearings",
+      "subtopic": "Filing An Appeal"
+    },
+    {
+      "topic_raw": "appeal / hearing / decision / request",
+      "subtopic_raw": "soc / statement / modernized / opt",
+      "topic": "Appeals & Hearings",
+      "subtopic": "Listing Appeal Issues"
+    },
+    {
+      "topic_raw": "appeal / hearing / decision / request",
+      "subtopic_raw": "hearing / determination / non / reconsideration",
+      "topic": "Appeals & Hearings",
+      "subtopic": "Requesting A Hearing"
+    },
+    {
+      "topic_raw": "appeal / hearing / decision / request",
+      "subtopic_raw": "hearing / video / conference / board",
+      "topic": "Appeals & Hearings",
+      "subtopic": "Board Hearing Options"
+    },
+    {
+      "topic_raw": "appeal / hearing / decision / request",
+      "subtopic_raw": "disagree / represent / boards / decision",
+      "topic": "Appeals & Hearings",
+      "subtopic": "Appealing A Board Decision"
+    },
+    {
+      "topic_raw": "appeal / hearing / decision / request",
+      "subtopic_raw": "hearing / reschedule / reason / board",
+      "topic": "Appeals & Hearings",
+      "subtopic": "Hearing Schedules"
+    },
+    {
+      "topic_raw": "appeal / hearing / decision / request",
+      "subtopic_raw": "evidence / 90 / option / different",
+      "topic": "Appeals & Hearings",
+      "subtopic": "Submitting New Evidence"
+    },
+    {
+      "topic_raw": "appeal / hearing / decision / request",
+      "subtopic_raw": "hearings / judge / hearing / board",
+      "topic": "Appeals & Hearings",
+      "subtopic": "Hearing With A Judge"
+    },
+    {
+      "topic_raw": "appeal / hearing / decision / request",
+      "subtopic_raw": "recently / denied / appeal / internet",
+      "topic": "Appeals & Hearings",
+      "subtopic": "Appealing A Denied Claim"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "retirement / family / planner / planning",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Retirement Planning For Family"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "exam / claim / ratings / rating",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Disability Severity Ratings"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "survivor / survivors / grandchild / family",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Survivor Benefits"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "hospital / disability / surgery / radiation",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Eligibility For Disability Benefits"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "spouse / record / higher / combination",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Spouse Benefit Amounts"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "denied / collect / disabilityprograms / largest",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Denied Disability Applications"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "children / family / maximum / limit",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Family Benefit Maximum"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "working / future / work / higher",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Working While On Benefits"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "compensation / payments / kind / supporting",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Filing A Disability Claim"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "kit / starter / kits / interview",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Disability Starter Kit"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "credits / earn / credit / taxes",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Earning Work Credits"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "work / disabled / qualifying / improves",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Work And Disability Status"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "work / incentives / live / people",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Return-To-Work Incentives"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "child / evaluate / 18 / mental",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Benefits For A Child"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "continue / cases / long / disabled",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Continuing Disability Benefits"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "condition / expected / improve / improvements",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Reporting Condition Improvements"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "estimated / gpo / spouses / spouse",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Estimating Spouse Benefits"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "worked / 62 / spouse / 65",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Spouse Benefit Eligibility"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "earnings / limit / earn / younger",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Earnings Limit Deductions"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "soon / apply / disabled / month",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "When To Apply For Disability"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "embassy / territories / consulate / lump",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Applying From Abroad"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "month / began / sixth / ssi",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "When SSI Payments Begin"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "elses / family / members / married",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Family Members Who Can Apply"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "abilities / mapping / housewife / interests",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Benefits For Non-Workers"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "total / family / half / benefit",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Spouse Benefit Limit"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "17640 / limit / earn / 2019",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "2019 Earnings Limit"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "ssi / pays / income / adults",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "SSI Income Documentation"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "birth / widow / definition / adults",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Disability Documentation"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "decrease / spouse / paid / value",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Spouse Benefit Impact"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "early / age / start / retire",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Retiring Early"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "estimate / estimator / calculators / estimates",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Benefit Estimators"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "process / determination / 52 / claims",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Disability Determination Process"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "read / publications / childrens / publication",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Benefit Publications"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "stop / cause / substantial / things",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "What Stops Your Benefits"
+    },
+    {
+      "topic_raw": "benefits / disability / retirement / security",
+      "subtopic_raw": "delayed / delay / retroactive / retirement",
+      "topic": "Disability & Retirement Benefits",
+      "subtopic": "Delayed Retirement Credits"
+    },
+    {
+      "topic_raw": "civil / fee / pay / penalty",
+      "subtopic_raw": "suspension / privilege / end / suspensions",
+      "topic": "Fees & Penalties",
+      "subtopic": "License Suspensions"
+    },
+    {
+      "topic_raw": "civil / fee / pay / penalty",
+      "subtopic_raw": "penalty / civil / issued / fine",
+      "topic": "Fees & Penalties",
+      "subtopic": "Civil Penalty Costs"
+    },
+    {
+      "topic_raw": "civil / fee / pay / penalty",
+      "subtopic_raw": "fee / mctd / metropolitan / queens",
+      "topic": "Fees & Penalties",
+      "subtopic": "MCTD Fee"
+    },
+    {
+      "topic_raw": "civil / fee / pay / penalty",
+      "subtopic_raw": "uninsured / accident / civil / penalty",
+      "topic": "Fees & Penalties",
+      "subtopic": "Uninsured Operation Penalty"
+    },
+    {
+      "topic_raw": "civil / fee / pay / penalty",
+      "subtopic_raw": "chart / charts / reference / lbs",
+      "topic": "Fees & Penalties",
+      "subtopic": "Vehicle Rate Charts"
+    },
+    {
+      "topic_raw": "civil / fee / pay / penalty",
+      "subtopic_raw": "sales / tax / taxes / fees",
+      "topic": "Fees & Penalties",
+      "subtopic": "Vehicle Use Tax"
+    },
+    {
+      "topic_raw": "civil / fee / pay / penalty",
+      "subtopic_raw": "suspension / termination / definite / pay",
+      "topic": "Fees & Penalties",
+      "subtopic": "Paying At The DMV"
+    },
+    {
+      "topic_raw": "civil / fee / pay / penalty",
+      "subtopic_raw": "civil / fines / pay / penalty",
+      "topic": "Fees & Penalties",
+      "subtopic": "Paying Civil Fines Online"
+    },
+    {
+      "topic_raw": "civil / fee / pay / penalty",
+      "subtopic_raw": "ticket / traffic / plea / boroughs",
+      "topic": "Fees & Penalties",
+      "subtopic": "Traffic Ticket Pleas"
+    },
+    {
+      "topic_raw": "civil / fee / pay / penalty",
+      "subtopic_raw": "plate / fee / 1250 / individual",
+      "topic": "Fees & Penalties",
+      "subtopic": "License Plate Fees"
+    },
+    {
+      "topic_raw": "counseling / entrance / direct / exit",
+      "subtopic_raw": "counseling / entrance / exit / unsubsidized",
+      "topic": "Loan Counseling",
+      "subtopic": "Entrance And Exit Counseling"
+    },
+    {
+      "topic_raw": "download / questions / topic / 112",
+      "subtopic_raw": "112 / project / fact / testing",
+      "topic": "General Inquiries",
+      "subtopic": "Exam Process Questions"
+    },
+    {
+      "topic_raw": "download / questions / topic / 112",
+      "subtopic_raw": "topic / tickets / suggest / click",
+      "topic": "General Inquiries",
+      "subtopic": "Suggested Topics"
+    },
+    {
+      "topic_raw": "download / questions / topic / 112",
+      "subtopic_raw": "frequently / higherlevel / asked / reviews",
+      "topic": "General Inquiries",
+      "subtopic": "Downloading Forms"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "mydmv / create / cdl / account",
+      "topic": "Driver Licensing",
+      "subtopic": "MyDMV Account Setup"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "test / road / instructor / prelicensing",
+      "topic": "Driver Licensing",
+      "subtopic": "Road And Vision Tests"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "inspector / inspection / albany / business",
+      "topic": "Driver Licensing",
+      "subtopic": "Commercial Driving Privileges"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "record / cdl / driving / summary",
+      "topic": "Driver Licensing",
+      "subtopic": "CDL Driving Record"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "certification / medical / unit / usdot",
+      "topic": "Driver Licensing",
+      "subtopic": "Medical Certification"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "18 / restrictions / graduated / 17",
+      "topic": "Driver Licensing",
+      "subtopic": "Graduated License Restrictions"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "sponsor / course / ipirp / valid",
+      "topic": "Driver Licensing",
+      "subtopic": "Paying For Additional Tests"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "revoked / saying / license / revocation",
+      "topic": "Driver Licensing",
+      "subtopic": "License Revocation"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "records / topic / searches / dialin",
+      "topic": "Driver Licensing",
+      "subtopic": "DMV Records Guide"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "motorcycle / moped / passenger / ride",
+      "topic": "Driver Licensing",
+      "subtopic": "Motorcycle And Moped Permits"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "excepted / intrastate / restricted / commercial",
+      "topic": "Driver Licensing",
+      "subtopic": "Intrastate Driving Types"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "ignition / interlock / device / restriction",
+      "topic": "Driver Licensing",
+      "subtopic": "Ignition Interlock Restriction"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "approval / employees / business / mv521",
+      "topic": "Driver Licensing",
+      "subtopic": "Business Name Approval"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "road / learner / permit / test",
+      "topic": "Driver Licensing",
+      "subtopic": "Learner Permit Road Test"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "york / refund / sales / new",
+      "topic": "Driver Licensing",
+      "subtopic": "Military Member Refunds"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "renew / license / mail / purposes",
+      "topic": "Driver Licensing",
+      "subtopic": "Renewing License By Mail"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "ny / issued / class / cdl",
+      "topic": "Driver Licensing",
+      "subtopic": "CDL Certification Requirements"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "regulations / perform / holder / commercial",
+      "topic": "Driver Licensing",
+      "subtopic": "Federal CDL Regulations"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "renew / eye / renewing / dm",
+      "topic": "Driver Licensing",
+      "subtopic": "Eye Test For Renewal"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "bridge / tunnel / park / drive",
+      "topic": "Driver Licensing",
+      "subtopic": "Learner Permit Driving Limits"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "junior / drive / restrictions / privileges",
+      "topic": "Driver Licensing",
+      "subtopic": "Junior License Restrictions"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "documentation / 7174 / 15184737174 / 473",
+      "topic": "Driver Licensing",
+      "subtopic": "Driver Training Contact"
+    },
+    {
+      "topic_raw": "driving / license / driver / dmv",
+      "subtopic_raw": "junior / senior / mv285 / license",
+      "topic": "Driver Licensing",
+      "subtopic": "Junior To Senior License"
+    },
+    {
+      "topic_raw": "endorsement / background / hazmat / checks",
+      "subtopic_raw": "background / checks / hazmat / endorsement",
+      "topic": "Commercial Driving & Endorsements",
+      "subtopic": "HazMat Background Checks"
+    },
+    {
+      "topic_raw": "endorsement / background / hazmat / checks",
+      "subtopic_raw": "endorsement / hazmat / fingerprinting / appointment",
+      "topic": "Commercial Driving & Endorsements",
+      "subtopic": "HazMat Endorsement Renewal"
+    },
+    {
+      "topic_raw": "endorsement / background / hazmat / checks",
+      "subtopic_raw": "fingerprints / identogo / centers / applicants",
+      "topic": "Commercial Driving & Endorsements",
+      "subtopic": "Fingerprinting At Identogo"
+    },
+    {
+      "topic_raw": "endorsement / background / hazmat / checks",
+      "subtopic_raw": "hazardous / endorsement / materials / hazmat",
+      "topic": "Commercial Driving & Endorsements",
+      "subtopic": "Hazardous Materials Endorsement"
+    },
+    {
+      "topic_raw": "image / banners / studentaidgov / html",
+      "subtopic_raw": "image / banners / studentaidgov / html",
+      "topic": "Site Content & Resources",
+      "subtopic": "StudentAid.gov Banners"
+    },
+    {
+      "topic_raw": "plates / empire / gold / dmv",
+      "subtopic_raw": "gold / plates / empire / plate",
+      "topic": "License Plates",
+      "subtopic": "Ordering Empire Gold Plates"
+    },
+    {
+      "topic_raw": "plates / empire / gold / dmv",
+      "subtopic_raw": "gold / plates / empire / old",
+      "topic": "License Plates",
+      "subtopic": "Returning Old Plates"
+    },
+    {
+      "topic_raw": "plates / empire / gold / dmv",
+      "subtopic_raw": "empire / gold / 2010 / white",
+      "topic": "License Plates",
+      "subtopic": "Empire Gold Plate History"
+    },
+    {
+      "topic_raw": "unclassified",
+      "subtopic_raw": "unclassified",
+      "topic": "Unclassified",
+      "subtopic": "Unclassified"
+    },
+    {
+      "topic_raw": "unfortunately / relevant / authority / information",
+      "subtopic_raw": "unfortunately / relevant / authority / tolling",
+      "topic": "Out-of-Scope Requests",
+      "subtopic": "No Relevant Information"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "number / letter / hard / toll",
+      "topic": "Veterans Affairs",
+      "subtopic": "Benefit Verification Letter"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "card / citizenship / documents / birth",
+      "topic": "Veterans Affairs",
+      "subtopic": "Replacing A Social Security Card"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "account / freeze / creating / minutes",
+      "topic": "Veterans Affairs",
+      "subtopic": "Managing Your Online Account"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "apply / application / online / ebenefits",
+      "topic": "Veterans Affairs",
+      "subtopic": "Applying By Mail Or Online"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "deposit / bank / direct / express",
+      "topic": "Veterans Affairs",
+      "subtopic": "Direct Deposit"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "gi / post911 / classes / degree",
+      "topic": "Veterans Affairs",
+      "subtopic": "GI Bill For College"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "requirements / educational / lowincome / diploma",
+      "topic": "Veterans Affairs",
+      "subtopic": "National Call To Service Eligibility"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "secretary / 15 / active / specialty",
+      "topic": "Veterans Affairs",
+      "subtopic": "Service Requirements"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "orange / agent / vietnam / ships",
+      "topic": "Veterans Affairs",
+      "subtopic": "Agent Orange Exposure"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "veterans / certain / wartime / pension",
+      "topic": "Veterans Affairs",
+      "subtopic": "Wartime Veterans Pension"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "enrollment / form / training / regional",
+      "topic": "Veterans Affairs",
+      "subtopic": "Aid And Attendance Benefits"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "radiation / cancers / ionizing / believed",
+      "topic": "Veterans Affairs",
+      "subtopic": "Radiation And Asbestos Exposure"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "national / montgomery / mgib / alternative",
+      "topic": "Veterans Affairs",
+      "subtopic": "Montgomery GI Bill"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "care / provider / team / community",
+      "topic": "Veterans Affairs",
+      "subtopic": "Finding A VA Medical Facility"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "dependents / 35 / chapter / fry",
+      "topic": "Veterans Affairs",
+      "subtopic": "Chapter 35 Dependent Benefits"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "medicare / parts / prescription / deductibles",
+      "topic": "Veterans Affairs",
+      "subtopic": "Medicare Information"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "care / ve / separation / health",
+      "topic": "Veterans Affairs",
+      "subtopic": "Health Care After Separation"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "filling / application / ways / week",
+      "topic": "Veterans Affairs",
+      "subtopic": "Application Status Tool"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "homeless / crisis / connect / responders",
+      "topic": "Veterans Affairs",
+      "subtopic": "Counseling And Crisis Support"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "surviving / congress / worth / survivors",
+      "topic": "Veterans Affairs",
+      "subtopic": "Survivors Pension"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "dishonorable / pension / discharge / veterans",
+      "topic": "Veterans Affairs",
+      "subtopic": "Veterans Pension Eligibility"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "deadline / submitting / electronically / ensure",
+      "topic": "Veterans Affairs",
+      "subtopic": "Submitting Requests Electronically"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "sgli / inactive / fulltime / drilling",
+      "topic": "Veterans Affairs",
+      "subtopic": "SGLI Eligibility"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "vre / services / feature / jobs",
+      "topic": "Veterans Affairs",
+      "subtopic": "Vocational Rehabilitation Services"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "servicemembers / group / sgli / life",
+      "topic": "Veterans Affairs",
+      "subtopic": "Servicemembers Group Life Insurance"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "rehabilitation / employment / vocational / rehab",
+      "topic": "Veterans Affairs",
+      "subtopic": "Applying For Vocational Rehab"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "care / career / nursing / homes",
+      "topic": "Veterans Affairs",
+      "subtopic": "VA Health Care Resources"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "exam / local / partner / center",
+      "topic": "Veterans Affairs",
+      "subtopic": "Gathering Claim Evidence"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "exam / doctor / claim / nonva",
+      "topic": "Veterans Affairs",
+      "subtopic": "Claim Exam Requirements"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "freedom / operation / enduring / iraqi",
+      "topic": "Veterans Affairs",
+      "subtopic": "Combat Veteran Health Care"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "honorable / statuses / misconduct / discharge",
+      "topic": "Veterans Affairs",
+      "subtopic": "Discharge Status And Benefits"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "life / insurance / doesnt / ending",
+      "topic": "Veterans Affairs",
+      "subtopic": "Life Insurance Eligibility"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "medicare / sign / delayed / enroll",
+      "topic": "Veterans Affairs",
+      "subtopic": "Medicare Enrollment"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "card / dod / id / reserves",
+      "topic": "Veterans Affairs",
+      "subtopic": "Veterans Health ID Card"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "national / pamphlet / counties / pdf",
+      "topic": "Veterans Affairs",
+      "subtopic": "National Call To Service Program"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "housing / grants / grant / serviceconnected",
+      "topic": "Veterans Affairs",
+      "subtopic": "Housing Grants"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "documents / birth / verified / names",
+      "topic": "Veterans Affairs",
+      "subtopic": "Required Application Documents"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "champva / tricare / civilian / health",
+      "topic": "Veterans Affairs",
+      "subtopic": "TRICARE And CHAMPVA"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "pension / sources / meet / requirements",
+      "topic": "Veterans Affairs",
+      "subtopic": "Pension Eligibility Requirements"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "range / ll / highest / threat",
+      "topic": "Veterans Affairs",
+      "subtopic": "Filing A Compensation Claim"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "renewing / veteran / designation / military",
+      "topic": "Veterans Affairs",
+      "subtopic": "Military Designation Renewal"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "vgli / group / life / prudential",
+      "topic": "Veterans Affairs",
+      "subtopic": "Veterans Group Life Insurance"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "enhanced / ends / wait / eligibility",
+      "topic": "Veterans Affairs",
+      "subtopic": "Enhanced Eligibility Period"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "beneficiaries / policy / beneficiary / choose",
+      "topic": "Veterans Affairs",
+      "subtopic": "Insurance Beneficiaries"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "organization / attorney / accredited / agent",
+      "topic": "Veterans Affairs",
+      "subtopic": "Accredited Representatives"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "deceased / wartime / veteran / survivors",
+      "topic": "Veterans Affairs",
+      "subtopic": "Survivor Pension For Children"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "true / active / duty / served",
+      "topic": "Veterans Affairs",
+      "subtopic": "Health Care On Active Duty"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "assist / duty / initial / vas",
+      "topic": "Veterans Affairs",
+      "subtopic": "VA Duty To Assist"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "miss / sends / asking / exams",
+      "topic": "Veterans Affairs",
+      "subtopic": "Waiting For VA Letters"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "view / appointments / ebenefits / tools",
+      "topic": "Veterans Affairs",
+      "subtopic": "Online Prescription Tools"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "volunteered / research / dental / chemical",
+      "topic": "Veterans Affairs",
+      "subtopic": "Chemical Research Exposure"
+    },
+    {
+      "topic_raw": "va / service / veterans / yes",
+      "subtopic_raw": "coe / lender / prisoner / missing",
+      "topic": "Veterans Affairs",
+      "subtopic": "Certificate Of Eligibility"
+    }
+  ]
+}
