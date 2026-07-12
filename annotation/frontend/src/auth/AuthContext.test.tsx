@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, act } from "@testing-library/react";
 
@@ -74,7 +75,38 @@ describe("AuthContext", () => {
     expect(setAuthToken).toHaveBeenLastCalledWith(null);
   });
 
-  it("sign-in stores the decoded user and attaches the bearer token", async () => {
+  it("applies a restored token before a child effect runs (no tokenless first fetch)", async () => {
+    sessionStorage.setItem(
+      "eb1-annotation-auth",
+      JSON.stringify({ token: "tok-ada", user: { name: "Ada Lovelace", email: "ada@example.com" } }),
+    );
+    const { AuthProvider } = await loadAuth("client-123");
+
+    // Stands in for App's data-fetch effect: React runs child effects before the
+    // provider's own effect, so this observes exactly what the first fetch sees.
+    let callsWhenChildFetched = -1;
+    let tokenWhenChildFetched: string | null | undefined;
+    function FetchProbe() {
+      useEffect(() => {
+        callsWhenChildFetched = setAuthToken.mock.calls.length;
+        tokenWhenChildFetched = setAuthToken.mock.calls[0]?.[0];
+      }, []);
+      return null;
+    }
+
+    await act(async () => {
+      render(
+        <AuthProvider>
+          <FetchProbe />
+        </AuthProvider>,
+      );
+    });
+
+    expect(callsWhenChildFetched).toBeGreaterThan(0);
+    expect(tokenWhenChildFetched).toBe("tok-ada");
+  });
+
+  it("sign-in applies the bearer token synchronously, before effects flush", async () => {
     const { AuthProvider, useAuth } = await loadAuth("client-123");
     render(
       <AuthProvider>
@@ -83,8 +115,12 @@ describe("AuthContext", () => {
     );
     expect(screen.getByTestId("sso").textContent).toBe("true");
 
+    setAuthToken.mockClear();
     act(() => {
       screen.getByText("in").click();
+      // Inside the click handler, before React flushes any effect, the token is
+      // already pushed to the api module — the assertion fails on effect-only code.
+      expect(setAuthToken).toHaveBeenCalledWith("tok-ada");
     });
 
     expect(screen.getByTestId("token").textContent).toBe("tok-ada");
