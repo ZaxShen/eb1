@@ -18,7 +18,8 @@ vi.mock("jwt-decode", () => ({
 
 // Spy on the api token setter so we can assert the Bearer token is wired.
 const setAuthToken = vi.fn();
-vi.mock("../api", () => ({ setAuthToken }));
+const setOnAuthExpired = vi.fn();
+vi.mock("../api", () => ({ setAuthToken, setOnAuthExpired }));
 
 async function loadAuth(clientId: string | undefined) {
   vi.resetModules();
@@ -56,6 +57,7 @@ function Probe({
 describe("AuthContext", () => {
   beforeEach(() => {
     setAuthToken.mockClear();
+    setOnAuthExpired.mockClear();
     sessionStorage.clear();
   });
   afterEach(() => {
@@ -144,6 +146,31 @@ describe("AuthContext", () => {
 
     expect(screen.getByTestId("token").textContent).toBe("none");
     expect(screen.getByTestId("name").textContent).toBe("none");
+    expect(sessionStorage.getItem("eb1-annotation-auth")).toBeNull();
+    expect(setAuthToken).toHaveBeenLastCalledWith(null);
+  });
+
+  it("registers a sign-out handler for expired sessions that clears auth state", async () => {
+    const { AuthProvider, useAuth } = await loadAuth("client-123");
+    render(
+      <AuthProvider>
+        <Probe useAuth={useAuth} />
+      </AuthProvider>,
+    );
+    act(() => screen.getByText("in").click());
+    expect(screen.getByTestId("token").textContent).toBe("tok-ada");
+
+    // AuthContext registered a callback with the api module; the last one wins.
+    const registered = setOnAuthExpired.mock.calls
+      .map((c) => c[0])
+      .filter((cb): cb is () => void => typeof cb === "function")
+      .at(-1);
+    expect(registered).toBeTypeOf("function");
+
+    setAuthToken.mockClear();
+    act(() => registered!());
+
+    expect(screen.getByTestId("token").textContent).toBe("none");
     expect(sessionStorage.getItem("eb1-annotation-auth")).toBeNull();
     expect(setAuthToken).toHaveBeenLastCalledWith(null);
   });

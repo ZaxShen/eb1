@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { jwtDecode } from "jwt-decode";
-import { setAuthToken } from "../api";
+import { setAuthToken, setOnAuthExpired } from "../api";
 
 export interface GoogleUser {
   name: string;
@@ -94,6 +94,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionStorage.removeItem(STORAGE_KEY);
     setStored(null);
   }, []);
+
+  useEffect(() => {
+    setOnAuthExpired(signOut);
+    return () => setOnAuthExpired(null);
+  }, [signOut]);
 
   const value = useMemo<AuthState>(
     () => ({

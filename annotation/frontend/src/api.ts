@@ -204,17 +204,25 @@ export function setAuthToken(token: string | null): void {
   authToken = token;
 }
 
+let onAuthExpired: (() => void) | null = null;
+
+export function setOnAuthExpired(cb: (() => void) | null): void {
+  onAuthExpired = cb;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...((init?.headers as Record<string, string>) ?? {}),
   };
-  if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+  const sentToken = authToken;
+  if (sentToken) headers["Authorization"] = `Bearer ${sentToken}`;
   const res = await fetch(`/api${path}`, {
     ...init,
     headers,
   });
   if (!res.ok) {
+    if (res.status === 401 && sentToken) onAuthExpired?.();
     let detail = res.statusText;
     try {
       const body = (await res.json()) as { detail?: string };
