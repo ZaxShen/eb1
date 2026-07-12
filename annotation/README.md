@@ -89,6 +89,15 @@ section). Download it once and point `EB1_SUPERDIALSEG_PATH` at the local copy
 automated fetch instead, set `EB1_SUPERDIALSEG_GDRIVE_ID` to the release's Drive
 file id (with `gdown` installed).
 
+## Production deployment
+
+To run the site on the public internet (single GCP VM, docker compose, Caddy
+TLS, Google SSO with an email allowlist), see
+[`deploy/RUNBOOK.md`](deploy/RUNBOOK.md). The `deploy/` directory holds the
+production Dockerfiles, `docker-compose.prod.yml`, Caddy config, `.env.example`,
+and the provisioning + GCS-backup scripts — all inert until the operator runs
+them per the runbook.
+
 ## Google SSO (optional)
 
 SSO is **env-gated**. With no Client ID configured the app runs exactly as

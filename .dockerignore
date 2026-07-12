@@ -1,0 +1,26 @@
+# Keep the docker build context lean. The backend image uses the repo root as
+# its build context (it imports the `annotation` package + declared deps), so
+# exclude everything a build never needs.
+.git
+.github
+.claude
+.venv
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.ruff_cache
+.mypy_cache
+
+# Frontend node build state (frontend image runs its own npm ci)
+**/node_modules
+
+# Heavy data / artifacts — never needed at build time
+datasets/
+backups/
+reports/
+data/
+**/*.dump
+
+# Local env / secrets
+.env
+**/.env.local

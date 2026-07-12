@@ -12,6 +12,11 @@ client secret.
 
 ``_verify_oauth2_token`` is module-level so tests can monkeypatch it without
 hitting the network.
+
+An optional ``ALLOWED_EMAILS`` env var (comma-separated, case-insensitive,
+whitespace-tolerant) restricts access to specific verified accounts. When it is
+unset every verified Google account is accepted (today's behavior); when set, a
+verified identity whose email is not on the list is rejected with 403.
 """
 
 from __future__ import annotations
@@ -34,6 +39,12 @@ class Identity(BaseModel):
 def sso_enabled() -> bool:
     """True when ``GOOGLE_CLIENT_ID`` is configured (SSO required)."""
     return bool(os.environ.get("GOOGLE_CLIENT_ID"))
+
+
+def allowed_emails() -> set[str]:
+    """Normalized set from ``ALLOWED_EMAILS`` (empty means no restriction)."""
+    raw = os.environ.get("ALLOWED_EMAILS", "")
+    return {part.strip().lower() for part in raw.split(",") if part.strip()}
 
 
 def _verify_oauth2_token(token: str, audience: str) -> dict:
@@ -62,11 +73,15 @@ def verify_bearer(authorization: str | None) -> Identity:
         claims = _verify_oauth2_token(token, audience)
     except (GoogleAuthError, ValueError) as exc:
         raise HTTPException(status_code=401, detail="Invalid token") from exc
-    return Identity(
+    identity = Identity(
         name=claims.get("name") or claims.get("email") or claims.get("sub", ""),
         email=claims.get("email", ""),
         sub=claims.get("sub", ""),
     )
+    allowlist = allowed_emails()
+    if allowlist and identity.email.strip().lower() not in allowlist:
+        raise HTTPException(status_code=403, detail="Email not allowed")
+    return identity
 
 
 def require_identity(authorization: str | None = Header(default=None)) -> Identity | None:
