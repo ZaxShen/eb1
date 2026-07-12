@@ -1,0 +1,18 @@
+# Caddy config for the annotation site. SITE_DOMAIN is injected from the
+# environment (see docker-compose.prod.yml / .env). Caddy obtains and renews a
+# Let's Encrypt certificate for this hostname automatically.
+{$SITE_DOMAIN} {
+	encode gzip
+
+	# API traffic goes to the FastAPI backend on the internal compose network.
+	handle /api/* {
+		reverse_proxy backend:8000
+	}
+
+	# Everything else is the static SPA; unknown paths fall back to index.html.
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}

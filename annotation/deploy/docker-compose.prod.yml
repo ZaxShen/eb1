@@ -1,0 +1,69 @@
+# Production compose for the annotation site on a single GCP VM.
+#
+# Three services on one internal network: postgres (no host binding), the
+# FastAPI backend (no host binding — reached only via caddy), and caddy, which
+# terminates TLS, serves the built frontend, and reverse-proxies /api. All
+# tunables come from an .env file next to this one (copy .env.example):
+#
+#   docker compose --env-file .env -f docker-compose.prod.yml up -d --build
+#
+# Build contexts are relative to this file (annotation/deploy/): the backend
+# builds from the repo root, the frontend from annotation/frontend.
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: eb1-annotation-pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: eb1
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: eb1_annotation
+    # No host port: Postgres is reachable only on the internal network. Restores
+    # run via `docker compose exec postgres ...`.
+    volumes:
+      - eb1_annotation_pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eb1 -d eb1_annotation"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: annotation/deploy/backend.Dockerfile
+    container_name: eb1-annotation-backend
+    restart: unless-stopped
+    environment:
+      EB1_ANNOTATION_DSN: ${EB1_ANNOTATION_DSN}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      ALLOWED_EMAILS: ${ALLOWED_EMAILS}
+    # No host port: reached only through caddy on the internal network.
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  caddy:
+    build:
+      context: ../frontend
+      dockerfile: ../deploy/frontend.Dockerfile
+      args:
+        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
+    container_name: eb1-annotation-caddy
+    restart: unless-stopped
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+
+volumes:
+  eb1_annotation_pgdata:
+  caddy_data:
+  caddy_config:

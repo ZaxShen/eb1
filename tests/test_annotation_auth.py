@@ -151,6 +151,26 @@ def test_sso_enabled_valid_token_sets_reviewed_by_to_verified_name(client, sso_o
     assert relabel[0]["reviewed_by"] == VERIFIED_NAME
 
 
+def test_allowlist_permits_listed_email(client, sso_on, monkeypatch):
+    monkeypatch.setenv("ALLOWED_EMAILS", "someone@else.com,ada@example.com")
+    assert client.get("/api/datasets", headers=_bearer(VALID_TOKEN)).status_code == 200
+
+
+def test_allowlist_rejects_unlisted_email_with_403(client, sso_on, monkeypatch):
+    monkeypatch.setenv("ALLOWED_EMAILS", "someone@else.com")
+    assert client.get("/api/datasets", headers=_bearer(VALID_TOKEN)).status_code == 403
+
+
+def test_allowlist_is_case_and_whitespace_tolerant(client, sso_on, monkeypatch):
+    monkeypatch.setenv("ALLOWED_EMAILS", "  ADA@Example.COM , other@x.com ")
+    assert client.get("/api/datasets", headers=_bearer(VALID_TOKEN)).status_code == 200
+
+
+def test_allowlist_unset_permits_any_verified_email(client, sso_on, monkeypatch):
+    monkeypatch.delenv("ALLOWED_EMAILS", raising=False)
+    assert client.get("/api/datasets", headers=_bearer(VALID_TOKEN)).status_code == 200
+
+
 def test_sso_enabled_boundaries_use_verified_name(client, sso_on):
     resp = client.post(
         f"/api/datasets/{DATASET}/conversations/{CONV_A}/boundaries",
