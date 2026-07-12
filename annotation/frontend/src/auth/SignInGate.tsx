@@ -25,6 +25,7 @@ export default function SignInGate({ children }: { children: ReactNode }) {
           /* surfaced by the Google widget; nothing to persist */
         }}
         useOneTap
+        auto_select
       />
     </div>
   );
