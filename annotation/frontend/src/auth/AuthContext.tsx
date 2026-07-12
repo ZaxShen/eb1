@@ -65,9 +65,12 @@ export function userFromCredential(credential: string): GoogleUser {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const ssoEnabled = GOOGLE_CLIENT_ID !== null;
 
-  const [stored, setStored] = useState<StoredAuth | null>(() =>
-    ssoEnabled ? readStored() : null,
-  );
+  const [stored, setStored] = useState<StoredAuth | null>(() => {
+    if (!ssoEnabled) return null;
+    const initial = readStored();
+    if (initial) setAuthToken(initial.token);
+    return initial;
+  });
 
   const token = stored?.token ?? null;
   const user = stored?.user ?? null;
@@ -77,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [ssoEnabled, token]);
 
   const signIn = useCallback((credential: string) => {
+    setAuthToken(credential);
     const next: StoredAuth = {
       token: credential,
       user: userFromCredential(credential),
@@ -86,6 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = useCallback(() => {
+    setAuthToken(null);
     sessionStorage.removeItem(STORAGE_KEY);
     setStored(null);
   }, []);
