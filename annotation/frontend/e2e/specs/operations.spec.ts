@@ -46,9 +46,12 @@ test.describe("re-segment operations (effective segmentation)", () => {
 
     const before = await app.statsReviewed();
 
-    // Confirm AI copies the segment's predicted label into the True Topic, then
-    // Save persists it as a human relabel against the effective segment.
-    await page.getByRole("button", { name: /Confirm AI/ }).click();
+    // Relabel via the True Topic dropdown: add a new topic through the
+    // "+ New topic…" inline input. The typed label normalizes to a slug
+    // (lowercase snake_case) — the value the backend stores — which Save then
+    // persists as a human relabel against the effective segment.
+    const slug = await app.addNewTopic("Veterans Affairs");
+    expect(slug).toBe("veterans_affairs");
     await app.save();
 
     await expect.poll(() => app.statsReviewed()).toBe(before + 1);
