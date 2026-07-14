@@ -330,7 +330,7 @@ function AnnotationApp() {
   }, []);
 
   const loadConversation = useCallback(
-    (conversation: string) => {
+    (conversation: string, selectId?: number) => {
       if (!dataset) return;
       setSelectedConversation(conversation);
       setViewLoading(true);
@@ -338,12 +338,18 @@ function AnnotationApp() {
         .getConversation(dataset, conversation)
         .then((v) => {
           setView(v);
-          const first = [...v.segments].sort(
+          const sorted = [...v.segments].sort(
             (a, b) =>
               (a.message_indices[0] ?? 0) - (b.message_indices[0] ?? 0),
-          )[0];
-          if (first) {
-            selectSegment(first);
+          );
+          // After a refetch, re-select a requested segment (auto-advance target)
+          // when present; otherwise fall back to the first in document order.
+          const target =
+            (selectId != null
+              ? sorted.find((s) => s.id === selectId)
+              : undefined) ?? sorted[0];
+          if (target) {
+            selectSegment(target);
           } else {
             setSelectedSegment(null);
           }
@@ -385,6 +391,57 @@ function AnnotationApp() {
     selectedConversation,
     loadConversation,
   ]);
+
+  // After a successful save, refresh the queue/stats then advance selection:
+  // to the next segment of the current conversation (document order); if the
+  // saved segment was the last, to the first segment of the next conversation
+  // in the current queue page; at the very end of the queue, stay on the saved
+  // segment. Routing selection through loadConversation avoids racing the
+  // refetch (the target is picked once the reload resolves).
+  const advanceAfterSave = useCallback(
+    (savedSegment: SegmentSummary) => {
+      if (!dataset) return;
+      refreshQueue(dataset, filters, page, search, labeler);
+      refreshStats(dataset);
+      if (!selectedConversation) return;
+
+      const segments = view
+        ? [...view.segments].sort(
+            (a, b) =>
+              (a.message_indices[0] ?? 0) - (b.message_indices[0] ?? 0),
+          )
+        : [];
+      const curIdx = segments.findIndex((s) => s.id === savedSegment.id);
+      const nextSegment = curIdx >= 0 ? segments[curIdx + 1] : undefined;
+      if (nextSegment) {
+        loadConversation(selectedConversation, nextSegment.id);
+        return;
+      }
+
+      const convIdx = conversations.findIndex(
+        (c) => c.conversation === selectedConversation,
+      );
+      const nextConv = convIdx >= 0 ? conversations[convIdx + 1] : undefined;
+      if (nextConv) {
+        loadConversation(nextConv.conversation);
+      } else {
+        loadConversation(selectedConversation, savedSegment.id);
+      }
+    },
+    [
+      dataset,
+      filters,
+      page,
+      search,
+      labeler,
+      refreshQueue,
+      refreshStats,
+      selectedConversation,
+      view,
+      conversations,
+      loadConversation,
+    ],
+  );
 
   // History closures re-fetch via the latest afterWrite/dataset snapshot.
   const afterWriteRef = useRef(afterWrite);
@@ -433,7 +490,7 @@ function AnnotationApp() {
             afterWriteRef.current();
           },
         });
-        afterWrite();
+        advanceAfterSave(selectedSegment);
       })
       .catch(fail)
       .finally(() => setSaving(false));
@@ -443,7 +500,7 @@ function AnnotationApp() {
     topic,
     subtopic,
     reviewedBy,
-    afterWrite,
+    advanceAfterSave,
     history,
     fail,
   ]);

@@ -31,6 +31,8 @@ export interface SegmentSummary {
   reviewed: boolean;
   true_topic: string | null;
   true_subtopic: string | null;
+  bertopic_topic?: string | null;
+  bertopic_subtopic?: string | null;
 }
 
 export interface SegmentDetail {

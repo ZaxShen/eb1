@@ -214,6 +214,156 @@ describe("AnnotationPanel (MSW component)", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("disables Confirm source without a source label and enables it with one", async () => {
+    const { taxonomy, segment } = await setup();
+
+    const { rerender } = renderWithProviders(
+      <AnnotationPanel
+        segment={{ ...segment, bertopic_topic: null }}
+        taxonomy={taxonomy}
+        topic=""
+        subtopic=""
+        reviewedBy=""
+        saving={false}
+        {...noopHandlers()}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: /Confirm source/ }),
+    ).toBeDisabled();
+
+    rerender(
+      <AnnotationPanel
+        segment={{ ...segment, bertopic_topic: "Veterans Affairs" }}
+        taxonomy={taxonomy}
+        topic=""
+        subtopic=""
+        reviewedBy=""
+        saving={false}
+        {...noopHandlers()}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: /Confirm source/ }),
+    ).toBeEnabled();
+  });
+
+  it("Confirm source copies slugified source labels into the pickers without saving", async () => {
+    const user = userEvent.setup();
+    const { taxonomy, segment } = await setup();
+    const onCommit = vi.fn();
+    const handlers = passiveHandlers();
+
+    renderWithProviders(
+      <ControlledPanel
+        segment={{
+          ...segment,
+          bertopic_topic: "Veterans Affairs",
+          bertopic_subtopic: "Disability Claims",
+        }}
+        taxonomy={taxonomy}
+        subtopic=""
+        reviewedBy=""
+        saving={false}
+        {...handlers}
+        onCommit={onCommit}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /Confirm source/ }));
+
+    expect(onCommit).toHaveBeenLastCalledWith("veterans_affairs");
+    expect(handlers.onSubtopicChange).toHaveBeenCalledWith("disability_claims");
+    // Copy only — the annotator still presses Save/Enter.
+    expect(handlers.onSave).not.toHaveBeenCalled();
+  });
+
+  it("Confirm source clears the subtopic when the source subtopic is null", async () => {
+    const user = userEvent.setup();
+    const { taxonomy, segment } = await setup();
+    const onCommit = vi.fn();
+    const handlers = passiveHandlers();
+
+    renderWithProviders(
+      <ControlledPanel
+        segment={{
+          ...segment,
+          bertopic_topic: "Veterans Affairs",
+          bertopic_subtopic: null,
+        }}
+        taxonomy={taxonomy}
+        subtopic="stale_subtopic"
+        reviewedBy=""
+        saving={false}
+        {...handlers}
+        onCommit={onCommit}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /Confirm source/ }));
+
+    expect(onCommit).toHaveBeenLastCalledWith("veterans_affairs");
+    expect(handlers.onSubtopicChange).toHaveBeenCalledWith("");
+  });
+
+  it("Space confirms the source label from outside a field", async () => {
+    const user = userEvent.setup();
+    const { taxonomy, segment } = await setup();
+    const onCommit = vi.fn();
+    const handlers = passiveHandlers();
+
+    renderWithProviders(
+      <ControlledPanel
+        segment={{
+          ...segment,
+          bertopic_topic: "Veterans Affairs",
+          bertopic_subtopic: "Disability Claims",
+        }}
+        taxonomy={taxonomy}
+        subtopic=""
+        reviewedBy=""
+        saving={false}
+        {...handlers}
+        onCommit={onCommit}
+      />,
+    );
+
+    await user.keyboard(" ");
+
+    expect(onCommit).toHaveBeenLastCalledWith("veterans_affairs");
+    expect(handlers.onSubtopicChange).toHaveBeenCalledWith("disability_claims");
+  });
+
+  it("Space typed into an input does not confirm the source label", async () => {
+    const user = userEvent.setup();
+    const { taxonomy, segment } = await setup();
+    const onTopicChange = vi.fn();
+
+    renderWithProviders(
+      <AnnotationPanel
+        segment={{
+          ...segment,
+          bertopic_topic: "Veterans Affairs",
+          bertopic_subtopic: "Disability Claims",
+        }}
+        taxonomy={taxonomy}
+        topic=""
+        subtopic=""
+        reviewedBy=""
+        saving={false}
+        {...passiveHandlers()}
+        onTopicChange={onTopicChange}
+      />,
+    );
+
+    // Focus the "Reviewed by" text field and press Space: the shortcut is
+    // suppressed while an input holds focus.
+    await user.click(screen.getByPlaceholderText("your name"));
+    await user.keyboard(" ");
+
+    expect(onTopicChange).not.toHaveBeenCalled();
+  });
+
   it("shows the placeholder when no segment is selected", async () => {
     const { taxonomy } = await setup();
 

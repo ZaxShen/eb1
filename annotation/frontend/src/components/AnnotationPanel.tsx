@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   Check,
   ChevronLeft,
@@ -214,6 +214,44 @@ const AnnotationPanel = ({
     return [...taxonomyTopics, ...usedTopics.filter((t) => !seen.has(t))];
   }, [taxonomyTopics, usedTopics]);
 
+  // Copy the segment's source (BERTopic) labels into the True Topic/Subtopic
+  // pickers as slugs — the taxonomy was seeded from these same labels. A null
+  // source subtopic clears the subtopic field. Values are set, NOT saved; the
+  // annotator still presses Save/Enter.
+  const sourceTopic = segment?.bertopic_topic ?? null;
+  const confirmSource = () => {
+    if (!sourceTopic) return;
+    onTopicChange(slugify(sourceTopic));
+    onSubtopicChange(
+      segment?.bertopic_subtopic ? slugify(segment.bertopic_subtopic) : "",
+    );
+  };
+  const confirmSourceRef = useRef(confirmSource);
+  confirmSourceRef.current = confirmSource;
+
+  // Space confirms the source label from anywhere, except while an input or a
+  // Radix combobox/listbox holds focus (same suppression rule the old Confirm
+  // AI shortcut used) so it never eats a space typed into a field.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== " ") return;
+      const el = e.target as HTMLElement | null;
+      const tag = el?.tagName;
+      const typing =
+        tag === "INPUT" ||
+        tag === "SELECT" ||
+        tag === "TEXTAREA" ||
+        el?.isContentEditable === true ||
+        el?.getAttribute("role") === "combobox" ||
+        el?.closest("[data-radix-popper-content-wrapper]") != null;
+      if (typing) return;
+      e.preventDefault();
+      confirmSourceRef.current();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   if (!segment) {
     return (
       <EmptyState
@@ -289,6 +327,18 @@ const AnnotationPanel = ({
         <Separator />
 
         <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            onClick={confirmSource}
+            disabled={!sourceTopic}
+            title="Confirm the source label (Space)"
+          >
+            <Check />
+            Confirm source
+            <Kbd>Space</Kbd>
+          </Button>
           <Button
             size="sm"
             className="flex-1"
