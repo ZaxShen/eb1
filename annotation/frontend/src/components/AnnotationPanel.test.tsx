@@ -49,7 +49,6 @@ describe("AnnotationPanel (MSW component)", () => {
     return {
       onSubtopicChange: vi.fn(),
       onReviewedByChange: vi.fn(),
-      onConfirmAi: vi.fn(),
       onSave: vi.fn(),
       onPrev: vi.fn(),
       onNext: vi.fn(),
@@ -82,9 +81,10 @@ describe("AnnotationPanel (MSW component)", () => {
     // The verified Google name is mirrored read-only.
     expect(screen.getByText("Reviewed by (Google account)")).toBeInTheDocument();
     expect(screen.getByText("Ada Lovelace")).toBeInTheDocument();
-    // Confirm AI is enabled because the segment carries a machine topic.
-    expect(screen.getByText("Confirm AI")).toBeEnabled();
     expect(screen.getByText("Save")).toBeEnabled();
+    // The dead demo-era "Confirm AI" control and gold-cluster hint are gone.
+    expect(screen.queryByText("Confirm AI")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Gold cluster:/)).not.toBeInTheDocument();
   });
 
   it("suggests taxonomy ∪ used-topics, filters as typed, and commits a pick", async () => {
@@ -156,23 +156,6 @@ describe("AnnotationPanel (MSW component)", () => {
 
     // Save is enabled because a topic is present (it feeds api.annotate upstream).
     expect(screen.getByText("Save")).toBeEnabled();
-  });
-
-  it("shows the frozen gold cluster as a muted hint", async () => {
-    const { taxonomy, segment } = await setup();
-    renderWithProviders(
-      <AnnotationPanel
-        segment={segment}
-        taxonomy={taxonomy}
-        topic=""
-        subtopic=""
-        reviewedBy=""
-        saving={false}
-        {...noopHandlers()}
-      />,
-    );
-    // segment.topic ("billing") is surfaced as the cluster naming hint.
-    expect(screen.getByText(/Gold cluster:/)).toBeInTheDocument();
   });
 
   it("shows the placeholder when no segment is selected", async () => {

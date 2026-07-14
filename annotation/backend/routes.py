@@ -25,6 +25,7 @@ from annotation.backend.models import (
     ConversationSummary,
     ConversationView,
     GoldSegment,
+    Labelers,
     Message,
     SegmentDetail,
     SegmentSummary,
@@ -351,6 +352,13 @@ def get_used_topics(dataset: str) -> UsedTopics:
     """Return distinct topic names already used for the dataset, frequent first."""
     _require_dataset(dataset)
     return UsedTopics(topics=db.used_topics(dataset))
+
+
+@router.get("/datasets/{dataset}/labelers", response_model=Labelers)
+def get_labelers(dataset: str) -> Labelers:
+    """Return the distinct worklist labelers for the dataset, sorted (may be empty)."""
+    _require_dataset(dataset)
+    return Labelers(labelers=db.labelers(dataset))
 
 
 @router.get("/datasets/{dataset}/bertopic-labels", response_model=BertopicLabels)

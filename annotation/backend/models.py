@@ -102,6 +102,12 @@ class UsedTopics(BaseModel):
     topics: list[str] = Field(default_factory=list)
 
 
+class Labelers(BaseModel):
+    """Distinct worklist labelers for a dataset, sorted (may be empty)."""
+
+    labelers: list[str] = Field(default_factory=list)
+
+
 class BertopicTopicCount(BaseModel):
     """A distinct BERTopic topic with its per-conversation count."""
 

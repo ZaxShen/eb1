@@ -1,6 +1,5 @@
 import { useMemo, type ReactNode } from "react";
 import {
-  Check,
   ChevronLeft,
   ChevronRight,
   MousePointerClick,
@@ -36,7 +35,6 @@ interface AnnotationPanelProps {
   onTopicChange: (topic: string) => void;
   onSubtopicChange: (subtopic: string) => void;
   onReviewedByChange: (value: string) => void;
-  onConfirmAi: () => void;
   onSave: () => void;
   onPrev: () => void;
   onNext: () => void;
@@ -61,7 +59,6 @@ const AnnotationPanel = ({
   onTopicChange,
   onSubtopicChange,
   onReviewedByChange,
-  onConfirmAi,
   onSave,
   onPrev,
   onNext,
@@ -86,10 +83,6 @@ const AnnotationPanel = ({
   }
 
   const subtopics = subtopicsFor(taxonomy, topic);
-  const aiTopic = segment.topic;
-  // The frozen gold cluster the segment was ingested under; shown as a naming
-  // hint so labelers stay consistent within a cluster (SuperDialseg flow).
-  const goldCluster = segment.topic;
 
   return (
     <div className="flex h-full flex-col overflow-y-auto p-3">
@@ -109,11 +102,6 @@ const AnnotationPanel = ({
             ariaLabel="True Topic"
             label={(t) => taxonomy[t]?.name ?? formatLabel(t)}
           />
-          {goldCluster && (
-            <p className="text-[11px] text-muted-foreground">
-              Gold cluster: {formatLabel(goldCluster)}
-            </p>
-          )}
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -161,18 +149,6 @@ const AnnotationPanel = ({
         <Separator />
 
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex-1"
-            onClick={onConfirmAi}
-            disabled={!aiTopic}
-            title="Confirm the AI label (Space)"
-          >
-            <Check />
-            Confirm AI
-            <Kbd>Space</Kbd>
-          </Button>
           <Button
             size="sm"
             className="flex-1"

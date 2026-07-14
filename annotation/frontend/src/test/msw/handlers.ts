@@ -329,5 +329,11 @@ export const handlers = [
     HttpResponse.json(bertopicLabels),
   ),
 
+  // Distinct worklist labelers, sorted — mirrors the backend's DISTINCT query so
+  // App's identity-bound filter has a list to resolve the default against.
+  http.get(`${base}/datasets/:dataset/labelers`, () =>
+    HttpResponse.json({ labelers: Object.keys(worklist).sort() }),
+  ),
+
   http.get(`${base}/datasets/:dataset/stats`, () => HttpResponse.json(stats)),
 ];

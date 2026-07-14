@@ -5,6 +5,7 @@ import { api } from "../api";
 import { DATASET, conversationView } from "../test/msw/handlers";
 import { server } from "../test/msw/server";
 import type { ConversationView } from "../api";
+import { formatChatTimestamp } from "../lib/utils";
 import ConversationStream from "./ConversationStream";
 
 // Component layer: render the real ConversationStream against the realistic
@@ -159,6 +160,52 @@ describe("ConversationStream (MSW component)", () => {
       />,
     );
     expect(screen.getAllByRole("button").length).toBeGreaterThan(0);
+  });
+
+  it("renders per-message time captions when timestamps vary (real corpus)", () => {
+    // conversationView carries varying timestamps → the caption for the first
+    // message renders normally.
+    renderWithProviders(
+      <ConversationStream
+        view={conversationView}
+        loading={false}
+        selectedSegmentId={null}
+        onSelectSegment={vi.fn()}
+        onReplaceBoundaries={vi.fn()}
+      />,
+    );
+    const caption = formatChatTimestamp(conversationView.messages[0].createdAt);
+    expect(screen.getAllByText(caption).length).toBeGreaterThan(0);
+  });
+
+  it("hides time captions when every message shares one timestamp (synthetic)", () => {
+    // SuperDialseg ingest fabricates a single uniform timestamp for the whole
+    // dialogue; the stream suppresses the per-message time captions but still
+    // renders the messages and their sender labels.
+    const uniform = "2020-01-01T00:00:00Z";
+    const uniformView: ConversationView = {
+      ...conversationView,
+      messages: conversationView.messages.map((m) => ({
+        ...m,
+        createdAt: uniform,
+      })),
+    };
+    renderWithProviders(
+      <ConversationStream
+        view={uniformView}
+        loading={false}
+        selectedSegmentId={null}
+        onSelectSegment={vi.fn()}
+        onReplaceBoundaries={vi.fn()}
+      />,
+    );
+    // Messages and sender labels still render.
+    expect(
+      screen.getByText(conversationView.messages[0].message),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("User").length).toBeGreaterThan(0);
+    // No time caption for the fabricated uniform timestamp.
+    expect(screen.queryByText(formatChatTimestamp(uniform))).toBeNull();
   });
 
   it("shows the empty-state when a conversation has no segments", () => {

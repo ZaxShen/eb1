@@ -498,6 +498,20 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "Labelers": {
+        "description": "Distinct worklist labelers for a dataset, sorted (may be empty).",
+        "properties": {
+          "labelers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Labelers",
+            "type": "array"
+          }
+        },
+        "title": "Labelers",
+        "type": "object"
+      },
       "Message": {
         "description": "One normalized conversation message, with its positional index.",
         "properties": {
@@ -1418,6 +1432,62 @@
           }
         },
         "summary": "Replace Boundaries"
+      }
+    },
+    "/api/datasets/{dataset}/labelers": {
+      "get": {
+        "description": "Return the distinct worklist labelers for the dataset, sorted (may be empty).",
+        "operationId": "get_labelers_api_datasets__dataset__labelers_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Labelers"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Labelers"
       }
     },
     "/api/datasets/{dataset}/segments": {

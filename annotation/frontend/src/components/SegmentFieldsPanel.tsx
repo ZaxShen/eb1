@@ -76,26 +76,34 @@ const SegmentFieldsPanel = ({ segment }: SegmentFieldsPanelProps) => {
         "—"
       ),
     },
-    {
+  ];
+
+  // Rows that are always "—" on the frozen SuperDialseg corpus are dropped
+  // entirely rather than shown empty; they reappear automatically on a corpus
+  // that populates them.
+  if (segment.sentiment) {
+    rows.push({
       label: "sentiment",
-      node: segment.sentiment ? (
+      node: (
         <Badge
           variant="outline"
           className={sentimentBadgeClass(segment.sentiment)}
         >
           {segment.sentiment}
         </Badge>
-      ) : (
-        "—"
       ),
-    },
-    {
+    });
+  }
+  if (segment.label_confidence != null) {
+    rows.push({
       label: "label_confidence",
       node: formatConfidence(segment.label_confidence),
-    },
-    { label: "summary", node: segment.summary ?? "—" },
-    { label: "reviewed", node: segment.reviewed ? "Yes" : "No" },
-  ];
+    });
+  }
+  if (segment.summary) {
+    rows.push({ label: "summary", node: segment.summary });
+  }
+  rows.push({ label: "reviewed", node: segment.reviewed ? "Yes" : "No" });
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
