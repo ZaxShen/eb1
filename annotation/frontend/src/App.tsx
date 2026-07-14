@@ -199,7 +199,7 @@ function AnnotationApp() {
     [fail],
   );
 
-  // BERTopic topic/subtopic filter options for the queue, refreshed per dataset.
+  // Source topic/subtopic filter options for the queue, refreshed per dataset.
   const refreshBertopicLabels = useCallback(
     (ds: string) => {
       api

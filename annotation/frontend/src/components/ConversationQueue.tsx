@@ -163,7 +163,7 @@ const ConversationQueue = ({
   const update = (patch: Partial<ConversationFilters>) =>
     onFiltersChange({ ...filters, ...patch });
 
-  // BERTopic subtopic options narrow to the picked topic's children; with no
+  // Source subtopic options narrow to the picked topic's children; with no
   // topic chosen every subtopic is offered.
   const bertopicSubtopics = filters.bertopic_topic
     ? bertopicLabels.subtopics.filter(
@@ -308,13 +308,13 @@ const ConversationQueue = ({
           <SelectTrigger
             size="sm"
             className="w-full"
-            aria-label="BERTopic topic"
+            aria-label="Source topic"
           >
             <Sparkles className="size-3.5 text-muted-foreground" />
-            <SelectValue placeholder="All BERTopic topics" />
+            <SelectValue placeholder="All source topics" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL_TOPICS}>All BERTopic topics</SelectItem>
+            <SelectItem value={ALL_TOPICS}>All source topics</SelectItem>
             {bertopicLabels.topics.map((t) => (
               <SelectItem key={t.topic} value={t.topic}>
                 <span className="flex-1 min-w-0 truncate">
@@ -337,13 +337,13 @@ const ConversationQueue = ({
           <SelectTrigger
             size="sm"
             className="w-full"
-            aria-label="BERTopic subtopic"
+            aria-label="Source subtopic"
           >
             <Sparkles className="size-3.5 text-muted-foreground" />
-            <SelectValue placeholder="All BERTopic subtopics" />
+            <SelectValue placeholder="All source subtopics" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL_TOPICS}>All BERTopic subtopics</SelectItem>
+            <SelectItem value={ALL_TOPICS}>All source subtopics</SelectItem>
             {bertopicSubtopics.map((s) => (
               <SelectItem key={s.subtopic} value={s.subtopic}>
                 <span className="flex-1 min-w-0 truncate">
