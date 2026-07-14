@@ -1,13 +1,15 @@
 -- PostgreSQL schema for the annotation tool.
 --
 -- Replaces the per-dataset SQLite triple (output.db / sample.jsonl / gold.db)
--- with one Postgres database holding the FULL datasets (~1.85M conversations)
--- so the labeling site can review them at production scale.
+-- with one Postgres database. The production campaign holds a sampled
+-- SuperDialseg worklist (~1.3K conversations); the schema also supports larger
+-- corpora for the labeling site to review at scale.
 --
 -- Layout:
---   dataset       — one row per corpus (wildchat, superdialseg, lmsys).
+--   dataset       — one row per corpus (superdialseg is the active corpus;
+--                   wildchat / lmsys adapters exist but are dormant).
 --   conversation  — one row per conversation, keyed by (dataset, ext_id) where
---                   ext_id is the source id (WildChat conversation_hash, etc.).
+--                   ext_id is the source id (SuperDialseg dialogue id, etc.).
 --   message       — the ordered, normalized messages of a conversation.
 --   segment       — both the machine "predicted" seed segments (source='predicted',
 --                   one whole-conversation span per conversation) and the human

@@ -3,8 +3,9 @@
 A data-annotation web app for **user/conversation-level** review of eb1 machine
 segments: browse conversations, read each one's full chat stream with all its
 segments overlaid inline, relabel topics/subtopics, and edit boundaries
-(split / merge → gold spans). Server-side paginated + searchable so it scales to
-the full datasets (~1.85M conversations).
+(split / merge → gold spans). Server-side paginated + searchable, so a sampled
+worklist (the current SuperDialseg campaign, ~1.3K conversations) or a larger
+corpus both browse smoothly.
 
 - **`backend/`** — FastAPI on **PostgreSQL** (one DB holding every dataset's
   conversations, messages, predicted seed segments, human gold, and taxonomy).
@@ -37,49 +38,29 @@ on port 8000.
 
 See `frontend/README.md` for panel details and keyboard shortcuts.
 
-## Ingesting the full datasets
+## Ingesting the corpus
 
-`annotation.ingest.run` streams a full corpus into the Postgres store. Each
-conversation lands as its messages **plus exactly one whole-conversation
-`source='predicted'` segment** spanning every message index (topic `NULL`) — the
-seed annotators segment from. SuperDialseg additionally writes its gold
-`segment_id` boundaries as `source='gold'` segments. The run is **batched,
-idempotent** (`UNIQUE(dataset, ext_id)` upsert; already-loaded conversations are
-skipped) and **resumable** (re-run to continue after an interruption); progress
-prints every batch.
+The production campaign labels a **sampled SuperDialseg worklist** (~1.3K
+conversations live on the site). `annotation.ingest.run` streams a corpus into
+the Postgres store: each conversation lands as its messages **plus exactly one
+whole-conversation `source='predicted'` segment** spanning every message index
+(topic `NULL`) — the seed annotators segment from. SuperDialseg additionally
+writes its gold `segment_id` boundaries as `source='gold'` segments. The run is
+**batched, idempotent** (`UNIQUE(dataset, ext_id)` upsert; already-loaded
+conversations are skipped) and **resumable** (re-run to continue after an
+interruption); progress prints every batch.
 
 ```bash
 docker compose -f annotation/docker-compose.yml up -d
 export EB1_ANNOTATION_DSN=postgresql://eb1:eb1@localhost:5544/eb1_annotation
 
-# WildChat — UNGATED, no token needed. --limit for a quick smoke test.
-python -m annotation.ingest.run --dataset wildchat --limit 50
-python -m annotation.ingest.run --dataset wildchat            # full ~838K convs
-
-# SuperDialseg — gold-segmented (see the Drive source below).
+# SuperDialseg — the production corpus, gold-segmented (see the Drive source below).
 python -m annotation.ingest.run --dataset superdialseg
-
-# LMSYS — GATED; requires HF_TOKEN (see below).
-export HF_TOKEN=hf_xxx
-python -m annotation.ingest.run --dataset lmsys
 ```
 
 Flags: `--limit N` (cap conversations), `--batch N` (conversations per upsert
 transaction, default 1000), `--no-skip-existing` (force re-upsert instead of
 skipping already-loaded ext_ids).
-
-| Dataset | Source | Access |
-|---|---|---|
-| `wildchat` | `allenai/WildChat-1M` — 14 public parquet shards over `huggingface_hub.HfFileSystem` | **Ungated** — no token |
-| `lmsys` | `lmsys/lmsys-chat-1m` parquet shards over `HfFileSystem` | **Gated** — `HF_TOKEN` + accepted terms |
-| `superdialseg` | Gold-segmented release (Jiang et al. 2023) on Google Drive, linked from [Coldog2333/SuperDialseg](https://github.com/Coldog2333/SuperDialseg) | Local copy via `EB1_SUPERDIALSEG_PATH`, or `gdown` from Drive |
-
-**LMSYS (`HF_TOKEN`):** LMSYS-Chat-1M is HuggingFace-gated. (1) Accept the
-dataset terms at <https://huggingface.co/datasets/lmsys/lmsys-chat-1m> with your
-HuggingFace account, (2) create a read token at
-<https://huggingface.co/settings/tokens>, (3) `export HF_TOKEN=hf_xxx` before the
-run. The ingester raises a clear, actionable error if the token is missing or
-the terms have not been accepted.
 
 **SuperDialseg (Drive):** the gold-segmented corpus is distributed as an archive
 on Google Drive (linked from the [SuperDialseg
@@ -88,6 +69,23 @@ section). Download it once and point `EB1_SUPERDIALSEG_PATH` at the local copy
 (the zip or its extracted directory of `*.json`/`*.jsonl` dialogues). For an
 automated fetch instead, set `EB1_SUPERDIALSEG_GDRIVE_ID` to the release's Drive
 file id (with `gdown` installed).
+
+### Other supported sources (not used in the current campaign)
+
+The WildChat and LMSYS adapters remain in the tree but are **dormant** — the
+current deployment does not ingest them. If a future campaign needs a
+full-corpus load, they run through the same `annotation.ingest.run` entrypoint:
+
+| Dataset | Source | Access |
+|---|---|---|
+| `wildchat` | `allenai/WildChat-1M` — 14 public parquet shards over `huggingface_hub.HfFileSystem` | **Ungated** — no token |
+| `lmsys` | `lmsys/lmsys-chat-1m` parquet shards over `HfFileSystem` | **Gated** — `HF_TOKEN` + accepted terms |
+
+LMSYS-Chat-1M is HuggingFace-gated: accept the dataset terms at
+<https://huggingface.co/datasets/lmsys/lmsys-chat-1m>, create a read token at
+<https://huggingface.co/settings/tokens>, and `export HF_TOKEN=hf_xxx` before the
+run. The ingester raises a clear, actionable error if the token is missing or
+the terms have not been accepted.
 
 ## Production deployment
 
