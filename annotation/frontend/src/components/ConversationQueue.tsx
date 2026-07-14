@@ -7,7 +7,6 @@ import {
   RotateCcw,
   Search,
   Sparkles,
-  Tag,
   User,
 } from "lucide-react";
 import type {
@@ -15,8 +14,6 @@ import type {
   ConversationFilters,
   ConversationSummary,
 } from "../api";
-import type { TaxonomyMap } from "../lib/taxonomy";
-import { sortedTopics } from "../lib/taxonomy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -45,7 +42,6 @@ interface ConversationQueueProps {
   page: number;
   pageSize: number;
   total: number;
-  taxonomy: TaxonomyMap;
   bertopicLabels: BertopicLabels;
   loading: boolean;
   onSelect: (conversation: string) => void;
@@ -151,7 +147,6 @@ const ConversationQueue = ({
   page,
   pageSize,
   total,
-  taxonomy,
   bertopicLabels,
   loading,
   onSelect,
@@ -159,7 +154,6 @@ const ConversationQueue = ({
   onSearchChange,
   onPageChange,
 }: ConversationQueueProps) => {
-  const topics = sortedTopics(taxonomy);
   const update = (patch: Partial<ConversationFilters>) =>
     onFiltersChange({ ...filters, ...patch });
 
@@ -195,6 +189,7 @@ const ConversationQueue = ({
     filters.topic !== undefined ||
     filters.bertopic_topic !== undefined ||
     filters.bertopic_subtopic !== undefined ||
+    filters.mismatch === true ||
     search !== "";
 
   const statusOptions: {
@@ -265,26 +260,6 @@ const ConversationQueue = ({
         </div>
 
         <Select
-          value={filters.topic ?? ALL_TOPICS}
-          onValueChange={(v) =>
-            update({ topic: v === ALL_TOPICS ? undefined : v })
-          }
-        >
-          <SelectTrigger size="sm" className="w-full">
-            <Tag className="size-3.5 text-muted-foreground" />
-            <SelectValue placeholder="All topics" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL_TOPICS}>All topics</SelectItem>
-            {topics.map((t) => (
-              <SelectItem key={t} value={t}>
-                {taxonomy[t]?.name ?? formatLabel(t)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
           value={filters.bertopic_topic ?? ALL_TOPICS}
           onValueChange={(v) => {
             const next = v === ALL_TOPICS ? undefined : v;
@@ -305,16 +280,12 @@ const ConversationQueue = ({
             });
           }}
         >
-          <SelectTrigger
-            size="sm"
-            className="w-full"
-            aria-label="Source topic"
-          >
+          <SelectTrigger size="sm" className="w-full" aria-label="Topic">
             <Sparkles className="size-3.5 text-muted-foreground" />
-            <SelectValue placeholder="All source topics" />
+            <SelectValue placeholder="All topics" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL_TOPICS}>All source topics</SelectItem>
+            <SelectItem value={ALL_TOPICS}>All topics</SelectItem>
             {bertopicLabels.topics.map((t) => (
               <SelectItem key={t.topic} value={t.topic}>
                 <span className="flex-1 min-w-0 truncate">
@@ -334,16 +305,12 @@ const ConversationQueue = ({
             update({ bertopic_subtopic: v === ALL_TOPICS ? undefined : v })
           }
         >
-          <SelectTrigger
-            size="sm"
-            className="w-full"
-            aria-label="Source subtopic"
-          >
+          <SelectTrigger size="sm" className="w-full" aria-label="Subtopic">
             <Sparkles className="size-3.5 text-muted-foreground" />
-            <SelectValue placeholder="All source subtopics" />
+            <SelectValue placeholder="All subtopics" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL_TOPICS}>All source subtopics</SelectItem>
+            <SelectItem value={ALL_TOPICS}>All subtopics</SelectItem>
             {bertopicSubtopics.map((s) => (
               <SelectItem key={s.subtopic} value={s.subtopic}>
                 <span className="flex-1 min-w-0 truncate">

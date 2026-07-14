@@ -716,7 +716,6 @@ function AnnotationApp() {
                 page={page}
                 pageSize={PAGE_SIZE}
                 total={queueTotal}
-                taxonomy={taxonomy}
                 bertopicLabels={bertopicLabels}
                 loading={queueLoading}
                 onSelect={loadConversation}

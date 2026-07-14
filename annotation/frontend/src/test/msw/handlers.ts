@@ -58,6 +58,8 @@ export const stats: Stats = {
   reviewed: 1,
   unreviewed: 1,
   per_topic: { billing: 1, technical_support: 1 },
+  reviewed_match: 1,
+  reviewed_mismatch: 0,
 };
 
 export const conversations: ConversationSummary[] = [

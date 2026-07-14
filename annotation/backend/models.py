@@ -223,9 +223,16 @@ class AuthConfig(BaseModel):
 
 
 class Stats(BaseModel):
-    """Review progress for a dataset."""
+    """Review progress for a dataset.
+
+    ``reviewed_match``/``reviewed_mismatch`` compare each reviewed gold segment's
+    human topic/subtopic (slugs) against its BERTopic source label (slugified) —
+    a quick agreement signal that drives the mismatch quick-filter.
+    """
 
     total: int
     reviewed: int
     unreviewed: int
     per_topic: dict[str, int] = Field(default_factory=dict)
+    reviewed_match: int = 0
+    reviewed_mismatch: int = 0

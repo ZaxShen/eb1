@@ -267,3 +267,121 @@ def test_export_taxonomy_shape_and_determinism(client):
     keys = [(e["kind"], e["topic"] or "", e["subtopic"] or "") for e in entries]
     assert keys == sorted(keys)
     assert db.export_taxonomy(DATASET) == payload
+
+
+# ---------------------------------------------------------------------------
+# Reviewed-vs-source mismatch: stats counts + the mismatch conversation filter.
+# A gold segment carries a DISPLAY BERTopic source label (``bertopic_topic`` like
+# "Veterans Affairs") and a human gold label stored as a SLUG (``topic`` like
+# ``veterans_affairs``); a mismatch bridges the two via ``slugify`` in Python.
+# ---------------------------------------------------------------------------
+
+MISMATCH_DATASET = "statsmismatch"
+
+
+def _seed_gold_segment(
+    dataset: str,
+    ext_id: str,
+    *,
+    bertopic_topic: str | None,
+    bertopic_subtopic: str | None,
+    topic: str | None,
+    subtopic: str | None,
+    reviewed_by: str | None,
+) -> None:
+    """Seed one conversation with a single ``source='gold'`` segment.
+
+    Direct SQL so the test controls the four label columns + ``reviewed_by`` the
+    mismatch predicate reads, which no public write path sets together.
+    """
+    conv_id = db.upsert_conversation(dataset, ext_id, [{"role": "user", "content": "hi"}])
+    pool = db.get_pool()
+    with pool.connection() as conn:
+        with conn.transaction():
+            conn.execute("DELETE FROM segment WHERE conversation_id = %s", (conv_id,))
+            conn.execute(
+                "INSERT INTO segment (conversation_id, chunk_index, message_indices, "
+                "topic, subtopic, source, bertopic_topic, bertopic_subtopic, "
+                "reviewed_by, reviewed_at) "
+                "VALUES (%s, 0, %s, %s, %s, 'gold', %s, %s, %s, now())",
+                (conv_id, [0], topic, subtopic, bertopic_topic, bertopic_subtopic, reviewed_by),
+            )
+
+
+@pytest.fixture()
+def mismatch_seeded():
+    db.ensure_dataset(MISMATCH_DATASET)
+    # Reviewed, slugified source label MATCHES the human label.
+    _seed_gold_segment(
+        MISMATCH_DATASET, "mm_match",
+        bertopic_topic="Veterans Affairs", bertopic_subtopic="Housing Loan",
+        topic="veterans_affairs", subtopic="housing_loan", reviewed_by="ann",
+    )
+    # Reviewed, human TOPIC disagrees with the source topic -> mismatch.
+    _seed_gold_segment(
+        MISMATCH_DATASET, "mm_topic",
+        bertopic_topic="Veterans Affairs", bertopic_subtopic="Housing Loan",
+        topic="billing", subtopic="housing_loan", reviewed_by="ann",
+    )
+    # Reviewed, NULL human subtopic vs non-NULL source subtopic -> mismatch.
+    _seed_gold_segment(
+        MISMATCH_DATASET, "mm_subnull",
+        bertopic_topic="Veterans Affairs", bertopic_subtopic="Housing Loan",
+        topic="veterans_affairs", subtopic=None, reviewed_by="ann",
+    )
+    # Unreviewed: never counted, never in the mismatch filter.
+    _seed_gold_segment(
+        MISMATCH_DATASET, "mm_unreviewed",
+        bertopic_topic="Veterans Affairs", bertopic_subtopic="Pension",
+        topic="billing", subtopic="pension", reviewed_by=None,
+    )
+    # Reviewed but NULL source label: never a mismatch (excluded from both).
+    _seed_gold_segment(
+        MISMATCH_DATASET, "mm_nullsource",
+        bertopic_topic=None, bertopic_subtopic=None,
+        topic="billing", subtopic="pension", reviewed_by="ann",
+    )
+    yield
+    pool = db.get_pool()
+    with pool.connection() as conn:
+        conn.execute("DELETE FROM dataset WHERE name = %s", (MISMATCH_DATASET,))
+
+
+@pytest.fixture()
+def mismatch_client(mismatch_seeded):
+    return TestClient(create_app())
+
+
+def _conv_ids(payload: dict) -> set[str]:
+    return {item["conversation"] for item in payload["items"]}
+
+
+def test_stats_reports_reviewed_match_and_mismatch(mismatch_client):
+    stats = mismatch_client.get(f"/api/datasets/{MISMATCH_DATASET}/stats").json()
+    assert stats["reviewed_match"] == 1
+    assert stats["reviewed_mismatch"] == 2
+
+
+def test_stats_match_mismatch_are_null_safe(mismatch_client):
+    # Only reviewed, source-labelled segments enter the comparison: 1 + 2 = 3,
+    # excluding the unreviewed and the NULL-source rows entirely.
+    stats = mismatch_client.get(f"/api/datasets/{MISMATCH_DATASET}/stats").json()
+    assert stats["reviewed_match"] + stats["reviewed_mismatch"] == 3
+
+
+def test_mismatch_filter_returns_only_mismatched_conversations(mismatch_client):
+    payload = mismatch_client.get(
+        f"/api/datasets/{MISMATCH_DATASET}/conversations",
+        params={"mismatch": "true"},
+    ).json()
+    assert _conv_ids(payload) == {"mm_topic", "mm_subnull"}
+    assert payload["total"] == 2
+
+
+def test_mismatch_filter_off_returns_all_conversations(mismatch_client):
+    payload = mismatch_client.get(
+        f"/api/datasets/{MISMATCH_DATASET}/conversations"
+    ).json()
+    assert _conv_ids(payload) == {
+        "mm_match", "mm_topic", "mm_subnull", "mm_unreviewed", "mm_nullsource"
+    }
