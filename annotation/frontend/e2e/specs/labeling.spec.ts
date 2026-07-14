@@ -2,10 +2,10 @@ import { expect, test } from "@playwright/test";
 import { AnnotationPage } from "../pages/AnnotationPage";
 
 /**
- * The name-only labeling flow (SuperDialseg decision #73), end-to-end against the
+ * The per-labeler labeling flow (SuperDialseg decision #73), end-to-end against the
  * live backend + seeded Postgres: pick a labeler slot, open the conversation that
- * slot is assigned, name a segment with a free-text topic, and confirm the name
- * persists (the segment flips to reviewed).
+ * slot is assigned, relabel a segment by picking a taxonomy topic from the True
+ * Topic dropdown, and confirm it persists (the segment flips to reviewed).
  *
  * Fixture (seed_e2e.py): the superdialseg dialogue `e2e_superdialseg_0001` is the
  * only row assigned to `labeler_a` in the seeded worklist, so picking that slot
@@ -20,8 +20,8 @@ const ASSIGNED_CONV = "e2e_superdialseg_0001";
 
 test.describe.configure({ mode: "serial" });
 
-test.describe("name-only labeling flow", () => {
-  test("pick labeler → open conv → name a segment → persisted", async ({
+test.describe("per-labeler labeling flow", () => {
+  test("pick labeler → open conv → label a segment → persisted", async ({
     page,
   }) => {
     const app = new AnnotationPage(page);
@@ -37,8 +37,9 @@ test.describe("name-only labeling flow", () => {
     await app.selectSegment(0);
     expect(await app.fieldValue("reviewed")).toBe("No");
 
-    // Name the segment with an open-vocab topic and persist it.
-    await app.nameTopic("cover_letter_help");
+    // Relabel the segment by picking a seeded taxonomy topic (slug) from the
+    // True Topic dropdown, then persist it.
+    await app.selectTopic("cover_letter_help");
     await app.save();
 
     // Persisted: the effective segment comes back reviewed.

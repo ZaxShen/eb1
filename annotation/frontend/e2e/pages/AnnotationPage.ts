@@ -52,11 +52,16 @@ export class AnnotationPage {
     return this.page.getByRole("combobox", { name: "Labeler" });
   }
 
-  /** Pick a labeler slot (e.g. "labeler_a"), filtering the queue to its worklist. */
-  async selectLabeler(name: string): Promise<void> {
+  /**
+   * Pick a fetched worklist labeler value (e.g. "labeler_a"), filtering the
+   * queue to that labeler's assignments. The options come from the dataset's
+   * worklist (GET /datasets/{ds}/labelers), so `value` must match a value the
+   * seed fixture assigns.
+   */
+  async selectLabeler(value: string): Promise<void> {
     await this.labelerTrigger().click();
-    await this.page.getByRole("option", { name, exact: true }).click();
-    await expect(this.labelerTrigger()).toContainText(name);
+    await this.page.getByRole("option", { name: value, exact: true }).click();
+    await expect(this.labelerTrigger()).toContainText(value);
   }
 
   // --- Conversation queue ------------------------------------------------
@@ -187,28 +192,64 @@ export class AnnotationPage {
 
   // --- Annotation panel (relabel + save) ---------------------------------
 
-  /** Set the True Topic and True Subtopic selects in the annotation panel. */
-  async relabel(topic: string, sub?: string): Promise<void> {
-    const panel = this.page
-      .getByRole("heading", { name: "Annotation" })
-      .locator("xpath=ancestor::div[1]");
-    await panel.getByRole("combobox").first().click();
-    await this.page.getByRole("option", { name: topic, exact: true }).click();
-    if (sub !== undefined) {
-      await panel.getByRole("combobox").nth(1).click();
-      await this.page.getByRole("option", { name: sub, exact: true }).click();
-    }
+  /** The True Topic dropdown trigger (a Radix Select, role=combobox, labelled
+   * by its aria-label). */
+  private topicTrigger(): Locator {
+    return this.page.getByRole("combobox", { name: "True Topic" });
+  }
+
+  /** Slug → display label, mirroring the frontend `formatLabel` (underscores →
+   * spaces, Title Case): the dropdown renders labels while callers pass the
+   * stored slug, so option lookups match the rendered text. */
+  private slugLabel(slug: string): string {
+    return slug.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
+  /** Normalize a label to a lowercase snake_case slug — the mirror of the
+   * backend `slugify` (annotation/backend/slug.py) and the panel's live
+   * preview, so specs can predict the value a typed name is stored as. */
+  private slugify(label: string): string {
+    return label
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "");
   }
 
   /**
-   * Type a free-text topic name into the True Topic combobox and commit it with
-   * Enter — the open-vocab naming path (no dropdown required).
+   * Pick an existing taxonomy option in the True Topic dropdown by its stored
+   * slug. The Select renders each option's Title-Cased label, so this opens the
+   * dropdown and clicks the option whose visible text is `slugLabel(slug)`.
    */
-  async nameTopic(topic: string): Promise<void> {
-    const input = this.page.getByRole("combobox", { name: "True Topic" });
-    await input.click();
-    await input.fill(topic);
-    await input.press("Enter");
+  async selectTopic(slug: string): Promise<void> {
+    const label = this.slugLabel(slug);
+    await this.topicTrigger().click();
+    await this.page.getByRole("option", { name: label, exact: true }).click();
+    await expect(this.topicTrigger()).toContainText(label);
+  }
+
+  /**
+   * Add a brand-new topic through the dropdown's "+ New topic…" inline input:
+   * open the Select, reveal the input, type `label`, assert the live slug
+   * preview shows the normalized slug, then confirm. Returns the slug the value
+   * is stored as (lowercase snake_case) so specs can assert on it.
+   */
+  async addNewTopic(label: string): Promise<string> {
+    const slug = this.slugify(label);
+    await this.topicTrigger().click();
+    await this.page
+      .getByRole("option", { name: "+ New topic…", exact: true })
+      .click();
+    await this.page
+      .getByRole("textbox", { name: "True Topic new name" })
+      .fill(label);
+    // The panel previews the value it will store ("Saves as <slug>").
+    await expect(
+      this.page.locator("code").filter({ hasText: slug }),
+    ).toBeVisible();
+    await this.page
+      .getByRole("button", { name: "Confirm new True Topic" })
+      .click();
+    return slug;
   }
 
   /** Click Save (persist the current annotation). */
