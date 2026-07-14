@@ -110,6 +110,10 @@ function AnnotationApp() {
   // list — empty hides the Select entirely.
   const [labelers, setLabelers] = useState<string[]>([]);
   const [labeler, setLabeler] = useState("");
+  // Which dataset the labelers query has settled for. The queue fetch is gated
+  // on this matching the active dataset, so a premature unfiltered request can't
+  // race (and lose to) the post-resolution filtered one on mount or a switch.
+  const [labelersReadyFor, setLabelersReadyFor] = useState<string | null>(null);
 
   const applyLabeler = useCallback((next: string) => {
     setLabeler(next);
@@ -220,14 +224,21 @@ function AnnotationApp() {
               ? window.localStorage.getItem(LABELER_KEY)
               : null;
           applyLabeler(resolveLabeler(list, stored, user?.email));
+          setLabelersReadyFor(ds);
         })
         .catch(() => {
           setLabelers([]);
           setLabeler("");
+          setLabelersReadyFor(ds);
         });
     },
     [applyLabeler, user?.email],
   );
+
+  // Monotonic id stamped on every conversations request; a response is applied
+  // only when it belongs to the most recent one, so out-of-order arrivals (mount
+  // race, fast filter toggles) can never overwrite newer state.
+  const queueReqId = useRef(0);
 
   const refreshQueue = useCallback(
     (
@@ -237,6 +248,7 @@ function AnnotationApp() {
       q: string,
       lab: string,
     ) => {
+      const reqId = ++queueReqId.current;
       setQueueLoading(true);
       api
         .listConversations(ds, {
@@ -247,11 +259,18 @@ function AnnotationApp() {
           labeler: lab || undefined,
         })
         .then((res) => {
+          if (reqId !== queueReqId.current) return;
           setConversations(res.items);
           setQueueTotal(res.total);
         })
-        .catch(fail)
-        .finally(() => setQueueLoading(false));
+        .catch((e) => {
+          if (reqId !== queueReqId.current) return;
+          fail(e);
+        })
+        .finally(() => {
+          if (reqId !== queueReqId.current) return;
+          setQueueLoading(false);
+        });
     },
     [fail],
   );
@@ -264,6 +283,7 @@ function AnnotationApp() {
     setFilters({});
     setSearch("");
     setPage(1);
+    setLabelersReadyFor(null);
     void refreshTaxonomy(dataset);
     refreshStats(dataset);
     refreshBertopicLabels(dataset);
@@ -294,10 +314,14 @@ function AnnotationApp() {
     setPage(1);
   }, [labeler]);
 
+  // Gate the queue fetch until the active dataset's labelers query has settled,
+  // so the resolved labeler (see resolveLabeler) is known before the first
+  // request. A legitimately-empty resolution still fetches unfiltered.
   useEffect(() => {
     if (!dataset) return;
+    if (labelersReadyFor !== dataset) return;
     refreshQueue(dataset, filters, page, search, labeler);
-  }, [dataset, filters, page, search, labeler, refreshQueue]);
+  }, [dataset, labelersReadyFor, filters, page, search, labeler, refreshQueue]);
 
   const selectSegment = useCallback((segment: SegmentSummary) => {
     setSelectedSegment(segment);
