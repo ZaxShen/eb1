@@ -165,6 +165,8 @@ export const conversationView: ConversationView = {
       reviewed: false,
       true_topic: null,
       true_subtopic: null,
+      bertopic_topic: "refunds",
+      bertopic_subtopic: "double_charge",
     },
     {
       id: 102,
@@ -179,6 +181,8 @@ export const conversationView: ConversationView = {
       reviewed: true,
       true_topic: "technical_support",
       true_subtopic: "login_issue",
+      bertopic_topic: "logins",
+      bertopic_subtopic: null,
     },
   ],
   gold_segments: [
