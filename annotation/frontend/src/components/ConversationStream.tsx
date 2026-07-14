@@ -72,12 +72,7 @@ const MessageBubble = ({
     (isFirstInSeries || !isSameMinute(prevMsg?.createdAt, msg.createdAt));
 
   return (
-    <div
-      className={cn(
-        "group flex flex-col gap-0.5",
-        isUser ? "items-start" : "items-end",
-      )}
-    >
+    <div className="group flex flex-col gap-0.5">
       {(isFirstInSeries || showTimestamp) && (
         <div
           className={cn(
@@ -95,7 +90,7 @@ const MessageBubble = ({
       )}
       <div
         className={cn(
-          "flex items-end gap-1",
+          "flex w-full items-end gap-1",
           isUser ? "flex-row" : "flex-row-reverse",
         )}
       >
