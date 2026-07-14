@@ -19,8 +19,7 @@ Per dataset ``<ds>`` it reads the committed JSONL sample
 seeds each conversation as ONE whole-conversation ``predicted`` segment (the new
 starting-segmentation model: one segment per conversation, the human segments
 from there). A fixed ``mock_topic`` label is attached so split/merge inheritance
-and "Confirm AI" relabel have a topic to carry — matching the prior SQLite mock
-fixture the specs were written against.
+and the dropdown relabel flow have a topic to carry.
 
 Run standalone (against the dedicated e2e DB, NOT production)::
 
@@ -66,7 +65,13 @@ WORKLIST: dict[str, list[dict]] = {
 }
 
 SEED_TOPIC = "mock_topic"
-SEED_SUBTOPIC = "mock subtopic"
+SEED_SUBTOPIC = "mock_subtopic"
+
+# A slug-form taxonomy topic the labeling spec picks from the True Topic dropdown
+# (``selectTopic``). Seeded on every dataset so the dropdown has a canonical
+# option to choose; the value stored is the slug itself (lowercase snake_case).
+PICK_TOPIC = "cover_letter_help"
+PICK_SUBTOPIC = "formatting_tips"
 
 # BERTopic gold labels for the queue's BERTopic filter, keyed by dataset then
 # conversation ext_id: each named conversation gets one whole-conversation
@@ -83,9 +88,15 @@ BERTOPIC_GOLD: dict[str, dict[str, dict]] = {
     },
 }
 
-# A tiny relabel taxonomy so the annotation panel's selects have options.
+# A tiny slug-form relabel taxonomy so the annotation panel's dropdowns have
+# options: the seeded segment label plus the topic the labeling spec picks.
 TAXONOMY = [
     {"topic": SEED_TOPIC, "subtopic": SEED_SUBTOPIC, "description": "Seeded fixture label."},
+    {
+        "topic": PICK_TOPIC,
+        "subtopic": PICK_SUBTOPIC,
+        "description": "Seeded taxonomy topic for the labeling flow.",
+    },
 ]
 
 
@@ -154,7 +165,7 @@ def build_dataset(name: str) -> dict:
                     for m in messages
                 ],
                 # One whole-conversation predicted segment, labeled so split/merge
-                # inheritance and Confirm-AI relabel have a topic to carry.
+                # inheritance and the dropdown relabel flow have a topic to carry.
                 "topic": SEED_TOPIC,
                 "subtopic": SEED_SUBTOPIC,
                 "sentiment": "neutral",

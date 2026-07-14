@@ -304,7 +304,7 @@ export const api = {
     ),
 
   // Distinct topic names already saved for this dataset (most-frequent first).
-  // Unioned with the taxonomy in the topic combobox for open-vocab suggestions.
+  // Unioned with the taxonomy to populate the True Topic dropdown options.
   usedTopics: (dataset: string): Promise<string[]> =>
     request<UsedTopics>(
       `/datasets/${encodeURIComponent(dataset)}/used-topics`,
@@ -325,8 +325,9 @@ export const api = {
       `/datasets/${encodeURIComponent(dataset)}/bertopic-labels`,
     ),
 
-  // Create a taxonomy option (idempotent server-side). `kind` defaults to
-  // "user" — the open-vocab namespace human edits and combobox proposals land in.
+  // Create a taxonomy option (idempotent server-side; topic/subtopic are
+  // slug-normalized server-side). `kind` defaults to "user" — the namespace
+  // human edits and dropdown "+ New …" proposals land in.
   createTaxonomy: (
     dataset: string,
     body: Omit<TaxonomyCreateRequest, "kind"> & { kind?: string },

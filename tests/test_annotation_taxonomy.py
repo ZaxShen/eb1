@@ -27,8 +27,21 @@ pytestmark = pytest.mark.skipif(
 
 from annotation.backend import db  # noqa: E402
 from annotation.backend.app import create_app  # noqa: E402
+from annotation.backend.slug import slugify  # noqa: E402
 
 DATASET = "taxotest"
+
+# Parity cases: these MUST match the TS `slugify` tests in
+# annotation/frontend/src/lib/utils.test.ts so the live preview equals what the
+# backend stores. Keep the two lists identical.
+SLUG_CASES = [
+    ("Veterans  Affairs!", "veterans_affairs"),
+    ("Billing", "billing"),
+    ("cover_letter", "cover_letter"),
+    ("  spaced  out  ", "spaced_out"),
+    ("R&D / ops", "r_d_ops"),
+    ("Multi--Dash__Score", "multi_dash_score"),
+]
 CONV = "tx_conv_0001"
 
 _CONVERSATIONS = [
@@ -97,6 +110,76 @@ def _segment_labels():
             (DATASET,),
         ).fetchall()
     return {(r["topic"], r["subtopic"]) for r in rows}
+
+
+@pytest.mark.parametrize(("raw", "expected"), SLUG_CASES)
+def test_slugify_parity_cases(raw, expected):
+    assert slugify(raw) == expected
+
+
+@pytest.mark.parametrize("blank", ["", "   ", "!!!", "___"])
+def test_slugify_rejects_empty_after_normalization(blank):
+    with pytest.raises(ValueError):
+        slugify(blank)
+
+
+def test_create_normalizes_topic_and_subtopic_to_slug(client):
+    resp = client.post(
+        f"/api/datasets/{DATASET}/taxonomy",
+        json={"topic": "Veterans  Affairs!", "subtopic": "Housing Loan"},
+    )
+    assert resp.status_code == 200
+    assert ("veterans_affairs", "housing_loan") in _topics()
+
+
+def test_create_empty_after_slugify_returns_422(client):
+    resp = client.post(
+        f"/api/datasets/{DATASET}/taxonomy",
+        json={"topic": "!!!"},
+    )
+    assert resp.status_code == 422
+
+
+def test_annotate_relabel_stores_slug(client):
+    seg_id = db.read_predicted_segments(DATASET)[0]["id"]
+    resp = client.post(
+        f"/api/datasets/{DATASET}/segments/{seg_id}/annotate",
+        json={"true_topic": "Veterans  Affairs!", "true_subtopic": "Housing Loan"},
+    )
+    assert resp.status_code == 200
+    gold = db.gold_labels_by_base_segment(DATASET)[seg_id]
+    assert gold == {"topic": "veterans_affairs", "subtopic": "housing_loan"}
+
+
+def test_annotate_empty_topic_after_slugify_returns_422(client):
+    seg_id = db.read_predicted_segments(DATASET)[0]["id"]
+    resp = client.post(
+        f"/api/datasets/{DATASET}/segments/{seg_id}/annotate",
+        json={"true_topic": "!!!", "true_subtopic": ""},
+    )
+    assert resp.status_code == 422
+
+
+def test_rename_normalizes_inputs_to_slug(client):
+    resp = client.patch(
+        f"/api/datasets/{DATASET}/taxonomy",
+        json={"topic": "Coding Help", "new_topic": "Programming Help"},
+    )
+    assert resp.status_code == 200
+    assert ("programming_help", "binary_search") in _topics()
+    assert ("programming_help", "binary_search") in _segment_labels()
+
+
+def test_merge_normalizes_inputs_to_slug(client):
+    resp = client.post(
+        f"/api/datasets/{DATASET}/taxonomy/merge",
+        json={"from_topic": "Coding Help", "into_topic": "Writing Help"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["cascaded"] == 1
+    seg_topics = {t for (t, _) in _segment_labels()}
+    assert "coding_help" not in seg_topics
+    assert "writing_help" in seg_topics
 
 
 def test_create_inserts_entry(client):
