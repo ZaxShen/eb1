@@ -208,6 +208,39 @@ describe("ConversationStream (MSW component)", () => {
     expect(screen.queryByText(formatChatTimestamp(uniform))).toBeNull();
   });
 
+  it("hides time captions for epoch-era sequential timestamps (synthetic)", () => {
+    // SuperDialseg's prod ingest fabricates `1970-01-01T00:00:00Z + Ns` per
+    // message — sequential, so exact-equality never fires, but every timestamp
+    // predates 2000 → still synthetic. Captions must be suppressed.
+    const epochView: ConversationView = {
+      ...conversationView,
+      messages: conversationView.messages.map((m, i) => ({
+        ...m,
+        createdAt: new Date(i * 1000).toISOString(),
+      })),
+    };
+    renderWithProviders(
+      <ConversationStream
+        view={epochView}
+        loading={false}
+        selectedSegmentId={null}
+        onSelectSegment={vi.fn()}
+        onReplaceBoundaries={vi.fn()}
+      />,
+    );
+    // Messages and sender labels still render.
+    expect(
+      screen.getByText(conversationView.messages[0].message),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("User").length).toBeGreaterThan(0);
+    // No time caption for any fabricated epoch timestamp.
+    for (const msg of epochView.messages) {
+      expect(
+        screen.queryByText(formatChatTimestamp(msg.createdAt)),
+      ).toBeNull();
+    }
+  });
+
   it("shows the empty-state when a conversation has no segments", () => {
     renderWithProviders(
       <ConversationStream

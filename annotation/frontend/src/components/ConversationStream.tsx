@@ -24,7 +24,7 @@ import {
   cn,
   formatChatTimestamp,
   formatLabel,
-  hasUniformTimestamps,
+  hasSyntheticTimestamps,
   isSameMinute,
 } from "../lib/utils";
 
@@ -228,10 +228,11 @@ const ConversationStream = ({
     return map;
   }, [view]);
 
-  // Synthetic ingests (SuperDialseg) stamp every message with one identical
-  // timestamp; suppress the per-message time captions when that holds.
+  // Synthetic ingests (SuperDialseg) fabricate timestamps — either one uniform
+  // time for the whole dialogue or epoch-era `1970-01-01 + Ns` sequences;
+  // suppress the per-message time captions when either signature holds.
   const hideTimestamps = useMemo(
-    () => hasUniformTimestamps((view?.messages ?? []).map((m) => m.createdAt)),
+    () => hasSyntheticTimestamps((view?.messages ?? []).map((m) => m.createdAt)),
     [view],
   );
 

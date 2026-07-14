@@ -38,18 +38,26 @@ export function formatChatTimestamp(value: string | null | undefined): string {
   return `${day}, ${time}`;
 }
 
+const SYNTHETIC_TIMESTAMP_EPOCH = Date.UTC(2000, 0, 1);
+
 /**
- * True when every message in a conversation carries the SAME timestamp — the
- * signature of a synthetic ingest (SuperDialseg fabricates one uniform time for
- * a whole dialogue). Callers suppress per-message time captions when this holds;
- * real corpora with varying timestamps return false and are unaffected.
+ * True when a conversation's timestamps are fabricated by a synthetic ingest,
+ * so callers can suppress per-message time captions. Fires when EITHER every
+ * present timestamp is identical (SuperDialseg's uniform-time ingest) OR every
+ * present timestamp predates 2000-01-01 (its epoch-era `1970-01-01 + Ns`
+ * sequential fabrication). No real chat corpus predates 2000, so corpora with
+ * genuine varying timestamps return false and are unaffected.
  */
-export function hasUniformTimestamps(
+export function hasSyntheticTimestamps(
   timestamps: (string | null | undefined)[],
 ): boolean {
   const present = timestamps.filter((t): t is string => Boolean(t));
   if (present.length === 0) return false;
-  return present.every((t) => t === present[0]);
+  if (present.every((t) => t === present[0])) return true;
+  return present.every((t) => {
+    const ms = new Date(t).getTime();
+    return !Number.isNaN(ms) && ms < SYNTHETIC_TIMESTAMP_EPOCH;
+  });
 }
 
 /** True when two ISO timestamps fall within the same minute. */
