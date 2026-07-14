@@ -38,6 +38,20 @@ export function formatChatTimestamp(value: string | null | undefined): string {
   return `${day}, ${time}`;
 }
 
+/**
+ * True when every message in a conversation carries the SAME timestamp — the
+ * signature of a synthetic ingest (SuperDialseg fabricates one uniform time for
+ * a whole dialogue). Callers suppress per-message time captions when this holds;
+ * real corpora with varying timestamps return false and are unaffected.
+ */
+export function hasUniformTimestamps(
+  timestamps: (string | null | undefined)[],
+): boolean {
+  const present = timestamps.filter((t): t is string => Boolean(t));
+  if (present.length === 0) return false;
+  return present.every((t) => t === present[0]);
+}
+
 /** True when two ISO timestamps fall within the same minute. */
 export function isSameMinute(
   a: string | null | undefined,

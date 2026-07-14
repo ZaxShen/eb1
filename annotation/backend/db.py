@@ -455,6 +455,18 @@ def worklist_ext_ids(dataset: str, labeler: str) -> set[str]:
     return {r["ext_id"] for r in rows}
 
 
+def labelers(dataset: str) -> list[str]:
+    """Return the distinct worklist labelers for ``dataset``, sorted (may be empty)."""
+    pool = get_pool()
+    with pool.connection() as conn:
+        rows = conn.execute(
+            "SELECT DISTINCT labeler FROM worklist WHERE dataset = %s "
+            "ORDER BY labeler ASC",
+            (dataset,),
+        ).fetchall()
+    return [r["labeler"] for r in rows]
+
+
 # ---------------------------------------------------------------------------
 # Lookups
 # ---------------------------------------------------------------------------

@@ -24,6 +24,7 @@ import {
   cn,
   formatChatTimestamp,
   formatLabel,
+  hasUniformTimestamps,
   isSameMinute,
 } from "../lib/utils";
 
@@ -55,17 +56,20 @@ function isUserRole(type: string): boolean {
 const MessageBubble = ({
   msg,
   prevMsg,
+  hideTimestamp = false,
   onSplitHere,
 }: {
   msg: Message;
   prevMsg?: Message;
+  hideTimestamp?: boolean;
   onSplitHere?: () => void;
 }) => {
   const isUser = isUserRole(msg.type);
   const bubbleStyle = roleStyle(msg.type);
   const isFirstInSeries = !prevMsg || prevMsg.type !== msg.type;
   const showTimestamp =
-    isFirstInSeries || !isSameMinute(prevMsg?.createdAt, msg.createdAt);
+    !hideTimestamp &&
+    (isFirstInSeries || !isSameMinute(prevMsg?.createdAt, msg.createdAt));
 
   return (
     <div
@@ -224,6 +228,13 @@ const ConversationStream = ({
     return map;
   }, [view]);
 
+  // Synthetic ingests (SuperDialseg) stamp every message with one identical
+  // timestamp; suppress the per-message time captions when that holds.
+  const hideTimestamps = useMemo(
+    () => hasUniformTimestamps((view?.messages ?? []).map((m) => m.createdAt)),
+    [view],
+  );
+
   // Frozen-boundary datasets (e.g. SuperDialseg gold): the gold segmentation is
   // authoritative, so the re-segmentation controls are hidden entirely while
   // segments stay selectable for naming.
@@ -312,6 +323,7 @@ const ConversationStream = ({
                     key={msg.id}
                     msg={msg}
                     prevMsg={messages[i - 1]}
+                    hideTimestamp={hideTimestamps}
                     onSplitHere={
                       !frozen && i > 0
                         ? () => handleSplitHere(segIdx, msg.index)

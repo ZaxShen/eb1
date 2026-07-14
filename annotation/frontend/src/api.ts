@@ -155,6 +155,10 @@ export interface UsedTopics {
   topics: string[];
 }
 
+export interface Labelers {
+  labelers: string[];
+}
+
 export interface Stats {
   total: number;
   reviewed: number;
@@ -306,6 +310,14 @@ export const api = {
       `/datasets/${encodeURIComponent(dataset)}/used-topics`,
     ).then((r) => r.topics),
 
+  // Distinct worklist labelers for this dataset (sorted; may be empty). Drives
+  // the identity-bound labeler filter — an empty list means the dataset has no
+  // worklist, so the frontend hides the labeler Select entirely.
+  labelers: (dataset: string): Promise<string[]> =>
+    request<Labelers>(
+      `/datasets/${encodeURIComponent(dataset)}/labelers`,
+    ).then((r) => r.labelers),
+
   // Distinct BERTopic topics + subtopics (each with a per-conversation count)
   // for the queue's BERTopic filter dropdowns, ordered most-frequent first.
   bertopicLabels: (dataset: string): Promise<BertopicLabels> =>
@@ -417,6 +429,7 @@ export type SchemaContract = [
   AssertAssignable<AuthConfig, Schema["AuthConfig"]>,
   AssertAssignable<Stats, Schema["Stats"]>,
   AssertAssignable<UsedTopics, Schema["UsedTopics"]>,
+  AssertAssignable<Labelers, Schema["Labelers"]>,
   AssertAssignable<BertopicLabels, Schema["BertopicLabels"]>,
   AssertAssignable<BertopicTopicCount, Schema["BertopicTopicCount"]>,
   AssertAssignable<BertopicSubtopicCount, Schema["BertopicSubtopicCount"]>,

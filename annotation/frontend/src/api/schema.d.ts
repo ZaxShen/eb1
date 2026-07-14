@@ -133,6 +133,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/datasets/{dataset}/labelers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Labelers
+         * @description Return the distinct worklist labelers for the dataset, sorted (may be empty).
+         */
+        get: operations["get_labelers_api_datasets__dataset__labelers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/datasets/{dataset}/segments": {
         parameters: {
             query?: never;
@@ -496,6 +516,14 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /**
+         * Labelers
+         * @description Distinct worklist labelers for a dataset, sorted (may be empty).
+         */
+        Labelers: {
+            /** Labelers */
+            labelers?: string[];
         };
         /**
          * Message
@@ -878,6 +906,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BoundaryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_labelers_api_datasets__dataset__labelers_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                dataset: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Labelers"];
                 };
             };
             /** @description Validation Error */

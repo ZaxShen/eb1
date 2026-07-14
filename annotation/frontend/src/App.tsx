@@ -60,32 +60,26 @@ import SignInGate from "./auth/SignInGate";
 
 const PAGE_SIZE = 50;
 
-const LABELERS = ["labeler_a", "labeler_b"] as const;
-type Labeler = (typeof LABELERS)[number];
 const LABELER_KEY = "eb1.labeler";
-// Radix Select forbids an empty-string item value, so the "no slot" option uses
-// a sentinel that maps back to "" (unfiltered) at the boundary.
+// Radix Select forbids an empty-string item value, so the "All labelers" option
+// uses a sentinel that maps back to "" (unfiltered) at the boundary. Persisting
+// the sentinel also records an EXPLICIT "All" choice, distinct from "never set".
 const NO_LABELER = "__all__";
 
-function isLabeler(value: string | null): value is Labeler {
-  return value === "labeler_a" || value === "labeler_b";
-}
-
-// Persisted labeler slot driving the per-labeler worklist filter (?labeler=).
-// Empty string = no slot picked = unfiltered queue.
-function useLabeler() {
-  const [labeler, setLabelerState] = useState<Labeler | "">(() => {
-    if (typeof window === "undefined") return "";
-    const stored = window.localStorage.getItem(LABELER_KEY);
-    return isLabeler(stored) ? stored : "";
-  });
-  const setLabeler = useCallback((next: Labeler | "") => {
-    setLabelerState(next);
-    if (typeof window === "undefined") return;
-    if (next) window.localStorage.setItem(LABELER_KEY, next);
-    else window.localStorage.removeItem(LABELER_KEY);
-  }, []);
-  return { labeler, setLabeler };
+// Resolve the effective labeler filter for a dataset from its fetched labelers,
+// the persisted selection, and the signed-in identity. Precedence: an explicit
+// "All" choice is kept; else a persisted labeler still present in the list is
+// kept; else the signed-in email defaults it when the list contains it; else
+// "All" (unfiltered). Stale persisted values fall through to the default.
+function resolveLabeler(
+  list: string[],
+  stored: string | null,
+  email: string | undefined,
+): string {
+  if (stored === NO_LABELER) return "";
+  if (stored && list.includes(stored)) return stored;
+  if (email && list.includes(email)) return email;
+  return "";
 }
 
 function useTheme() {
@@ -107,10 +101,21 @@ function useTheme() {
 function AnnotationApp() {
   const { theme, toggle } = useTheme();
   const { ssoEnabled, user, signOut } = useAuth();
-  const { labeler, setLabeler } = useLabeler();
 
   const [datasets, setDatasets] = useState<string[]>([]);
   const [dataset, setDataset] = useState("");
+
+  // Per-dataset worklist labelers driving the identity-bound filter. `labeler`
+  // is the active selection ("" = All / unfiltered); `labelers` is the fetched
+  // list — empty hides the Select entirely.
+  const [labelers, setLabelers] = useState<string[]>([]);
+  const [labeler, setLabeler] = useState("");
+
+  const applyLabeler = useCallback((next: string) => {
+    setLabeler(next);
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(LABELER_KEY, next || NO_LABELER);
+  }, []);
 
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [filters, setFilters] = useState<ConversationFilters>({});
@@ -201,13 +206,36 @@ function AnnotationApp() {
     [],
   );
 
+  // Worklist labelers for the dataset, refreshed per dataset. Resolves the active
+  // filter against the persisted selection + signed-in identity (see
+  // resolveLabeler) and persists the resolution so it survives a reload.
+  const refreshLabelers = useCallback(
+    (ds: string) => {
+      api
+        .labelers(ds)
+        .then((list) => {
+          setLabelers(list);
+          const stored =
+            typeof window !== "undefined"
+              ? window.localStorage.getItem(LABELER_KEY)
+              : null;
+          applyLabeler(resolveLabeler(list, stored, user?.email));
+        })
+        .catch(() => {
+          setLabelers([]);
+          setLabeler("");
+        });
+    },
+    [applyLabeler, user?.email],
+  );
+
   const refreshQueue = useCallback(
     (
       ds: string,
       f: ConversationFilters,
       p: number,
       q: string,
-      lab: Labeler | "",
+      lab: string,
     ) => {
       setQueueLoading(true);
       api
@@ -239,7 +267,14 @@ function AnnotationApp() {
     void refreshTaxonomy(dataset);
     refreshStats(dataset);
     refreshBertopicLabels(dataset);
-  }, [dataset, refreshTaxonomy, refreshStats, refreshBertopicLabels]);
+    refreshLabelers(dataset);
+  }, [
+    dataset,
+    refreshTaxonomy,
+    refreshStats,
+    refreshBertopicLabels,
+    refreshLabelers,
+  ]);
 
   // A new filter or search resets to the first page; changing the page keeps
   // the current filter/search. Either way the queue refetches server-side.
@@ -406,15 +441,6 @@ function AnnotationApp() {
     [dataset, refreshTaxonomy, fail],
   );
 
-  const handleConfirmAi = useCallback(() => {
-    if (!selectedSegment) return;
-    const aiTopic = selectedSegment.topic ?? "";
-    const aiSubtopic = selectedSegment.subtopic ?? "";
-    if (aiTopic === "") return;
-    setTopic(aiTopic);
-    setSubtopic(aiSubtopic);
-  }, [selectedSegment]);
-
   const handleReplaceBoundaries = useCallback(
     (spans: BoundarySpan[]) => {
       if (!dataset || !selectedConversation || !view) return;
@@ -458,12 +484,10 @@ function AnnotationApp() {
 
   // Keyboard orchestration (ignored while typing in inputs/selects).
   const saveRef = useRef(handleSave);
-  const confirmRef = useRef(handleConfirmAi);
   const adjacentRef = useRef(selectAdjacentConversation);
   const undoRef = useRef(history.undo);
   const redoRef = useRef(history.redo);
   saveRef.current = handleSave;
-  confirmRef.current = handleConfirmAi;
   adjacentRef.current = selectAdjacentConversation;
   undoRef.current = history.undo;
   redoRef.current = history.redo;
@@ -492,9 +516,6 @@ function AnnotationApp() {
       if (e.key === "Enter") {
         e.preventDefault();
         saveRef.current();
-      } else if (e.key === " ") {
-        e.preventDefault();
-        confirmRef.current();
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
         adjacentRef.current(-1);
@@ -533,31 +554,33 @@ function AnnotationApp() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2">
-            <UserRound className="size-4 text-muted-foreground" />
-            <Select
-              value={labeler || NO_LABELER}
-              onValueChange={(v) =>
-                setLabeler(v === NO_LABELER ? "" : (v as Labeler))
-              }
-            >
-              <SelectTrigger
-                size="sm"
-                className="min-w-[140px]"
-                aria-label="Labeler"
+          {labelers.length > 0 && (
+            <div className="flex items-center gap-2">
+              <UserRound className="size-4 text-muted-foreground" />
+              <Select
+                value={labeler || NO_LABELER}
+                onValueChange={(v) =>
+                  applyLabeler(v === NO_LABELER ? "" : v)
+                }
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={NO_LABELER}>All labelers</SelectItem>
-                {LABELERS.map((l) => (
-                  <SelectItem key={l} value={l}>
-                    {l}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+                <SelectTrigger
+                  size="sm"
+                  className="min-w-[140px]"
+                  aria-label="Labeler"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_LABELER}>All labelers</SelectItem>
+                  {labelers.map((l) => (
+                    <SelectItem key={l} value={l}>
+                      {l}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <div className="ml-auto flex items-center gap-2">
             <Button
               variant="outline"
@@ -708,7 +731,6 @@ function AnnotationApp() {
                     }}
                     onSubtopicChange={setSubtopic}
                     onReviewedByChange={setManualReviewedBy}
-                    onConfirmAi={handleConfirmAi}
                     onSave={handleSave}
                     onPrev={() => selectAdjacentConversation(-1)}
                     onNext={() => selectAdjacentConversation(1)}

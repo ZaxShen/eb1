@@ -30,6 +30,22 @@ def test_frozen_boundaries_is_data_driven():
     assert db.frozen_boundaries("lmsys") is False
 
 
+def test_labelers_endpoint_requires_token_when_sso_enabled(monkeypatch):
+    """The labelers route inherits the shared identity gate: 401 without a token.
+
+    Offline: ``require_identity`` runs before any DB access, so this needs no DSN.
+    """
+    from fastapi.testclient import TestClient
+
+    from annotation.backend.app import create_app
+
+    monkeypatch.setenv(
+        "GOOGLE_CLIENT_ID", "test-client-id.apps.googleusercontent.com"
+    )
+    client = TestClient(create_app())
+    assert client.get(f"/api/datasets/{DATASET}/labelers").status_code == 401
+
+
 pytestmark_pg = pytest.mark.skipif(
     not os.environ.get("EB1_ANNOTATION_DSN"),
     reason="EB1_ANNOTATION_DSN unset; start annotation/docker-compose.yml to run",
@@ -250,6 +266,51 @@ def test_used_topics_endpoint(_db):
     resp = client.get(f"/api/datasets/{DATASET}/used-topics")
     assert resp.status_code == 200
     assert "refunds" in resp.json()["topics"]
+
+
+@pytestmark_pg
+def test_labelers_returns_distinct_sorted(_db):
+    for ext_id in ("wltest_solo_a", "wltest_solo_b", "wltest_overlap"):
+        db.ingest_batch(DATASET, [{"ext_id": ext_id, "messages": []}])
+    db.load_worklist(DATASET, _WORKLIST)
+    # Overlap double-labels one dialogue, so labeler_a/labeler_b each recur, but
+    # the list is distinct + sorted.
+    assert db.labelers(DATASET) == ["labeler_a", "labeler_b"]
+
+
+@pytestmark_pg
+def test_labelers_empty_for_dataset_without_worklist(_db):
+    db.ingest_batch(DATASET, [{"ext_id": "wltest_solo_a", "messages": []}])
+    assert db.labelers(DATASET) == []
+
+
+@pytestmark_pg
+def test_labelers_endpoint(_db):
+    from fastapi.testclient import TestClient
+
+    from annotation.backend.app import create_app
+
+    for ext_id in ("wltest_solo_a", "wltest_solo_b", "wltest_overlap"):
+        db.ingest_batch(DATASET, [{"ext_id": ext_id, "messages": []}])
+    db.load_worklist(DATASET, _WORKLIST)
+
+    client = TestClient(create_app())
+    resp = client.get(f"/api/datasets/{DATASET}/labelers")
+    assert resp.status_code == 200
+    assert resp.json()["labelers"] == ["labeler_a", "labeler_b"]
+
+
+@pytestmark_pg
+def test_labelers_endpoint_empty_without_worklist(_db):
+    from fastapi.testclient import TestClient
+
+    from annotation.backend.app import create_app
+
+    db.ingest_batch(DATASET, [{"ext_id": "wltest_solo_a", "messages": []}])
+    client = TestClient(create_app())
+    resp = client.get(f"/api/datasets/{DATASET}/labelers")
+    assert resp.status_code == 200
+    assert resp.json()["labelers"] == []
 
 
 @pytestmark_pg
