@@ -233,8 +233,8 @@ function bertopicCapturingHandler(seen: URLSearchParams[]) {
   );
 }
 
-describe("ConversationQueue (BERTopic filters)", () => {
-  it("renders both BERTopic dropdowns populated from labels with counts", async () => {
+describe("ConversationQueue (source filters)", () => {
+  it("renders both source dropdowns populated from labels with counts", async () => {
     const user = userEvent.setup();
     usePagedHandler(makeConversations(2));
     renderWithProviders(<Harness bertopicLabels={BERTOPIC_LABELS} />);
@@ -244,7 +244,7 @@ describe("ConversationQueue (BERTopic filters)", () => {
     );
 
     await user.click(
-      screen.getByRole("combobox", { name: "BERTopic topic" }),
+      screen.getByRole("combobox", { name: "Source topic" }),
     );
     const refunds = screen.getByRole("option", { name: /Refunds/ });
     // Name and count render as separate elements, not "Refunds (7)" inline.
@@ -254,16 +254,16 @@ describe("ConversationQueue (BERTopic filters)", () => {
     expect(
       screen.getByRole("option", { name: /Logins/ }),
     ).toBeInTheDocument();
-    // The "All BERTopic topics" sentinel row carries no count.
+    // The "All source topics" sentinel row carries no count.
     const allTopics = screen.getByRole("option", {
-      name: "All BERTopic topics",
+      name: "All source topics",
     });
-    expect(allTopics.textContent).toBe("All BERTopic topics");
+    expect(allTopics.textContent).toBe("All source topics");
     // Close and open the subtopic dropdown.
     await user.keyboard("{Escape}");
 
     await user.click(
-      screen.getByRole("combobox", { name: "BERTopic subtopic" }),
+      screen.getByRole("combobox", { name: "Source subtopic" }),
     );
     const doubleCharge = screen.getByRole("option", {
       name: /Double Charge/,
@@ -275,7 +275,7 @@ describe("ConversationQueue (BERTopic filters)", () => {
     ).toBeInTheDocument();
   });
 
-  it("selecting a BERTopic topic refetches with bertopic_topic and narrows the queue", async () => {
+  it("selecting a source topic refetches with bertopic_topic and narrows the queue", async () => {
     const user = userEvent.setup();
     const seen: URLSearchParams[] = [];
     bertopicCapturingHandler(seen);
@@ -286,7 +286,7 @@ describe("ConversationQueue (BERTopic filters)", () => {
     );
 
     await user.click(
-      screen.getByRole("combobox", { name: "BERTopic topic" }),
+      screen.getByRole("combobox", { name: "Source topic" }),
     );
     await user.click(screen.getByRole("option", { name: /Logins/ }));
 
@@ -309,12 +309,12 @@ describe("ConversationQueue (BERTopic filters)", () => {
     );
 
     await user.click(
-      screen.getByRole("combobox", { name: "BERTopic topic" }),
+      screen.getByRole("combobox", { name: "Source topic" }),
     );
     await user.click(screen.getByRole("option", { name: /Refunds/ }));
 
     await user.click(
-      screen.getByRole("combobox", { name: "BERTopic subtopic" }),
+      screen.getByRole("combobox", { name: "Source subtopic" }),
     );
     expect(
       screen.getByRole("option", { name: /Double Charge/ }),

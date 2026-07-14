@@ -318,8 +318,9 @@ export const api = {
       `/datasets/${encodeURIComponent(dataset)}/labelers`,
     ).then((r) => r.labelers),
 
-  // Distinct BERTopic topics + subtopics (each with a per-conversation count)
-  // for the queue's BERTopic filter dropdowns, ordered most-frequent first.
+  // Distinct source (document-grounded) topics + subtopics (each with a
+  // per-conversation count) for the queue's source filter dropdowns, ordered
+  // most-frequent first.
   bertopicLabels: (dataset: string): Promise<BertopicLabels> =>
     request<BertopicLabels>(
       `/datasets/${encodeURIComponent(dataset)}/bertopic-labels`,
