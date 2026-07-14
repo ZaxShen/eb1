@@ -3,9 +3,9 @@
 The annotation Postgres ``taxonomy`` table is the canonical source; the pipeline
 consumes the exported ``config/taxonomy/{dataset}.json`` (task 16b). Run::
 
-    python -m annotation.export_taxonomy --dataset wildchat
+    python -m annotation.export_taxonomy --dataset superdialseg
 
-writing ``config/taxonomy/wildchat.json`` with the deterministic shape::
+writing ``config/taxonomy/superdialseg.json`` with the deterministic shape::
 
     {"dataset": ..., "kind_default": "user",
      "entries": [{"kind", "topic", "subtopic", "description"}, ...]}
