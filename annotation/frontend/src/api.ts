@@ -164,6 +164,8 @@ export interface Stats {
   reviewed: number;
   unreviewed: number;
   per_topic: Record<string, number>;
+  reviewed_match: number;
+  reviewed_mismatch: number;
 }
 
 export interface SegmentFilters {
@@ -178,6 +180,7 @@ export interface ConversationFilters {
   labeler?: string;
   bertopic_topic?: string;
   bertopic_subtopic?: string;
+  mismatch?: boolean;
 }
 
 export interface BertopicTopicCount {
@@ -276,6 +279,7 @@ export const api = {
         labeler: query.labeler,
         bertopic_topic: query.bertopic_topic,
         bertopic_subtopic: query.bertopic_subtopic,
+        mismatch: query.mismatch ? "true" : undefined,
       })}`,
     ),
 

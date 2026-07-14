@@ -79,7 +79,9 @@ export interface paths {
          *     filter on the effective segmentation. ``labeler`` restricts the page to that
          *     labeler's worklist assignments. ``bertopic_topic``/``bertopic_subtopic``
          *     restrict to conversations with a gold segment carrying that BERTopic label.
-         *     Shape: ``{items,total,page,page_size}``.
+         *     ``mismatch`` restricts to conversations with a reviewed gold segment whose
+         *     human label disagrees with its BERTopic source label. Shape:
+         *     ``{items,total,page,page_size}``.
          */
         get: operations["list_conversations_api_datasets__dataset__conversations_get"];
         put?: never;
@@ -594,6 +596,10 @@ export interface components {
         /**
          * Stats
          * @description Review progress for a dataset.
+         *
+         *     ``reviewed_match``/``reviewed_mismatch`` compare each reviewed gold segment's
+         *     human topic/subtopic (slugs) against its BERTopic source label (slugified) —
+         *     a quick agreement signal that drives the mismatch quick-filter.
          */
         Stats: {
             /** Per Topic */
@@ -602,6 +608,16 @@ export interface components {
             };
             /** Reviewed */
             reviewed: number;
+            /**
+             * Reviewed Match
+             * @default 0
+             */
+            reviewed_match: number;
+            /**
+             * Reviewed Mismatch
+             * @default 0
+             */
+            reviewed_mismatch: number;
             /** Total */
             total: number;
             /** Unreviewed */
@@ -816,6 +832,7 @@ export interface operations {
                 labeler?: string | null;
                 bertopic_topic?: string | null;
                 bertopic_subtopic?: string | null;
+                mismatch?: boolean;
             };
             header?: {
                 authorization?: string | null;

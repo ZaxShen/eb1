@@ -77,6 +77,35 @@ const StatisticsPanel = ({
         </Badge>
       </div>
 
+      {(stats?.reviewed ?? 0) > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Badge
+            variant="secondary"
+            title="Reviewed segments whose label matches its source topic"
+          >
+            <span className="size-1.5 rounded-full bg-positive" />
+            {stats?.reviewed_match ?? 0} match
+          </Badge>
+          <Badge
+            variant="secondary"
+            title="Filter conversations where a reviewed label differs from its source topic"
+            onClick={() =>
+              onFiltersChange({
+                ...filters,
+                mismatch: filters.mismatch ? undefined : true,
+              })
+            }
+            className={cn(
+              "cursor-pointer",
+              filters.mismatch && "ring-1 ring-primary",
+            )}
+          >
+            <span className="size-1.5 rounded-full bg-negative" />
+            {stats?.reviewed_mismatch ?? 0} mismatch
+          </Badge>
+        </div>
+      )}
+
       {topicEntries.length > 0 && (
         <div className="flex flex-col gap-1 pt-1">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">

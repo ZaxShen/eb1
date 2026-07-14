@@ -16,7 +16,6 @@ import {
 } from "../api";
 import { DATASET } from "../test/msw/handlers";
 import { server } from "../test/msw/server";
-import { buildTaxonomyMap } from "../lib/taxonomy";
 import ConversationQueue from "./ConversationQueue";
 
 // radix ScrollArea observes its viewport; jsdom lacks ResizeObserver.
@@ -77,7 +76,6 @@ function Harness({
         page={page}
         pageSize={PAGE_SIZE}
         total={total}
-        taxonomy={buildTaxonomyMap([])}
         bertopicLabels={bertopicLabels}
         loading={loading}
         onSelect={setSelected}
@@ -233,8 +231,28 @@ function bertopicCapturingHandler(seen: URLSearchParams[]) {
   );
 }
 
-describe("ConversationQueue (source filters)", () => {
-  it("renders both source dropdowns populated from labels with counts", async () => {
+describe("ConversationQueue (taxonomy filters)", () => {
+  it("shows exactly the two taxonomy dropdowns (no gold-topic filter)", async () => {
+    usePagedHandler(makeConversations(2));
+    renderWithProviders(<Harness bertopicLabels={BERTOPIC_LABELS} />);
+
+    await waitFor(() =>
+      expect(screen.getByText("conv-000")).toBeInTheDocument(),
+    );
+
+    // Only the Topic + Subtopic source dropdowns remain — the gold "All topics"
+    // filter is gone, so there are exactly two comboboxes.
+    const comboboxes = screen.getAllByRole("combobox");
+    expect(comboboxes).toHaveLength(2);
+    expect(
+      screen.getByRole("combobox", { name: "Topic" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", { name: "Subtopic" }),
+    ).toBeInTheDocument();
+  });
+
+  it("renders both dropdowns with the renamed labels + counts", async () => {
     const user = userEvent.setup();
     usePagedHandler(makeConversations(2));
     renderWithProviders(<Harness bertopicLabels={BERTOPIC_LABELS} />);
@@ -243,9 +261,7 @@ describe("ConversationQueue (source filters)", () => {
       expect(screen.getByText("conv-000")).toBeInTheDocument(),
     );
 
-    await user.click(
-      screen.getByRole("combobox", { name: "Source topic" }),
-    );
+    await user.click(screen.getByRole("combobox", { name: "Topic" }));
     const refunds = screen.getByRole("option", { name: /Refunds/ });
     // Name and count render as separate elements, not "Refunds (7)" inline.
     expect(within(refunds).getByText("Refunds")).toBeInTheDocument();
@@ -254,17 +270,16 @@ describe("ConversationQueue (source filters)", () => {
     expect(
       screen.getByRole("option", { name: /Logins/ }),
     ).toBeInTheDocument();
-    // The "All source topics" sentinel row carries no count.
-    const allTopics = screen.getByRole("option", {
-      name: "All source topics",
-    });
-    expect(allTopics.textContent).toBe("All source topics");
+    // The renamed "All topics" sentinel row carries no count.
+    const allTopics = screen.getByRole("option", { name: "All topics" });
+    expect(allTopics.textContent).toBe("All topics");
     // Close and open the subtopic dropdown.
     await user.keyboard("{Escape}");
 
-    await user.click(
-      screen.getByRole("combobox", { name: "Source subtopic" }),
-    );
+    await user.click(screen.getByRole("combobox", { name: "Subtopic" }));
+    expect(
+      screen.getByRole("option", { name: "All subtopics" }),
+    ).toBeInTheDocument();
     const doubleCharge = screen.getByRole("option", {
       name: /Double Charge/,
     });
@@ -275,7 +290,7 @@ describe("ConversationQueue (source filters)", () => {
     ).toBeInTheDocument();
   });
 
-  it("selecting a source topic refetches with bertopic_topic and narrows the queue", async () => {
+  it("selecting a topic refetches with bertopic_topic and narrows the queue", async () => {
     const user = userEvent.setup();
     const seen: URLSearchParams[] = [];
     bertopicCapturingHandler(seen);
@@ -285,9 +300,7 @@ describe("ConversationQueue (source filters)", () => {
       expect(screen.getByText("conv-001")).toBeInTheDocument(),
     );
 
-    await user.click(
-      screen.getByRole("combobox", { name: "Source topic" }),
-    );
+    await user.click(screen.getByRole("combobox", { name: "Topic" }));
     await user.click(screen.getByRole("option", { name: /Logins/ }));
 
     await waitFor(() =>
@@ -308,14 +321,10 @@ describe("ConversationQueue (source filters)", () => {
       expect(screen.getByText("conv-000")).toBeInTheDocument(),
     );
 
-    await user.click(
-      screen.getByRole("combobox", { name: "Source topic" }),
-    );
+    await user.click(screen.getByRole("combobox", { name: "Topic" }));
     await user.click(screen.getByRole("option", { name: /Refunds/ }));
 
-    await user.click(
-      screen.getByRole("combobox", { name: "Source subtopic" }),
-    );
+    await user.click(screen.getByRole("combobox", { name: "Subtopic" }));
     expect(
       screen.getByRole("option", { name: /Double Charge/ }),
     ).toBeInTheDocument();
@@ -326,5 +335,50 @@ describe("ConversationQueue (source filters)", () => {
     expect(
       screen.queryByRole("option", { name: /Mfa Reset/ }),
     ).not.toBeInTheDocument();
+  });
+
+  it("switching topic clears an incompatible subtopic selection", async () => {
+    const user = userEvent.setup();
+    const seen: URLSearchParams[] = [];
+    server.use(
+      http.get(`/api/datasets/:dataset/conversations`, ({ request }) => {
+        seen.push(new URL(request.url).searchParams);
+        const items = makeConversations(1);
+        return HttpResponse.json({
+          items,
+          total: items.length,
+          page: 1,
+          page_size: PAGE_SIZE,
+        });
+      }),
+    );
+    renderWithProviders(<Harness bertopicLabels={BERTOPIC_LABELS} />);
+
+    await waitFor(() =>
+      expect(screen.getByText("conv-000")).toBeInTheDocument(),
+    );
+
+    // Pick refunds → its child double_charge, then switch to logins.
+    await user.click(screen.getByRole("combobox", { name: "Topic" }));
+    await user.click(screen.getByRole("option", { name: /Refunds/ }));
+    await user.click(screen.getByRole("combobox", { name: "Subtopic" }));
+    await user.click(screen.getByRole("option", { name: /Double Charge/ }));
+
+    await waitFor(() =>
+      expect(
+        seen.some((p) => p.get("bertopic_subtopic") === "double_charge"),
+      ).toBe(true),
+    );
+
+    await user.click(screen.getByRole("combobox", { name: "Topic" }));
+    await user.click(screen.getByRole("option", { name: /Logins/ }));
+
+    // The incompatible subtopic is dropped: the newest refetch carries the new
+    // topic and NO subtopic.
+    await waitFor(() => {
+      const last = seen[seen.length - 1];
+      expect(last.get("bertopic_topic")).toBe("logins");
+      expect(last.get("bertopic_subtopic")).toBeNull();
+    });
   });
 });

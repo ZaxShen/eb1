@@ -726,7 +726,7 @@
         "type": "object"
       },
       "Stats": {
-        "description": "Review progress for a dataset.",
+        "description": "Review progress for a dataset.\n\n``reviewed_match``/``reviewed_mismatch`` compare each reviewed gold segment's\nhuman topic/subtopic (slugs) against its BERTopic source label (slugified) \u2014\na quick agreement signal that drives the mismatch quick-filter.",
         "properties": {
           "per_topic": {
             "additionalProperties": {
@@ -737,6 +737,16 @@
           },
           "reviewed": {
             "title": "Reviewed",
+            "type": "integer"
+          },
+          "reviewed_match": {
+            "default": 0,
+            "title": "Reviewed Match",
+            "type": "integer"
+          },
+          "reviewed_mismatch": {
+            "default": 0,
+            "title": "Reviewed Mismatch",
             "type": "integer"
           },
           "total": {
@@ -1121,7 +1131,7 @@
     },
     "/api/datasets/{dataset}/conversations": {
       "get": {
-        "description": "Return a PAGINATED, searchable page of conversation summaries.\n\n``q`` matches conversation ext_id OR message content. ``status``/``topic``\nfilter on the effective segmentation. ``labeler`` restricts the page to that\nlabeler's worklist assignments. ``bertopic_topic``/``bertopic_subtopic``\nrestrict to conversations with a gold segment carrying that BERTopic label.\nShape: ``{items,total,page,page_size}``.",
+        "description": "Return a PAGINATED, searchable page of conversation summaries.\n\n``q`` matches conversation ext_id OR message content. ``status``/``topic``\nfilter on the effective segmentation. ``labeler`` restricts the page to that\nlabeler's worklist assignments. ``bertopic_topic``/``bertopic_subtopic``\nrestrict to conversations with a gold segment carrying that BERTopic label.\n``mismatch`` restricts to conversations with a reviewed gold segment whose\nhuman label disagrees with its BERTopic source label. Shape:\n``{items,total,page,page_size}``.",
         "operationId": "list_conversations_api_datasets__dataset__conversations_get",
         "parameters": [
           {
@@ -1250,6 +1260,16 @@
                 }
               ],
               "title": "Bertopic Subtopic"
+            }
+          },
+          {
+            "in": "query",
+            "name": "mismatch",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Mismatch",
+              "type": "boolean"
             }
           },
           {

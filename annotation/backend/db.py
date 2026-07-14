@@ -46,6 +46,20 @@ def _slug_optional(value: str | None) -> str | None:
         return value
     return slugify(value)
 
+
+def _safe_slug(value: str | None) -> str | None:
+    """Slugify a display label for comparison; ``None``/blank/uncoercible -> None.
+
+    Used to bridge a BERTopic source label ("Veterans Affairs") to the slug form
+    stored on gold segments ("veterans_affairs") without raising on odd inputs.
+    """
+    if value is None or not value.strip():
+        return None
+    try:
+        return slugify(value)
+    except ValueError:
+        return None
+
 # Datasets whose gold boundaries are frozen: humans name topics over the gold
 # segmentation but cannot re-segment. Data-driven so a route/view can surface a
 # ``frozen_boundaries`` flag without hardcoding it in a component.
@@ -837,6 +851,7 @@ def list_conversations(
     labeler: str | None = None,
     bertopic_topic: str | None = None,
     bertopic_subtopic: str | None = None,
+    mismatch: bool = False,
 ) -> dict:
     """Return a PAGINATED, searchable page of conversation summaries.
 
@@ -845,11 +860,13 @@ def list_conversations(
     segmentation. ``labeler`` restricts the page to ext_ids assigned to that
     labeler in ``worklist`` (the per-labeler queue). ``bertopic_topic`` /
     ``bertopic_subtopic`` restrict to conversations with a ``source='gold'``
-    segment carrying that BERTopic label; pagination/search compose over the
-    filtered set. Returns ``{items, total, page, page_size}`` where ``total`` is
-    the count AFTER the ``q``/``labeler``/``bertopic_*`` filters but BEFORE
-    status/topic (which are computed per-conversation on the page). Items are
-    summaries:
+    segment carrying that BERTopic label. ``mismatch`` (when true) restricts to
+    conversations having >=1 reviewed gold segment whose human topic/subtopic
+    disagrees with its slugified BERTopic source label. Pagination/search compose
+    over the filtered set. Returns ``{items, total, page, page_size}`` where
+    ``total`` is the count AFTER the ``q``/``labeler``/``bertopic_*``/``mismatch``
+    filters but BEFORE status/topic (which are computed per-conversation on the
+    page). Items are summaries:
     ``{conversation, message_count, segment_count, topics, reviewed_count, reviewed}``.
     """
     page = max(1, page)
@@ -883,6 +900,29 @@ def list_conversations(
             )
         )
         params.append(bertopic_subtopic)
+    if mismatch:
+        pairs = _mismatch_slug_pairs(dataset)
+        if not pairs:
+            where.append(sql.SQL("false"))
+        else:
+            values = sql.SQL(", ").join(
+                sql.SQL("(%s::text, %s::text, %s::text, %s::text)") for _ in pairs
+            )
+            where.append(
+                sql.SQL(
+                    "EXISTS (SELECT 1 FROM segment s "
+                    "JOIN (VALUES {}) AS m(bt, bst, slug_t, slug_st) "
+                    "ON s.bertopic_topic IS NOT DISTINCT FROM m.bt "
+                    "AND s.bertopic_subtopic IS NOT DISTINCT FROM m.bst "
+                    "WHERE s.conversation_id = c.id AND s.source = ANY(%s) "
+                    "AND s.reviewed_by IS NOT NULL AND s.bertopic_topic IS NOT NULL "
+                    "AND (m.slug_t IS DISTINCT FROM s.topic "
+                    "OR m.slug_st IS DISTINCT FROM s.subtopic))"
+                ).format(values)
+            )
+            for pair in pairs:
+                params.extend(pair)
+            params.append(list(GOLD_SOURCES))
     if q:
         like = f"%{q}%"
         where.append(
@@ -1385,6 +1425,59 @@ def bertopic_labels(dataset: str) -> dict:
     }
 
 
+def _mismatch_slug_pairs(dataset: str) -> list[tuple[str, str | None, str | None, str | None]]:
+    """Distinct BERTopic ``(source_topic, source_subtopic, slug_topic, slug_subtopic)``.
+
+    Over the dataset's gold segments carrying a BERTopic source topic; the slug
+    columns are ``slugify``d in Python (never in SQL) so the mismatch predicate can
+    compare them against the stored gold slugs. NULL-source rows are excluded.
+    """
+    pool = get_pool()
+    with pool.connection() as conn:
+        rows = conn.execute(
+            "SELECT DISTINCT s.bertopic_topic, s.bertopic_subtopic FROM segment s "
+            "JOIN conversation c ON c.id = s.conversation_id "
+            "WHERE c.dataset = %s AND s.source = ANY(%s) "
+            "AND s.bertopic_topic IS NOT NULL",
+            (dataset, list(GOLD_SOURCES)),
+        ).fetchall()
+    return [
+        (r["bertopic_topic"], r["bertopic_subtopic"],
+         _safe_slug(r["bertopic_topic"]), _safe_slug(r["bertopic_subtopic"]))
+        for r in rows
+    ]
+
+
+def _reviewed_taxonomy_counts(dataset: str) -> tuple[int, int]:
+    """Return ``(match, mismatch)`` over reviewed gold segments with a source label.
+
+    A segment counts only when it is a gold segment, ``reviewed_by`` is set, and it
+    carries a BERTopic source topic (NULL-source segments are excluded — they are
+    never a mismatch). A mismatch is ``slugify(bertopic_topic) != topic OR
+    slugify(bertopic_subtopic) != subtopic`` (Python ``!=`` is NULL-safe like SQL's
+    ``IS DISTINCT FROM``); slugs are computed in Python.
+    """
+    pool = get_pool()
+    with pool.connection() as conn:
+        rows = conn.execute(
+            "SELECT s.bertopic_topic, s.bertopic_subtopic, s.topic, s.subtopic "
+            "FROM segment s JOIN conversation c ON c.id = s.conversation_id "
+            "WHERE c.dataset = %s AND s.source = ANY(%s) "
+            "AND s.reviewed_by IS NOT NULL AND s.bertopic_topic IS NOT NULL",
+            (dataset, list(GOLD_SOURCES)),
+        ).fetchall()
+    match = 0
+    mismatch = 0
+    for r in rows:
+        if _safe_slug(r["bertopic_topic"]) != r["topic"] or _safe_slug(
+            r["bertopic_subtopic"]
+        ) != r["subtopic"]:
+            mismatch += 1
+        else:
+            match += 1
+    return match, mismatch
+
+
 def stats(dataset: str) -> dict:
     """Return review progress over the EFFECTIVE set: totals + per-topic counts."""
     pool = get_pool()
@@ -1407,9 +1500,12 @@ def stats(dataset: str) -> dict:
                     reviewed += 1
                 if seg["topic"]:
                     per_topic[seg["topic"]] = per_topic.get(seg["topic"], 0) + 1
+    reviewed_match, reviewed_mismatch = _reviewed_taxonomy_counts(dataset)
     return {
         "total": total,
         "reviewed": reviewed,
         "unreviewed": total - reviewed,
         "per_topic": per_topic,
+        "reviewed_match": reviewed_match,
+        "reviewed_mismatch": reviewed_mismatch,
     }

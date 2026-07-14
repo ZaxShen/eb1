@@ -200,6 +200,7 @@ def list_conversations(
     labeler: str | None = Query(default=None),
     bertopic_topic: str | None = Query(default=None),
     bertopic_subtopic: str | None = Query(default=None),
+    mismatch: bool = Query(default=False),
 ) -> ConversationPage:
     """Return a PAGINATED, searchable page of conversation summaries.
 
@@ -207,7 +208,9 @@ def list_conversations(
     filter on the effective segmentation. ``labeler`` restricts the page to that
     labeler's worklist assignments. ``bertopic_topic``/``bertopic_subtopic``
     restrict to conversations with a gold segment carrying that BERTopic label.
-    Shape: ``{items,total,page,page_size}``.
+    ``mismatch`` restricts to conversations with a reviewed gold segment whose
+    human label disagrees with its BERTopic source label. Shape:
+    ``{items,total,page,page_size}``.
     """
     _require_dataset(dataset)
     result = db.list_conversations(
@@ -220,6 +223,7 @@ def list_conversations(
         labeler=labeler,
         bertopic_topic=bertopic_topic,
         bertopic_subtopic=bertopic_subtopic,
+        mismatch=mismatch,
     )
     return ConversationPage(
         items=[ConversationSummary(**row) for row in result["items"]],
@@ -467,4 +471,6 @@ def get_stats(dataset: str) -> Stats:
         reviewed=result["reviewed"],
         unreviewed=result["unreviewed"],
         per_topic=result["per_topic"],
+        reviewed_match=result["reviewed_match"],
+        reviewed_mismatch=result["reviewed_mismatch"],
     )
