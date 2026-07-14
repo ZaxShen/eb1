@@ -241,6 +241,37 @@ describe("ConversationStream (MSW component)", () => {
     }
   });
 
+  it("sizes bubble rows against the stream column, not their own content", async () => {
+    // Regression (Founder bug: short messages wrapped mid-word, e.g. "corre/ct.").
+    // The bubble keeps max-w-[80%], but that percentage must resolve against the
+    // full stream column — not a shrink-to-fit row. jsdom can't measure real
+    // layout, so pin the class contract that produces correct layout: the bubble
+    // row is w-full and the column wrapper no longer shrink-to-fits its rows with
+    // items-start/items-end.
+    const view = await api.getConversation(DATASET, "conv-001");
+    renderWithProviders(
+      <ConversationStream
+        view={view}
+        loading={false}
+        selectedSegmentId={null}
+        onSelectSegment={vi.fn()}
+        onReplaceBoundaries={vi.fn()}
+      />,
+    );
+
+    const bubble = screen.getByText(view.messages[0].message);
+    const row = bubble.parentElement as HTMLElement;
+    const column = row.parentElement as HTMLElement;
+
+    // The row holding the bubble stretches to the full stream width.
+    expect(row.className).toContain("w-full");
+    // Bubble stays capped at 80% of that now-full-width row.
+    expect(bubble.className).toContain("max-w-[80%]");
+    // The column wrapper no longer collapses its rows to content width.
+    expect(column.className).not.toContain("items-start");
+    expect(column.className).not.toContain("items-end");
+  });
+
   it("shows the empty-state when a conversation has no segments", () => {
     renderWithProviders(
       <ConversationStream
