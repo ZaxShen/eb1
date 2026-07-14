@@ -53,6 +53,14 @@ def _require_dataset(dataset: str) -> None:
         raise HTTPException(status_code=404, detail=f"Unknown dataset: {dataset!r}")
 
 
+def _catch_slug(fn, *args, **kwargs):
+    """Run a slug-normalizing db write, mapping empty-after-slugify to a 422."""
+    try:
+        return fn(*args, **kwargs)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
 def _reviewer(identity: Identity | None, body_value: str | None) -> str | None:
     """When SSO is on, ``reviewed_by`` is the verified name; else the client value."""
     return identity.name if identity is not None else body_value
@@ -286,7 +294,8 @@ def create_taxonomy(
 ) -> TaxonomyMutationResponse:
     """Add a taxonomy option (idempotent: a duplicate create is a no-op)."""
     _require_dataset(dataset)
-    db.create_taxonomy(
+    _catch_slug(
+        db.create_taxonomy,
         dataset,
         topic=request.topic,
         subtopic=request.subtopic,
@@ -304,7 +313,8 @@ def rename_taxonomy(
 ) -> TaxonomyMutationResponse:
     """Rename a taxonomy option, cascading the rename to applied segment labels."""
     _require_dataset(dataset)
-    cascaded = db.rename_taxonomy(
+    cascaded = _catch_slug(
+        db.rename_taxonomy,
         dataset,
         topic=request.topic,
         new_topic=request.new_topic,
@@ -323,7 +333,8 @@ def merge_taxonomy(
 ) -> TaxonomyMutationResponse:
     """Fold one topic into another: cascade labels then drop the duplicate rows."""
     _require_dataset(dataset)
-    cascaded = db.merge_taxonomy(
+    cascaded = _catch_slug(
+        db.merge_taxonomy,
         dataset,
         from_topic=request.from_topic,
         into_topic=request.into_topic,
@@ -387,7 +398,8 @@ def annotate_segment(
     if seg is None:
         raise HTTPException(status_code=404, detail=f"Unknown segment: {segment_id}")
 
-    gold_id = db.upsert_gold_for_segment(
+    gold_id = _catch_slug(
+        db.upsert_gold_for_segment,
         dataset,
         seg,
         topic=request.true_topic,

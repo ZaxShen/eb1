@@ -66,6 +66,28 @@ describe("TaxonomyManager (MSW component)", () => {
     );
   });
 
+  it("previews and submits the slug when adding a mixed-case topic", async () => {
+    const { user, dialog } = await setup();
+    const post = vi.spyOn(api, "createTaxonomy");
+
+    await user.type(
+      within(dialog).getByLabelText("New topic name"),
+      "Veterans  Affairs!",
+    );
+    // Live preview shows exactly what the backend will store.
+    expect(within(dialog).getByText("veterans_affairs")).toBeInTheDocument();
+
+    await user.click(within(dialog).getByRole("button", { name: "Add topic" }));
+
+    expect(post).toHaveBeenCalledWith(DATASET, {
+      topic: "veterans_affairs",
+      kind: "user",
+    });
+    await waitFor(() =>
+      expect(within(dialog).getByText("Veterans Affairs")).toBeInTheDocument(),
+    );
+  });
+
   it("inline-renames a topic via renameTaxonomy", async () => {
     const { user, dialog } = await setup();
     const patch = vi.spyOn(api, "renameTaxonomy");
