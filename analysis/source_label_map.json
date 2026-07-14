@@ -1,0 +1,1427 @@
+{
+  "dataset": "superdialseg",
+  "pairs": [
+    {
+      "subtopic": "A Guide for Facilities:",
+      "subtopic_raw": "A Guide for Facilities:#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "About online and alternative delivery method courses (I-PIRP/ADM)",
+      "subtopic_raw": "About online and alternative delivery method courses (I-PIRP/ADM)#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "About problem driver restrictions",
+      "subtopic_raw": "About problem driver restrictions#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Automatic license and registration extension for military personnel",
+      "subtopic_raw": "Automatic license and registration extension for military personnel#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Become a driving school instructor",
+      "subtopic_raw": "Become a driving school instructor#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Buy or sell a vehicle (transfer ownership)",
+      "subtopic_raw": "Buy or sell a vehicle (transfer ownership)#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Changes to IRP registration",
+      "subtopic_raw": "Changes to IRP registration#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Commercial vehicle registration fees, vehicle use taxes and supplemental fees",
+      "subtopic_raw": "Commercial vehicle registration fees, vehicle use taxes and supplemental fees#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "DIAL-IN search accounts",
+      "subtopic_raw": "DIAL-IN search accounts#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Driver license and learner permit fees and refunds",
+      "subtopic_raw": "Driver license and learner permit fees and refunds#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Escort driver certification",
+      "subtopic_raw": "Escort driver certification#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Estimate registration fees and taxes",
+      "subtopic_raw": "Estimate registration fees and taxes#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Exchange your out-of-state driver license",
+      "subtopic_raw": "Exchange your out-of-state driver license#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Get a driver license",
+      "subtopic_raw": "Get a driver license#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Get a license to drive a taxi or livery vehicle",
+      "subtopic_raw": "Get a license to drive a taxi or livery vehicle#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Get my own CDL driving record (abstract)",
+      "subtopic_raw": "Get my own CDL driving record (abstract)#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "How to renew a license",
+      "subtopic_raw": "How to renew a license#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Information about Empire Gold plates",
+      "subtopic_raw": "Information about Empire Gold plates#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Know Your Rights in Auto Repair",
+      "subtopic_raw": "Know Your Rights in Auto Repair#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Learner permit restrictions",
+      "subtopic_raw": "Learner permit restrictions#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Medical Certification FAQ's",
+      "subtopic_raw": "Medical Certification FAQ's#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Medical Certification Requirements",
+      "subtopic_raw": "Medical Certification Requirements#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Moving out of New York State",
+      "subtopic_raw": "Moving out of New York State#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "MyDMV Account Terms of Service",
+      "subtopic_raw": "MyDMV Account Terms of Service#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "NY State Adventure License FAQs",
+      "subtopic_raw": "NY State Adventure License FAQs#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "New York State Insurance Requirements",
+      "subtopic_raw": "New York State Insurance Requirements#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Open a dealership",
+      "subtopic_raw": "Open a dealership#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Open a driving school",
+      "subtopic_raw": "Open a driving school#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Order personalized plates",
+      "subtopic_raw": "Order personalized plates#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Pay driver civil penalty",
+      "subtopic_raw": "Pay driver civil penalty#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Pay suspension termination fee",
+      "subtopic_raw": "Pay suspension termination fee#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Prepare for your road test",
+      "subtopic_raw": "Prepare for your road test#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Refunds and transfer credits for surrendered plates",
+      "subtopic_raw": "Refunds and transfer credits for surrendered plates#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Register a moped",
+      "subtopic_raw": "Register a moped#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Register a snowmobile",
+      "subtopic_raw": "Register a snowmobile#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Registration suspensions for failure to pay tolls",
+      "subtopic_raw": "Registration suspensions for failure to pay tolls#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Remove a lienholder from a title",
+      "subtopic_raw": "Remove a lienholder from a title#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Renew a hazardous materials (HazMat) endorsement",
+      "subtopic_raw": "Renew a hazardous materials (HazMat) endorsement#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Renew non-driver ID card",
+      "subtopic_raw": "Renew non-driver ID card#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Replace a non-driver ID card",
+      "subtopic_raw": "Replace a non-driver ID card#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Replace license or permit",
+      "subtopic_raw": "Replace license or permit#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Replace or transfer personalized plates",
+      "subtopic_raw": "Replace or transfer personalized plates#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Sales tax information",
+      "subtopic_raw": "Sales tax information#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Schedule and take a road test",
+      "subtopic_raw": "Schedule and take a road test#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Stolen and recovered vehicles",
+      "subtopic_raw": "Stolen and recovered vehicles#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Surrender (return or turn in) your plates to the DMV",
+      "subtopic_raw": "Surrender (return or turn in) your plates to the DMV#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Suspensions and revocations",
+      "subtopic_raw": "Suspensions and revocations#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "The Graduated License Law and Restrictions for Drivers under 18",
+      "subtopic_raw": "The Graduated License Law and Restrictions for Drivers under 18#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Top 5 DMV Mistakes and How to Avoid Them",
+      "subtopic_raw": "Top 5 DMV Mistakes and How to Avoid Them#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Traffic Violations Bureau",
+      "subtopic_raw": "Traffic Violations Bureau#3_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Voter Registration Application Frequently Asked Questions",
+      "subtopic_raw": "Voter Registration Application Frequently Asked Questions#1_0",
+      "topic": "DMV",
+      "topic_raw": "dmv"
+    },
+    {
+      "subtopic": "Appeal A Decision",
+      "subtopic_raw": "Appeal A Decision | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Apply For A Child (Under Age 18) | Disability Benefits",
+      "subtopic_raw": "Apply For A Child (Under Age 18) | Disability Benefits | SSA#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Apply for Retirement Benefits",
+      "subtopic_raw": "Apply for Retirement Benefits | SSA#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefit Verification Letter",
+      "subtopic_raw": "Benefit Verification Letter  | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner",
+      "subtopic_raw": "Benefits Planner | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner | Social Security Credits and Benefit Eligibility",
+      "subtopic_raw": "Benefits Planner | Social Security Credits and Benefit Eligibility | SSA#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Disability",
+      "subtopic_raw": "Benefits Planner: Disability | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Disability | Approval Process",
+      "subtopic_raw": "Benefits Planner: Disability | Approval Process | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Disability | Are You Working",
+      "subtopic_raw": "Benefits Planner: Disability | Are You Working | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Disability | Family Benefits",
+      "subtopic_raw": "Benefits Planner: Disability | Family Benefits | Social Security Administration#2_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Disability | How You Apply",
+      "subtopic_raw": "Benefits Planner: Disability | How You Apply | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Disability | How You Qualify",
+      "subtopic_raw": "Benefits Planner: Disability | How You Qualify | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Retirement | Applying for Medicare Only",
+      "subtopic_raw": "Benefits Planner: Retirement | Applying for Medicare Only | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Retirement | Benefits By Year Of Birth",
+      "subtopic_raw": "Benefits Planner: Retirement | Benefits By Year Of Birth | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Retirement | Benefits For Your Family",
+      "subtopic_raw": "Benefits Planner: Retirement | Benefits For Your Family | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Retirement | Benefits For Your Spouse",
+      "subtopic_raw": "Benefits Planner: Retirement | Benefits For Your Spouse | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Retirement | Delayed Retirement Credits",
+      "subtopic_raw": "Benefits Planner: Retirement | Delayed Retirement Credits | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Retirement | Getting Benefits While Working",
+      "subtopic_raw": "Benefits Planner: Retirement | Getting Benefits While Working | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Retirement | Government Pension Offset (GPO) Calculator",
+      "subtopic_raw": "Benefits Planner: Retirement | Government Pension Offset (GPO) Calculator | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Retirement | If You Are Divorced",
+      "subtopic_raw": "Benefits Planner: Retirement | If You Are Divorced | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Retirement | Medicare Premiums",
+      "subtopic_raw": "Benefits Planner: Retirement | Medicare Premiums | SSA#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Retirement | Online Calculator (WEP Version)",
+      "subtopic_raw": "Benefits Planner: Retirement | Online Calculator (WEP Version)#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Retirement | Other Things to Consider",
+      "subtopic_raw": "Benefits Planner: Retirement | Other Things to Consider | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Retirement | You Can Apply For Retirement Benefits Or Medicare",
+      "subtopic_raw": "Benefits Planner: Retirement | You Can Apply For Retirement Benefits Or Medicare | Social Security Administration#2_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Survivors | How You Apply",
+      "subtopic_raw": "Benefits Planner: Survivors | How You Apply | Social Security Administration#2_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Survivors | If You Are The Survivor",
+      "subtopic_raw": "Benefits Planner: Survivors | If You Are The Survivor | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits Planner: Survivors | Planning For Your Survivors",
+      "subtopic_raw": "Benefits Planner: Survivors | Planning For Your Survivors | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Benefits for People with Disabilities",
+      "subtopic_raw": "Benefits for People with Disabilities#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Change of Address| Social Security Administration",
+      "subtopic_raw": "Change of Address| Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Direct Deposit",
+      "subtopic_raw": "Direct Deposit | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Disability Benefits",
+      "subtopic_raw": "Disability Benefits | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Explore The Benefits You May Be Due",
+      "subtopic_raw": "Explore The Benefits You May Be Due#2_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "How To Apply For Social Security Disability Benefits",
+      "subtopic_raw": "How To Apply For Social Security Disability Benefits#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Learn About Retirement Benefits",
+      "subtopic_raw": "Learn About Retirement Benefits | SSA#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Learn what documents you will need to get a Social Security Card",
+      "subtopic_raw": "Learn what documents you will need to get a Social Security Card | Social Security Administration#10_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Manage Your Retirement Benefits",
+      "subtopic_raw": "Manage Your Retirement Benefits | SSA#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Medicare Benefits",
+      "subtopic_raw": "Medicare Benefits | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Retirement Benefits",
+      "subtopic_raw": "Retirement Benefits | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Retirement Estimator",
+      "subtopic_raw": "Retirement Estimator | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Social Security Direct Deposit",
+      "subtopic_raw": "Social Security Direct Deposit | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Supplemental Security Income (SSI) Benefits",
+      "subtopic_raw": "Supplemental Security Income (SSI) Benefits | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "my Social Security | Create an Account | Social Security Administratio",
+      "subtopic_raw": "my Social Security | Create an Account | Social Security Administratio#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "my Social Security | Security and Protection",
+      "subtopic_raw": "my Social Security | Security and Protection | Social Security Administration#1_0",
+      "topic": "Social Security",
+      "topic_raw": "ssa"
+    },
+    {
+      "subtopic": "Accepting Aid",
+      "subtopic_raw": "Accepting Aid | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Aid for Military Families",
+      "subtopic_raw": "Aid for Military Families | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Aidan | The FSA Virtual Assistant",
+      "subtopic_raw": "Aidan | The FSA Virtual Assistant | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Appeal a Credit Decision Demo | Extenuating Circumstances",
+      "subtopic_raw": "Appeal a Credit Decision Demo | Extenuating Circumstances | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Apply for Income-Driven Student Loan Repayment",
+      "subtopic_raw": "Apply for Income-Driven Student Loan Repayment | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Avoiding Default",
+      "subtopic_raw": "Avoiding Default | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Checklists for Academic and Financial Preparation",
+      "subtopic_raw": "Checklists for Academic and Financial Preparation | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Closed School Discharge",
+      "subtopic_raw": "Closed School Discharge | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Co-sign Your Spouse's Income-Driven Repayment Plan Application",
+      "subtopic_raw": "Co-sign Your Spouse's Income-Driven Repayment Plan Application | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Comparing School Aid Offers",
+      "subtopic_raw": "Comparing School Aid Offers | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Completing a Master Promissory Note",
+      "subtopic_raw": "Completing a Master Promissory Note | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Contracting Information",
+      "subtopic_raw": "Contracting Information | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Eligibility Requirements",
+      "subtopic_raw": "Eligibility Requirements | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Eligibility for Non-U.S. Citizens",
+      "subtopic_raw": "Eligibility for Non-U.S. Citizens | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Entrance Counseling",
+      "subtopic_raw": "Entrance Counseling | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Estimate Your Aid",
+      "subtopic_raw": "Estimate Your Aid | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Exit Counseling",
+      "subtopic_raw": "Exit Counseling | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Extended Plan",
+      "subtopic_raw": "Extended Plan | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "FAFSA® Help",
+      "subtopic_raw": "FAFSA® Help | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "False Certification Discharge",
+      "subtopic_raw": "False Certification Discharge | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Federal Versus Private Loans",
+      "subtopic_raw": "Federal Versus Private Loans | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Graduated Plan",
+      "subtopic_raw": "Graduated Plan | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "How Aid Is Calculated",
+      "subtopic_raw": "How Aid Is Calculated | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "How to Renew Your FAFSA® Application",
+      "subtopic_raw": "How to Renew Your FAFSA® Application | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "How to Review and Correct Your FAFSA® Application",
+      "subtopic_raw": "How to Review and Correct Your FAFSA® Application | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "IT Standards Library",
+      "subtopic_raw": "IT Standards Library | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Income-Driven Repayment Plans",
+      "subtopic_raw": "Income-Driven Repayment Plans | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Income-Sensitive Plan",
+      "subtopic_raw": "Income-Sensitive Plan | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Link to Us",
+      "subtopic_raw": "Link to Us | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Listing Colleges on the FAFSA® Form",
+      "subtopic_raw": "Listing Colleges on the FAFSA® Form | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Loans",
+      "subtopic_raw": "Loans | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "PLUS Loan Application for Graduate Students",
+      "subtopic_raw": "PLUS Loan Application for Graduate Students | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Parent PLUS Loan Application",
+      "subtopic_raw": "Parent PLUS Loan Application | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Parent PLUS Loans",
+      "subtopic_raw": "Parent PLUS Loans | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Perkins Loan Cancellation and Discharge",
+      "subtopic_raw": "Perkins Loan Cancellation and Discharge | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Preparing for College",
+      "subtopic_raw": "Preparing for College | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Program Reviews",
+      "subtopic_raw": "Program Reviews | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Public Service Loan Forgiveness",
+      "subtopic_raw": "Public Service Loan Forgiveness | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Questions and Answers About FAFSA® Completion Data",
+      "subtopic_raw": "Questions and Answers About FAFSA® Completion Data | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Receiving Financial Aid",
+      "subtopic_raw": "Receiving Financial Aid | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Reporting Parent Information",
+      "subtopic_raw": "Reporting Parent Information | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Student Aid Report",
+      "subtopic_raw": "Student Aid Report | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Student Loan Deferment",
+      "subtopic_raw": "Student Loan Deferment | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Student Loan Forbearance",
+      "subtopic_raw": "Student Loan Forbearance | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Tax Benefits for Higher Education",
+      "subtopic_raw": "Tax Benefits for Higher Education | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Teacher Loan Forgiveness",
+      "subtopic_raw": "Teacher Loan Forgiveness | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Total and Permanent Disability Discharge",
+      "subtopic_raw": "Total and Permanent Disability Discharge | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Understand Financial Aid",
+      "subtopic_raw": "Understand Financial Aid | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Understanding College Costs",
+      "subtopic_raw": "Understanding College Costs | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "Unpaid Refund Discharge",
+      "subtopic_raw": "Unpaid Refund Discharge | Federal Student Aid#1_0",
+      "topic": "Student Aid",
+      "topic_raw": "studentaid"
+    },
+    {
+      "subtopic": "About VA Health Benefits",
+      "subtopic_raw": "About VA Health Benefits | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "About VA Insurance Options And Eligibility",
+      "subtopic_raw": "About VA Insurance Options And Eligibility | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Access Your VA Life Insurance Policy Online",
+      "subtopic_raw": "Access Your VA Life Insurance Policy Online | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Active-Duty Service Members And VA Health Care",
+      "subtopic_raw": "Active-Duty Service Members And VA Health Care | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Add Dependents To Your VA Disability Benefits",
+      "subtopic_raw": "Add Dependents To Your VA Disability Benefits | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Affordable Care Act (ACA) And Your Coverage",
+      "subtopic_raw": "Affordable Care Act (ACA) And Your Coverage | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "After You Apply For Health Care Benefits",
+      "subtopic_raw": "After You Apply For Health Care Benefits | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Agent Orange Exposure",
+      "subtopic_raw": "Agent Orange Exposure | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Agent Orange Exposure From C-123 Aircraft",
+      "subtopic_raw": "Agent Orange Exposure From C-123 Aircraft | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Agent Orange Exposure In Vietnam Or Korea",
+      "subtopic_raw": "Agent Orange Exposure In Vietnam Or Korea | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Agent Orange Exposure On Navy Or Coast Guard Ships",
+      "subtopic_raw": "Agent Orange Exposure On Navy Or Coast Guard Ships | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Aid And Attendance Benefits And Housebound Allowance | VA.gov",
+      "subtopic_raw": "Aid And Attendance Benefits And Housebound Allowance | VA.gov#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Board hearings with a Veterans Law Judge",
+      "subtopic_raw": "Board hearings with a Veterans Law Judge | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "CHAMPVA Benefits",
+      "subtopic_raw": "CHAMPVA Benefits | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Careers And Employment",
+      "subtopic_raw": "Careers And Employment | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Change Your GI Bill School Or Program",
+      "subtopic_raw": "Change Your GI Bill School Or Program | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Check Your VA Claim Or Appeal Status",
+      "subtopic_raw": "Check Your VA Claim Or Appeal Status | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Co-op Training",
+      "subtopic_raw": "Co-op Training | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Disability Housing Grants For Veterans",
+      "subtopic_raw": "Disability Housing Grants For Veterans | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Eligibility For VA Health Care",
+      "subtopic_raw": "Eligibility For VA Health Care | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Eligibility For VA Vocational Rehab And Employment",
+      "subtopic_raw": "Eligibility For VA Vocational Rehab And Employment | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Eligibility For Veterans Pension",
+      "subtopic_raw": "Eligibility For Veterans Pension | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Eligibility Requirements For VA Home Loan Programs",
+      "subtopic_raw": "Eligibility Requirements For VA Home Loan Programs | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Employment Benefits For Dependent Family Members",
+      "subtopic_raw": "Employment Benefits For Dependent Family Members | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Exposure Through Project 112 Or Project SHAD",
+      "subtopic_raw": "Exposure Through Project 112 Or Project SHAD | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Exposure To Hazardous Chemicals And Materials",
+      "subtopic_raw": "Exposure To Hazardous Chemicals And Materials | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Exposure To Specific Environmental Hazards",
+      "subtopic_raw": "Exposure To Specific Environmental Hazards | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Family And Caregiver Health Benefits",
+      "subtopic_raw": "Family And Caregiver Health Benefits | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Foreign Programs",
+      "subtopic_raw": "Foreign Programs | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Frequently asked questions about decision reviews",
+      "subtopic_raw": "Frequently asked questions about decision reviews | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Fry Scholarships",
+      "subtopic_raw": "Fry Scholarships | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Fully Developed Claim For A VA Pension",
+      "subtopic_raw": "Fully Developed Claim For A VA Pension | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "GI Bill Eligibility",
+      "subtopic_raw": "GI Bill Eligibility | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Get Your VA Medical Records Online",
+      "subtopic_raw": "Get Your VA Medical Records Online | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "How To Apply For A Veteran ID Card",
+      "subtopic_raw": "How To Apply For A Veteran ID Card | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "How To Apply For The GI Bill",
+      "subtopic_raw": "How To Apply For The GI Bill | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "How To Apply For VA Voc Rehab And Employment",
+      "subtopic_raw": "How To Apply For VA Voc Rehab And Employment | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Increased Disability Rating For Time In A Hospital",
+      "subtopic_raw": "Increased Disability Rating For Time In A Hospital | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Insurance claims",
+      "subtopic_raw": "Insurance claims | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Ionizing Radiation Exposure",
+      "subtopic_raw": "Ionizing Radiation Exposure | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Military Sexual Trauma (MST)",
+      "subtopic_raw": "Military Sexual Trauma (MST) | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Montgomery GI Bill Active Duty (MGIB-AD)",
+      "subtopic_raw": "Montgomery GI Bill Active Duty (MGIB-AD) | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Multiple party or contested claims",
+      "subtopic_raw": "Multiple party or contested claims | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Mustard Gas Or Lewisite Exposure",
+      "subtopic_raw": "Mustard Gas Or Lewisite Exposure | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "National Call To Service Program",
+      "subtopic_raw": "National Call To Service Program | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "PTSD Treatment",
+      "subtopic_raw": "PTSD Treatment | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Post-9/11 GI Bill",
+      "subtopic_raw": "Post-9/11 GI Bill | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Print Out Your VA Welcome Kit",
+      "subtopic_raw": "Print Out Your VA Welcome Kit | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Reconstruct Military Records Destroyed In NPRC Fire",
+      "subtopic_raw": "Reconstruct Military Records Destroyed In NPRC Fire | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Request a Higher-Level Review",
+      "subtopic_raw": "Request a Higher-Level Review | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Schedule And View VA Appointments Online",
+      "subtopic_raw": "Schedule And View VA Appointments Online | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Servicemembers’ Group Life Insurance (SGLI)",
+      "subtopic_raw": "Servicemembers’ Group Life Insurance (SGLI) | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Substance Use Treatment For Veterans",
+      "subtopic_raw": "Substance Use Treatment For Veterans | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Survivors’ And Dependents’ Educational Assistance",
+      "subtopic_raw": "Survivors’ And Dependents’ Educational Assistance | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Temporary Disability Rating After Surgery Or Cast",
+      "subtopic_raw": "Temporary Disability Rating After Surgery Or Cast | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Totally Disabled Or Terminally Ill Policyholders",
+      "subtopic_raw": "Totally Disabled Or Terminally Ill Policyholders | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Tutorial Assistance",
+      "subtopic_raw": "Tutorial Assistance | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Types Of Veteran ID Cards",
+      "subtopic_raw": "Types Of Veteran ID Cards | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Undergraduate And Graduate Degrees",
+      "subtopic_raw": "Undergraduate And Graduate Degrees | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Upload Evidence To Support Your Disability Claim",
+      "subtopic_raw": "Upload Evidence To Support Your Disability Claim | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Benefits For Service Members",
+      "subtopic_raw": "VA Benefits For Service Members | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Dental Care",
+      "subtopic_raw": "VA Dental Care | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Disability Compensation",
+      "subtopic_raw": "VA Disability Compensation | Veterans Affairs#2_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Disability Compensation For PTSD",
+      "subtopic_raw": "VA Disability Compensation For PTSD | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Education Benefits For Survivors And Dependents",
+      "subtopic_raw": "VA Education Benefits For Survivors And Dependents | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Family Caregiver Assistance Program",
+      "subtopic_raw": "VA Family Caregiver Assistance Program | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Health Care",
+      "subtopic_raw": "VA Health Care | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Help To Avoid Mortgage Foreclosure",
+      "subtopic_raw": "VA Help To Avoid Mortgage Foreclosure | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Home Loan Programs For Surviving Spouses",
+      "subtopic_raw": "VA Home Loan Programs For Surviving Spouses | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Individual Unemployability If You Can't Work",
+      "subtopic_raw": "VA Individual Unemployability If You Can't Work | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Life Insurance",
+      "subtopic_raw": "VA Life Insurance | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Mental Health Services",
+      "subtopic_raw": "VA Mental Health Services | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Nursing Homes And Assisted Living",
+      "subtopic_raw": "VA Nursing Homes And Assisted Living | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Pension Benefits",
+      "subtopic_raw": "VA Pension Benefits | Veterans Affairs#2_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Survivors Pension",
+      "subtopic_raw": "VA Survivors Pension | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Vision Care",
+      "subtopic_raw": "VA Vision Care | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA Vocational Rehabilitation (Chapter 31)",
+      "subtopic_raw": "VA Vocational Rehabilitation (Chapter 31) | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA claim exam (C&P exam)",
+      "subtopic_raw": "VA claim exam (C&P exam) | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VA decision reviews and appeals",
+      "subtopic_raw": "VA decision reviews and appeals | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "VR&E Independent Living Track",
+      "subtopic_raw": "VR&E Independent Living Track | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Veteran Suicide Prevention",
+      "subtopic_raw": "Veteran Suicide Prevention | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Veterans Technology Education Courses",
+      "subtopic_raw": "Veterans Technology Education Courses | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Veterans Vocational Rehabilitation Programs",
+      "subtopic_raw": "Veterans Vocational Rehabilitation Programs | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Veterans’ Educational Assistance Program (VEAP)",
+      "subtopic_raw": "Veterans’ Educational Assistance Program (VEAP) | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Veterans’ Group Life Insurance (VGLI)",
+      "subtopic_raw": "Veterans’ Group Life Insurance (VGLI) | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Veterans’ Mortgage Life Insurance (VMLI)",
+      "subtopic_raw": "Veterans’ Mortgage Life Insurance (VMLI) | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "View Your VA Payment History",
+      "subtopic_raw": "View Your VA Payment History | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "What To Expect After You Get A Disability Rating",
+      "subtopic_raw": "What To Expect After You Get A Disability Rating | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Where You'll Go For Care",
+      "subtopic_raw": "Where You'll Go For Care | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Women's Health Care Needs",
+      "subtopic_raw": "Women's Health Care Needs | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Yellow Ribbon Program",
+      "subtopic_raw": "Yellow Ribbon Program | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Your Health Care Costs",
+      "subtopic_raw": "Your Health Care Costs | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    },
+    {
+      "subtopic": "Your VA Primary Care Provider",
+      "subtopic_raw": "Your VA Primary Care Provider | Veterans Affairs#1_0",
+      "topic": "Veterans Affairs",
+      "topic_raw": "va"
+    }
+  ]
+}
