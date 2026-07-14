@@ -1,23 +1,30 @@
 import { useState, type ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders, screen, within } from "../test/renderWithProviders";
+import {
+  renderWithProviders,
+  screen,
+  waitFor,
+  within,
+} from "../test/renderWithProviders";
 import { api } from "../api";
 import { buildTaxonomyMap } from "../lib/taxonomy";
 import { DATASET } from "../test/msw/handlers";
 import AnnotationPanel from "./AnnotationPanel";
 
-// The topic field is a controlled combobox: filtering depends on the parent
-// holding `topic`, exactly as App.tsx wires it. This harness mirrors that so a
-// test can type and see the suggestion list narrow, while still spying on the
-// committed value via `onCommit`.
+// The topic/subtopic fields are controlled dropdowns: the parent holds `topic`
+// and `subtopic`, exactly as App.tsx wires them. This harness mirrors that so a
+// test can drive the Select + inline add-new flow while spying on the committed
+// value via `onCommit`.
 function ControlledPanel({
   onCommit,
+  initialTopic = "",
   ...props
 }: Omit<ComponentProps<typeof AnnotationPanel>, "topic" | "onTopicChange"> & {
   onCommit: (topic: string) => void;
+  initialTopic?: string;
 }) {
-  const [topic, setTopic] = useState("");
+  const [topic, setTopic] = useState(initialTopic);
   return (
     <AnnotationPanel
       {...props}
@@ -30,9 +37,6 @@ function ControlledPanel({
   );
 }
 
-// Component layer: render the real AnnotationPanel against the realistic
-// taxonomy + conversation responses served by MSW, and assert its fields show
-// the data the backend actually returned.
 describe("AnnotationPanel (MSW component)", () => {
   async function setup() {
     const [entries, view] = await Promise.all([
@@ -47,6 +51,8 @@ describe("AnnotationPanel (MSW component)", () => {
   // harness (which owns topic state) can override it without a duplicate key.
   function passiveHandlers() {
     return {
+      onAddTopic: vi.fn(),
+      onAddSubtopic: vi.fn(),
       onSubtopicChange: vi.fn(),
       onReviewedByChange: vi.fn(),
       onSave: vi.fn(),
@@ -87,7 +93,7 @@ describe("AnnotationPanel (MSW component)", () => {
     expect(screen.queryByText(/Gold cluster:/)).not.toBeInTheDocument();
   });
 
-  it("suggests taxonomy ∪ used-topics, filters as typed, and commits a pick", async () => {
+  it("lists taxonomy ∪ used-topics plus a '+ New topic…' item, and commits a pick", async () => {
     const user = userEvent.setup();
     const { taxonomy, segment } = await setup();
     const onCommit = vi.fn();
@@ -105,57 +111,107 @@ describe("AnnotationPanel (MSW component)", () => {
       />,
     );
 
-    const input = screen.getByRole("combobox", { name: "True Topic" });
-    await user.click(input);
+    await user.click(screen.getByRole("combobox", { name: "True Topic" }));
 
     const listbox = screen.getByRole("listbox");
-    // Suggestions are the union: taxonomy names + a used-topic the taxonomy
-    // doesn't cover (shipping_delay), de-duplicated (billing appears once).
-    expect(within(listbox).getByText("Billing")).toBeInTheDocument();
-    expect(within(listbox).getByText("Technical Support")).toBeInTheDocument();
-    expect(within(listbox).getByText("Shipping Delay")).toBeInTheDocument();
-    expect(within(listbox).getAllByText("Billing")).toHaveLength(1);
+    // Options are the union: taxonomy names + a used-topic the taxonomy doesn't
+    // cover (shipping_delay), de-duplicated (billing appears once), plus add-new.
+    expect(within(listbox).getByRole("option", { name: "Billing" })).toBeInTheDocument();
+    expect(
+      within(listbox).getByRole("option", { name: "Technical Support" }),
+    ).toBeInTheDocument();
+    expect(
+      within(listbox).getByRole("option", { name: "Shipping Delay" }),
+    ).toBeInTheDocument();
+    expect(within(listbox).getAllByRole("option", { name: "Billing" })).toHaveLength(1);
+    expect(
+      within(listbox).getByRole("option", { name: "+ New topic…" }),
+    ).toBeInTheDocument();
 
-    // Typing filters the list to substring matches.
-    await user.type(input, "ship");
-    expect(screen.getByText("Shipping Delay")).toBeInTheDocument();
-    expect(screen.queryByText("Technical Support")).not.toBeInTheDocument();
-
-    // Clicking a suggestion commits its raw value through onTopicChange.
     await user.click(screen.getByRole("option", { name: "Shipping Delay" }));
     expect(onCommit).toHaveBeenLastCalledWith("shipping_delay");
   });
 
-  it("accepts an arbitrary new topic name on Enter (open vocab)", async () => {
+  it("reveals an inline input on '+ New topic…', previews the slug, and persists+selects it", async () => {
     const user = userEvent.setup();
     const { taxonomy, segment } = await setup();
-    const onTopicChange = vi.fn();
+    const onCommit = vi.fn();
+    const onAddTopic = vi.fn();
 
     renderWithProviders(
+      <ControlledPanel
+        segment={segment}
+        taxonomy={taxonomy}
+        subtopic=""
+        reviewedBy=""
+        saving={false}
+        {...passiveHandlers()}
+        onAddTopic={onAddTopic}
+        onCommit={onCommit}
+      />,
+    );
+
+    await user.click(screen.getByRole("combobox", { name: "True Topic" }));
+    await user.click(screen.getByRole("option", { name: "+ New topic…" }));
+
+    const input = screen.getByLabelText("True Topic new name");
+    await user.type(input, "Veterans  Affairs!");
+    // Live slug preview reflects exactly what the backend will store.
+    expect(screen.getByText("veterans_affairs")).toBeInTheDocument();
+
+    // Enter confirms: persist the new option, then select it (as the slug).
+    await user.keyboard("{Enter}");
+    await waitFor(() =>
+      expect(onAddTopic).toHaveBeenCalledWith("veterans_affairs"),
+    );
+    expect(onCommit).toHaveBeenLastCalledWith("veterans_affairs");
+  });
+
+  it("keeps the subtopic disabled without a topic and scopes it to the chosen topic", async () => {
+    const user = userEvent.setup();
+    const { taxonomy, segment } = await setup();
+
+    const { rerender } = renderWithProviders(
       <AnnotationPanel
         segment={segment}
         taxonomy={taxonomy}
-        usedTopics={["billing"]}
-        topic="warranty_claim"
+        topic=""
         subtopic=""
         reviewedBy=""
         saving={false}
         {...noopHandlers()}
-        onTopicChange={onTopicChange}
       />,
     );
 
-    const input = screen.getByRole<HTMLInputElement>("combobox", {
-      name: "True Topic",
-    });
-    // A name absent from both taxonomy and used-topics is still committable.
-    expect(input.value).toBe("warranty_claim");
-    await user.click(input);
-    await user.keyboard("{Enter}");
-    expect(onTopicChange).toHaveBeenLastCalledWith("warranty_claim");
+    // No topic → subtopic dropdown is disabled.
+    expect(screen.getByRole("combobox", { name: "True Subtopic" })).toBeDisabled();
 
-    // Save is enabled because a topic is present (it feeds api.annotate upstream).
-    expect(screen.getByText("Save")).toBeEnabled();
+    // With "billing" selected, the subtopic options are that topic's subtopics.
+    rerender(
+      <AnnotationPanel
+        segment={segment}
+        taxonomy={taxonomy}
+        topic="billing"
+        subtopic=""
+        reviewedBy=""
+        saving={false}
+        {...noopHandlers()}
+      />,
+    );
+    const subtopicTrigger = screen.getByRole("combobox", { name: "True Subtopic" });
+    expect(subtopicTrigger).toBeEnabled();
+    await user.click(subtopicTrigger);
+    const listbox = screen.getByRole("listbox");
+    expect(
+      within(listbox).getByRole("option", { name: "Refund Request" }),
+    ).toBeInTheDocument();
+    expect(
+      within(listbox).getByRole("option", { name: "Invoice Question" }),
+    ).toBeInTheDocument();
+    // Subtopics from a different topic are not offered here.
+    expect(
+      within(listbox).queryByRole("option", { name: "Login Issue" }),
+    ).not.toBeInTheDocument();
   });
 
   it("shows the placeholder when no segment is selected", async () => {

@@ -31,8 +31,20 @@ from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool
 
 from annotation.backend.config import annotation_dsn
+from annotation.backend.slug import slugify
 
 SCHEMA_PATH = Path(__file__).parent / "schema.sql"
+
+
+def _slug_optional(value: str | None) -> str | None:
+    """Slugify a non-blank value; pass ``None``/blank through unchanged.
+
+    Raises ``ValueError`` when a non-blank value slugifies to nothing so callers
+    can surface a 422; a truly absent subtopic stays absent.
+    """
+    if value is None or not value.strip():
+        return value
+    return slugify(value)
 
 # Datasets whose gold boundaries are frozen: humans name topics over the gold
 # segmentation but cannot re-segment. Data-driven so a route/view can surface a
@@ -994,6 +1006,8 @@ def upsert_gold_for_segment(
     Replaces any prior relabel/confirm gold for this ``base_segment_id`` so a
     re-annotation does not accumulate duplicates. Returns the new gold id.
     """
+    topic = slugify(topic)
+    subtopic = _slug_optional(subtopic)
     now = _utcnow()
     base_id = base_segment["id"]
     conv_id = base_segment["conversation_id"]
@@ -1147,8 +1161,10 @@ def create_taxonomy(
     """Insert a taxonomy option, idempotent on (dataset, kind, topic, subtopic).
 
     A duplicate create is a no-op (``ON CONFLICT DO NOTHING``); the description
-    of an existing option is left untouched.
+    of an existing option is left untouched. Topic/subtopic are slug-normalized.
     """
+    topic = slugify(topic)
+    subtopic = _slug_optional(subtopic)
     pool = get_pool()
     with pool.connection() as conn:
         conn.execute(
@@ -1173,8 +1189,13 @@ def rename_taxonomy(
     every ``segment.topic = topic`` in the dataset. Subtopic-level rename
     (``subtopic`` given): updates the entry's subtopic and every segment whose
     ``(topic, subtopic)`` matches. Both happen in one transaction so a rename
-    never orphans a label. Returns the number of cascaded segment rows.
+    never orphans a label. Returns the number of cascaded segment rows. All
+    topic/subtopic values are slug-normalized before storage + cascade.
     """
+    topic = slugify(topic)
+    new_topic = slugify(new_topic)
+    subtopic = _slug_optional(subtopic)
+    new_subtopic = _slug_optional(new_subtopic)
     pool = get_pool()
     with pool.connection() as conn:
         with conn.transaction():
@@ -1219,7 +1240,10 @@ def merge_taxonomy(
     the ``from_topic`` taxonomy options are re-homed under ``into_topic`` (skipping
     any that would collide with an existing ``into_topic`` option) and the leftover
     ``from_topic`` rows are deleted. Returns the number of cascaded segment rows.
+    Both topics are slug-normalized before matching + cascade.
     """
+    from_topic = slugify(from_topic)
+    into_topic = slugify(into_topic)
     pool = get_pool()
     with pool.connection() as conn:
         with conn.transaction():

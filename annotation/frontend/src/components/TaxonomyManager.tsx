@@ -3,7 +3,7 @@ import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { api, type TaxonomyEntry } from "../api";
 import { buildTaxonomyMap, sortedTopics } from "../lib/taxonomy";
-import { formatLabel } from "../lib/utils";
+import { formatLabel, slugify } from "../lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -35,8 +35,9 @@ interface TaxonomyManagerProps {
 /**
  * Topic-management dialog wired to the taxonomy CRUD endpoints. Lists the
  * dataset's topics, supports inline rename (cascades labels server-side), delete,
- * a top "Add topic" input, and a merge action. Every mutation refetches the
- * taxonomy (via `onChanged`) so the annotation combobox reflects it immediately.
+ * a top "Add topic" input (slug-normalized with a live preview), and a merge
+ * action. Every mutation refetches the taxonomy (via `onChanged`) so the
+ * annotation dropdowns reflect it immediately.
  */
 function TaxonomyManager({
   open,
@@ -74,8 +75,10 @@ function TaxonomyManager({
     [dataset, onChanged],
   );
 
+  const newTopicSlug = slugify(newTopic);
+
   const addTopic = useCallback(async () => {
-    const name = newTopic.trim();
+    const name = slugify(newTopic);
     if (!name) return;
     await run(
       () => api.createTaxonomy(dataset, { topic: name, kind: "user" }),
@@ -91,7 +94,7 @@ function TaxonomyManager({
 
   const saveEdit = useCallback(
     async (topic: string) => {
-      const next = editValue.trim();
+      const next = slugify(editValue);
       if (!next || next === topic) {
         setEditing(null);
         return;
@@ -145,28 +148,38 @@ function TaxonomyManager({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex items-center gap-2">
-          <Input
-            value={newTopic}
-            onChange={(e) => setNewTopic(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                void addTopic();
-              }
-            }}
-            placeholder="New topic name…"
-            aria-label="New topic name"
-            className="h-8 text-sm"
-          />
-          <Button
-            size="sm"
-            onClick={() => void addTopic()}
-            disabled={busy || newTopic.trim() === ""}
-          >
-            <Plus />
-            Add topic
-          </Button>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <Input
+              value={newTopic}
+              onChange={(e) => setNewTopic(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  void addTopic();
+                }
+              }}
+              placeholder="New topic name…"
+              aria-label="New topic name"
+              className="h-8 text-sm"
+            />
+            <Button
+              size="sm"
+              onClick={() => void addTopic()}
+              disabled={busy || newTopicSlug === ""}
+            >
+              <Plus />
+              Add topic
+            </Button>
+          </div>
+          {newTopic.trim() !== "" && (
+            <span className="text-[11px] text-muted-foreground">
+              Saves as{" "}
+              <code className="rounded bg-muted px-1 py-0.5 text-foreground">
+                {newTopicSlug || "—"}
+              </code>
+            </span>
+          )}
         </div>
 
         <ScrollArea className="h-56 rounded-lg border border-border">

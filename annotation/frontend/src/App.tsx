@@ -178,9 +178,9 @@ function AnnotationApp() {
     [fail],
   );
 
-  // Refetch taxonomy + used-topics together so the labeling combobox reflects a
+  // Refetch taxonomy + used-topics together so the annotation dropdowns reflect a
   // taxonomy edit (add/rename/merge/delete) immediately. Returns a promise the
-  // manager + combobox add-new flow await before re-rendering.
+  // manager + dropdown add-new flow await before re-rendering.
   const refreshTaxonomy = useCallback(
     (ds: string) =>
       Promise.all([
@@ -424,9 +424,9 @@ function AnnotationApp() {
     fail,
   ]);
 
-  // "Add '<name>' to taxonomy" from the labeling combobox: formalize the typed
-  // name (kind=user) then refetch so it joins the suggestions. The combobox
-  // commits it as the segment topic once this resolves.
+  // "+ New topic…" from the annotation dropdown: formalize the typed name
+  // (already slug-normalized, kind=user) then refetch so it joins the options.
+  // The dropdown commits it as the segment topic once this resolves.
   const handleAddTopic = useCallback(
     async (name: string) => {
       if (!dataset || name.trim() === "") return;
@@ -434,6 +434,27 @@ function AnnotationApp() {
         await api.createTaxonomy(dataset, { topic: name.trim(), kind: "user" });
         await refreshTaxonomy(dataset);
         toast.success(`Added "${name.trim()}" to taxonomy`);
+      } catch (e) {
+        fail(e);
+      }
+    },
+    [dataset, refreshTaxonomy, fail],
+  );
+
+  // "+ New subtopic…" from the annotation dropdown: create the (topic, subtopic)
+  // option (slug-normalized, kind=user) then refetch so it scopes under the
+  // topic for every annotator. The dropdown selects it once this resolves.
+  const handleAddSubtopic = useCallback(
+    async (parentTopic: string, name: string) => {
+      if (!dataset || parentTopic.trim() === "" || name.trim() === "") return;
+      try {
+        await api.createTaxonomy(dataset, {
+          topic: parentTopic.trim(),
+          subtopic: name.trim(),
+          kind: "user",
+        });
+        await refreshTaxonomy(dataset);
+        toast.success(`Added "${name.trim()}" to ${parentTopic.trim()}`);
       } catch (e) {
         fail(e);
       }
@@ -725,6 +746,7 @@ function AnnotationApp() {
                     reviewedByLocked={ssoEnabled}
                     saving={saving}
                     onAddTopic={handleAddTopic}
+                    onAddSubtopic={handleAddSubtopic}
                     onTopicChange={(t) => {
                       setTopic(t);
                       setSubtopic("");

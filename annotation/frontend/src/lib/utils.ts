@@ -5,6 +5,21 @@ export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Normalize a topic/subtopic label to a lowercase snake_case slug — the TS
+ * mirror of the backend `slugify` (annotation/backend/slug.py). Lowercases,
+ * collapses non-alphanumeric runs to a single underscore, and strips edge
+ * underscores ("Veterans  Affairs!" → "veterans_affairs"). Returns "" for a
+ * blank/punctuation-only input, which the UI treats as "nothing to save yet"
+ * (the backend rejects that same input with a 422).
+ */
+export function slugify(label: string): string {
+  return label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
 /** Convert a slug to a display name (Title Case, underscores → spaces). */
 export function formatLabel(slug: string | null | undefined): string {
   if (typeof slug !== "string" || !slug) return "—";

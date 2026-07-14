@@ -1,5 +1,29 @@
 import { describe, expect, it } from "vitest";
-import { hasSyntheticTimestamps } from "./utils";
+import { hasSyntheticTimestamps, slugify } from "./utils";
+
+// Parity cases: these MUST match the Python `slugify` tests in
+// tests/test_annotation_taxonomy.py so the live preview equals what the backend
+// stores. Keep the two lists identical.
+const SLUG_CASES: [string, string][] = [
+  ["Veterans  Affairs!", "veterans_affairs"],
+  ["Billing", "billing"],
+  ["cover_letter", "cover_letter"],
+  ["  spaced  out  ", "spaced_out"],
+  ["R&D / ops", "r_d_ops"],
+  ["Multi--Dash__Score", "multi_dash_score"],
+];
+
+describe("slugify", () => {
+  it.each(SLUG_CASES)("normalizes %j → %j", (input, expected) => {
+    expect(slugify(input)).toBe(expected);
+  });
+
+  it("returns an empty string for blank / punctuation-only input", () => {
+    expect(slugify("")).toBe("");
+    expect(slugify("   ")).toBe("");
+    expect(slugify("!!!")).toBe("");
+  });
+});
 
 describe("hasSyntheticTimestamps", () => {
   it("treats epoch-era sequential timestamps as synthetic", () => {
