@@ -150,4 +150,44 @@ describe("TaxonomyManager (MSW component)", () => {
       ).not.toBeInTheDocument(),
     );
   });
+
+  it("scopes the list to a domain and manages within it", async () => {
+    const user = userEvent.setup();
+    const entries: TaxonomyEntry[] = [
+      { domain: "va", topic: "disability", subtopic: null, description: null },
+      { domain: "ssa", topic: "retirement", subtopic: null, description: null },
+    ];
+    const post = vi
+      .spyOn(api, "createTaxonomy")
+      .mockResolvedValue({ dataset: DATASET, cascaded: 0, deleted: 0 });
+    renderWithProviders(
+      <TaxonomyManager
+        open
+        onOpenChange={() => {}}
+        dataset={DATASET}
+        entries={entries}
+        onChanged={() => {}}
+      />,
+    );
+    const dialog = await screen.findByRole("dialog");
+
+    // Defaults to the first available domain (ssa, per DOMAINS order): only its
+    // categories show, never va's "Disability".
+    expect(within(dialog).getByText("Retirement")).toBeInTheDocument();
+    expect(within(dialog).queryByText("Disability")).not.toBeInTheDocument();
+
+    // Switch scope to Veterans Affairs → its category appears.
+    await user.click(within(dialog).getByRole("combobox", { name: "Domain" }));
+    await user.click(screen.getByRole("option", { name: "Veterans Affairs" }));
+    expect(within(dialog).getByText("Disability")).toBeInTheDocument();
+
+    // Adding a topic creates it under the scoped domain.
+    await user.type(within(dialog).getByLabelText("New topic name"), "pension");
+    await user.click(within(dialog).getByRole("button", { name: "Add topic" }));
+    expect(post).toHaveBeenCalledWith(DATASET, {
+      topic: "pension",
+      kind: "user",
+      domain: "va",
+    });
+  });
 });

@@ -62,6 +62,7 @@ class ConversationSummary(BaseModel):
     """One row in the user/conversation review queue."""
 
     conversation: str
+    domain: str | None = None
     message_count: int
     segment_count: int
     topics: list[str] = Field(default_factory=list)
@@ -82,6 +83,7 @@ class ConversationView(BaseModel):
     """All messages + all machine segments for the boundary-edit view."""
 
     conversation: str
+    domain: str | None = None
     messages: list[Message]
     segments: list[SegmentSummary]
     gold_segments: list[GoldSegment]
@@ -89,8 +91,9 @@ class ConversationView(BaseModel):
 
 
 class TaxonomyEntry(BaseModel):
-    """One taxonomy (topic, subtopic) row from the metadata provider."""
+    """One taxonomy (domain, topic, subtopic) row from the metadata provider."""
 
+    domain: str | None = None
     topic: str | None = None
     subtopic: str | None = None
     description: str | None = None
@@ -109,17 +112,19 @@ class Labelers(BaseModel):
 
 
 class BertopicTopicCount(BaseModel):
-    """A distinct BERTopic topic with its per-conversation count."""
+    """A distinct source topic (nav category) with its domain + per-conversation count."""
 
     topic: str
+    domain: str | None = None
     count: int
 
 
 class BertopicSubtopicCount(BaseModel):
-    """A distinct BERTopic subtopic with its parent topic and per-conversation count."""
+    """A distinct source subtopic with its parent topic, domain, and per-conversation count."""
 
     subtopic: str
     topic: str | None = None
+    domain: str | None = None
     count: int
 
 
@@ -131,16 +136,17 @@ class BertopicLabels(BaseModel):
 
 
 class TaxonomyCreateRequest(BaseModel):
-    """Create a taxonomy option (idempotent on dataset/kind/topic/subtopic)."""
+    """Create a taxonomy option (idempotent on dataset/domain/kind/topic/subtopic)."""
 
     topic: str
     subtopic: str | None = None
     description: str | None = None
     kind: str = "user"
+    domain: str | None = None
 
 
 class TaxonomyRenameRequest(BaseModel):
-    """Rename a taxonomy option, cascading to applied segment labels.
+    """Rename a taxonomy option (within its domain), cascading to segment labels.
 
     Topic-level rename leaves ``subtopic``/``new_subtopic`` unset; subtopic-level
     rename sets both the matched ``subtopic`` and the ``new_subtopic`` it becomes.
@@ -151,14 +157,16 @@ class TaxonomyRenameRequest(BaseModel):
     subtopic: str | None = None
     new_subtopic: str | None = None
     kind: str = "user"
+    domain: str | None = None
 
 
 class TaxonomyMergeRequest(BaseModel):
-    """Fold ``from_topic`` into ``into_topic`` (labels cascade, dup rows dropped)."""
+    """Fold ``from_topic`` into ``into_topic`` within a domain (labels cascade)."""
 
     from_topic: str
     into_topic: str
     kind: str = "user"
+    domain: str | None = None
 
 
 class TaxonomyMutationResponse(BaseModel):

@@ -163,6 +163,20 @@ function AnnotationApp() {
     [taxonomyEntries],
   );
 
+  // The annotator only ever picks within the conversation's KNOWN domain, so the
+  // True Topic/Subtopic options are the domain-scoped slice of the taxonomy (a
+  // dataset with no domains — null — shows the whole taxonomy unchanged).
+  const conversationDomain = view?.domain ?? null;
+  const annotationTaxonomy = useMemo(
+    () =>
+      buildTaxonomyMap(
+        conversationDomain
+          ? taxonomyEntries.filter((e) => e.domain === conversationDomain)
+          : taxonomyEntries,
+      ),
+    [taxonomyEntries, conversationDomain],
+  );
+
   const fail = useCallback((e: unknown) => toast.error(String(e)), []);
 
   useEffect(() => {
@@ -512,14 +526,18 @@ function AnnotationApp() {
     async (name: string) => {
       if (!dataset || name.trim() === "") return;
       try {
-        await api.createTaxonomy(dataset, { topic: name.trim(), kind: "user" });
+        await api.createTaxonomy(dataset, {
+          topic: name.trim(),
+          kind: "user",
+          domain: conversationDomain ?? undefined,
+        });
         await refreshTaxonomy(dataset);
         toast.success(`Added "${name.trim()}" to taxonomy`);
       } catch (e) {
         fail(e);
       }
     },
-    [dataset, refreshTaxonomy, fail],
+    [dataset, refreshTaxonomy, conversationDomain, fail],
   );
 
   // "+ New subtopic…" from the annotation dropdown: create the (topic, subtopic)
@@ -533,6 +551,7 @@ function AnnotationApp() {
           topic: parentTopic.trim(),
           subtopic: name.trim(),
           kind: "user",
+          domain: conversationDomain ?? undefined,
         });
         await refreshTaxonomy(dataset);
         toast.success(`Added "${name.trim()}" to ${parentTopic.trim()}`);
@@ -540,7 +559,7 @@ function AnnotationApp() {
         fail(e);
       }
     },
-    [dataset, refreshTaxonomy, fail],
+    [dataset, refreshTaxonomy, conversationDomain, fail],
   );
 
   const handleReplaceBoundaries = useCallback(
@@ -818,7 +837,7 @@ function AnnotationApp() {
                 <Card className="flex h-full flex-col gap-0 overflow-hidden py-0">
                   <AnnotationPanel
                     segment={selectedSegment}
-                    taxonomy={taxonomy}
+                    taxonomy={annotationTaxonomy}
                     usedTopics={usedTopics}
                     topic={topic}
                     subtopic={subtopic}

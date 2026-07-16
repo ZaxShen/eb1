@@ -57,6 +57,7 @@ export interface GoldSegment {
 
 export interface ConversationSummary {
   conversation: string;
+  domain?: string | null;
   message_count: number;
   segment_count: number;
   topics: string[];
@@ -73,6 +74,7 @@ export interface ConversationPage {
 
 export interface ConversationView {
   conversation: string;
+  domain?: string | null;
   frozen_boundaries: boolean;
   messages: Message[];
   segments: SegmentSummary[];
@@ -80,6 +82,7 @@ export interface ConversationView {
 }
 
 export interface TaxonomyEntry {
+  domain?: string | null;
   topic: string | null;
   subtopic: string | null;
   description: string | null;
@@ -90,6 +93,7 @@ export interface TaxonomyCreateRequest {
   subtopic?: string | null;
   description?: string | null;
   kind: string;
+  domain?: string | null;
 }
 
 export interface TaxonomyRenameRequest {
@@ -98,18 +102,21 @@ export interface TaxonomyRenameRequest {
   subtopic?: string | null;
   new_subtopic?: string | null;
   kind: string;
+  domain?: string | null;
 }
 
 export interface TaxonomyMergeRequest {
   from_topic: string;
   into_topic: string;
   kind: string;
+  domain?: string | null;
 }
 
 export interface TaxonomyDeleteSelector {
   topic: string;
   subtopic?: string | null;
   kind?: string;
+  domain?: string | null;
 }
 
 export interface TaxonomyMutationResponse {
@@ -179,6 +186,7 @@ export interface SegmentFilters {
 export interface ConversationFilters {
   status?: "reviewed" | "unreviewed";
   topic?: string;
+  domain?: string;
   labeler?: string;
   bertopic_topic?: string;
   bertopic_subtopic?: string;
@@ -187,12 +195,14 @@ export interface ConversationFilters {
 
 export interface BertopicTopicCount {
   topic: string;
+  domain?: string | null;
   count: number;
 }
 
 export interface BertopicSubtopicCount {
   subtopic: string;
   topic: string | null;
+  domain?: string | null;
   count: number;
 }
 
@@ -278,6 +288,7 @@ export const api = {
         q: query.q,
         status: query.status,
         topic: query.topic,
+        domain: query.domain,
         labeler: query.labeler,
         bertopic_topic: query.bertopic_topic,
         bertopic_subtopic: query.bertopic_subtopic,
@@ -382,6 +393,7 @@ export const api = {
         topic: selector.topic,
         subtopic: selector.subtopic ?? undefined,
         kind: selector.kind ?? "user",
+        domain: selector.domain ?? undefined,
       })}`,
       { method: "DELETE" },
     ),

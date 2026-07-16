@@ -168,10 +168,12 @@ def seed_conversations(
             )
             for entry in taxonomy or []:
                 conn.execute(
-                    "INSERT INTO taxonomy (dataset, kind, topic, subtopic, description) "
-                    "VALUES (%s, %s, %s, %s, %s)",
+                    "INSERT INTO taxonomy "
+                    "(dataset, domain, kind, topic, subtopic, description) "
+                    "VALUES (%s, %s, %s, %s, %s, %s)",
                     (
                         dataset,
+                        entry.get("domain"),
                         entry.get("kind", "user"),
                         entry.get("topic"),
                         entry.get("subtopic"),
@@ -181,9 +183,9 @@ def seed_conversations(
             for conv in conversations:
                 messages = conv.get("messages", [])
                 conv_id = conn.execute(
-                    "INSERT INTO conversation (dataset, ext_id, message_count) "
-                    "VALUES (%s, %s, %s) RETURNING id",
-                    (dataset, conv["ext_id"], len(messages)),
+                    "INSERT INTO conversation (dataset, ext_id, message_count, domain) "
+                    "VALUES (%s, %s, %s, %s) RETURNING id",
+                    (dataset, conv["ext_id"], len(messages), conv.get("domain")),
                 ).fetchone()["id"]
                 for idx, m in enumerate(messages):
                     conn.execute(
@@ -829,7 +831,7 @@ def conversation_detail(dataset: str, conversation: str) -> dict | None:
     pool = get_pool()
     with pool.connection() as conn:
         conv = conn.execute(
-            "SELECT id FROM conversation WHERE dataset = %s AND ext_id = %s",
+            "SELECT id, domain FROM conversation WHERE dataset = %s AND ext_id = %s",
             (dataset, conversation),
         ).fetchone()
         if conv is None:
@@ -838,7 +840,12 @@ def conversation_detail(dataset: str, conversation: str) -> dict | None:
         predicted = _read_predicted(conv["id"], conn)
         gold = _read_gold(conv["id"], conn)
     effective = _effective_from(conversation, predicted, gold)
-    return {"messages": messages, "effective": effective, "gold": gold}
+    return {
+        "messages": messages,
+        "effective": effective,
+        "gold": gold,
+        "domain": conv["domain"],
+    }
 
 
 def list_conversations(
@@ -848,6 +855,7 @@ def list_conversations(
     q: str | None = None,
     status: str | None = None,
     topic: str | None = None,
+    domain: str | None = None,
     labeler: str | None = None,
     bertopic_topic: str | None = None,
     bertopic_subtopic: str | None = None,
@@ -876,6 +884,9 @@ def list_conversations(
 
     where = [sql.SQL("c.dataset = %s")]
     params: list[object] = [dataset]
+    if domain:
+        where.append(sql.SQL("c.domain = %s"))
+        params.append(domain)
     if labeler:
         where.append(
             sql.SQL(
@@ -939,7 +950,7 @@ def list_conversations(
         where_sql
     )
     page_query = sql.SQL(
-        "SELECT c.id, c.ext_id, c.message_count FROM conversation c "
+        "SELECT c.id, c.ext_id, c.message_count, c.domain FROM conversation c "
         "WHERE {} ORDER BY c.ext_id LIMIT %s OFFSET %s"
     ).format(where_sql)
 
@@ -966,6 +977,7 @@ def list_conversations(
             segment_count = len(effective)
             summary = {
                 "conversation": r["ext_id"],
+                "domain": r["domain"],
                 "message_count": r["message_count"],
                 "segment_count": segment_count,
                 "topics": topics,
@@ -1180,12 +1192,13 @@ def replace_conversation_boundaries(
 
 
 def load_taxonomy(dataset: str) -> list[dict]:
-    """Return the dataset's user taxonomy rows."""
+    """Return the dataset's user taxonomy rows (each with its ``domain``)."""
     pool = get_pool()
     with pool.connection() as conn:
         rows = conn.execute(
-            "SELECT topic, subtopic, description FROM taxonomy "
-            "WHERE dataset = %s AND kind = 'user' ORDER BY topic, subtopic",
+            "SELECT domain, topic, subtopic, description FROM taxonomy "
+            "WHERE dataset = %s AND kind = 'user' "
+            "ORDER BY domain NULLS FIRST, topic, subtopic",
             (dataset,),
         ).fetchall()
     return [dict(r) for r in rows]
@@ -1197,21 +1210,24 @@ def create_taxonomy(
     subtopic: str | None = None,
     description: str | None = None,
     kind: str = "user",
+    domain: str | None = None,
 ) -> None:
-    """Insert a taxonomy option, idempotent on (dataset, kind, topic, subtopic).
+    """Insert a taxonomy option, idempotent on (dataset, domain, kind, topic, subtopic).
 
     A duplicate create is a no-op (``ON CONFLICT DO NOTHING``); the description
     of an existing option is left untouched. Topic/subtopic are slug-normalized.
+    ``domain`` scopes the option so a category name (e.g. "Disability") can exist
+    independently under two domains.
     """
     topic = slugify(topic)
     subtopic = _slug_optional(subtopic)
     pool = get_pool()
     with pool.connection() as conn:
         conn.execute(
-            "INSERT INTO taxonomy (dataset, kind, topic, subtopic, description) "
-            "VALUES (%s, %s, %s, %s, %s) "
-            "ON CONFLICT (dataset, kind, topic, subtopic) DO NOTHING",
-            (dataset, kind, topic, subtopic, description),
+            "INSERT INTO taxonomy (dataset, domain, kind, topic, subtopic, description) "
+            "VALUES (%s, %s, %s, %s, %s, %s) "
+            "ON CONFLICT (dataset, domain, kind, topic, subtopic) DO NOTHING",
+            (dataset, domain, kind, topic, subtopic, description),
         )
 
 
@@ -1222,15 +1238,18 @@ def rename_taxonomy(
     subtopic: str | None = None,
     new_subtopic: str | None = None,
     kind: str = "user",
+    domain: str | None = None,
 ) -> int:
     """Rename a taxonomy option AND cascade the rename to applied segment labels.
 
-    Topic-level rename (``subtopic`` None): updates the taxonomy entry's topic and
-    every ``segment.topic = topic`` in the dataset. Subtopic-level rename
-    (``subtopic`` given): updates the entry's subtopic and every segment whose
-    ``(topic, subtopic)`` matches. Both happen in one transaction so a rename
-    never orphans a label. Returns the number of cascaded segment rows. All
-    topic/subtopic values are slug-normalized before storage + cascade.
+    Operates within ``(dataset, domain)``: the taxonomy update and the segment
+    cascade are both scoped to the domain (a segment belongs to a domain through
+    ``conversation.domain``), so renaming ssa's "Disability" never touches va's.
+    Topic-level rename (``subtopic`` None): updates the entry's topic and every
+    matching ``segment.topic`` in the domain. Subtopic-level rename (``subtopic``
+    given): updates the entry's subtopic and every segment whose ``(topic,
+    subtopic)`` matches. One transaction so a rename never orphans a label.
+    Returns the number of cascaded segment rows. Values are slug-normalized.
     """
     topic = slugify(topic)
     new_topic = slugify(new_topic)
@@ -1242,28 +1261,31 @@ def rename_taxonomy(
             if subtopic is None:
                 conn.execute(
                     "UPDATE taxonomy SET topic = %s "
-                    "WHERE dataset = %s AND kind = %s AND topic = %s",
-                    (new_topic, dataset, kind, topic),
+                    "WHERE dataset = %s AND domain IS NOT DISTINCT FROM %s "
+                    "AND kind = %s AND topic = %s",
+                    (new_topic, dataset, domain, kind, topic),
                 )
                 updated = conn.execute(
                     "UPDATE segment s SET topic = %s "
                     "FROM conversation c "
                     "WHERE s.conversation_id = c.id AND c.dataset = %s "
-                    "AND s.topic = %s",
-                    (new_topic, dataset, topic),
+                    "AND c.domain IS NOT DISTINCT FROM %s AND s.topic = %s",
+                    (new_topic, dataset, domain, topic),
                 ).rowcount
             else:
                 conn.execute(
                     "UPDATE taxonomy SET topic = %s, subtopic = %s "
-                    "WHERE dataset = %s AND kind = %s AND topic = %s AND subtopic = %s",
-                    (new_topic, new_subtopic, dataset, kind, topic, subtopic),
+                    "WHERE dataset = %s AND domain IS NOT DISTINCT FROM %s "
+                    "AND kind = %s AND topic = %s AND subtopic = %s",
+                    (new_topic, new_subtopic, dataset, domain, kind, topic, subtopic),
                 )
                 updated = conn.execute(
                     "UPDATE segment s SET topic = %s, subtopic = %s "
                     "FROM conversation c "
                     "WHERE s.conversation_id = c.id AND c.dataset = %s "
+                    "AND c.domain IS NOT DISTINCT FROM %s "
                     "AND s.topic = %s AND s.subtopic = %s",
-                    (new_topic, new_subtopic, dataset, topic, subtopic),
+                    (new_topic, new_subtopic, dataset, domain, topic, subtopic),
                 ).rowcount
     return updated
 
@@ -1273,14 +1295,15 @@ def merge_taxonomy(
     from_topic: str,
     into_topic: str,
     kind: str = "user",
+    domain: str | None = None,
 ) -> int:
     """Fold ``from_topic`` into ``into_topic``: cascade labels, drop the dup rows.
 
-    Every ``segment.topic = from_topic`` in the dataset becomes ``into_topic``;
-    the ``from_topic`` taxonomy options are re-homed under ``into_topic`` (skipping
-    any that would collide with an existing ``into_topic`` option) and the leftover
-    ``from_topic`` rows are deleted. Returns the number of cascaded segment rows.
-    Both topics are slug-normalized before matching + cascade.
+    Scoped to ``(dataset, domain)``: every matching ``segment.topic`` in the domain
+    becomes ``into_topic``; the ``from_topic`` options are re-homed under
+    ``into_topic`` (skipping any that would collide with an existing ``into_topic``
+    option in the same domain) and the leftover ``from_topic`` rows are deleted.
+    Returns the number of cascaded segment rows. Both topics are slug-normalized.
     """
     from_topic = slugify(from_topic)
     into_topic = slugify(into_topic)
@@ -1291,23 +1314,27 @@ def merge_taxonomy(
                 "UPDATE segment s SET topic = %s "
                 "FROM conversation c "
                 "WHERE s.conversation_id = c.id AND c.dataset = %s "
-                "AND s.topic = %s",
-                (into_topic, dataset, from_topic),
+                "AND c.domain IS NOT DISTINCT FROM %s AND s.topic = %s",
+                (into_topic, dataset, domain, from_topic),
             ).rowcount
             conn.execute(
                 "UPDATE taxonomy SET topic = %s "
-                "WHERE dataset = %s AND kind = %s AND topic = %s "
+                "WHERE dataset = %s AND domain IS NOT DISTINCT FROM %s "
+                "AND kind = %s AND topic = %s "
                 "AND NOT EXISTS ("
                 "  SELECT 1 FROM taxonomy t2 "
-                "  WHERE t2.dataset = taxonomy.dataset AND t2.kind = taxonomy.kind "
+                "  WHERE t2.dataset = taxonomy.dataset "
+                "  AND t2.domain IS NOT DISTINCT FROM taxonomy.domain "
+                "  AND t2.kind = taxonomy.kind "
                 "  AND t2.topic = %s AND t2.subtopic IS NOT DISTINCT FROM taxonomy.subtopic"
                 ")",
-                (into_topic, dataset, kind, from_topic, into_topic),
+                (into_topic, dataset, domain, kind, from_topic, into_topic),
             )
             conn.execute(
                 "DELETE FROM taxonomy "
-                "WHERE dataset = %s AND kind = %s AND topic = %s",
-                (dataset, kind, from_topic),
+                "WHERE dataset = %s AND domain IS NOT DISTINCT FROM %s "
+                "AND kind = %s AND topic = %s",
+                (dataset, domain, kind, from_topic),
             )
     return updated
 
@@ -1317,8 +1344,9 @@ def delete_taxonomy(
     topic: str,
     subtopic: str | None = None,
     kind: str = "user",
+    domain: str | None = None,
 ) -> int:
-    """Remove a taxonomy option. Applied segment labels are left intact.
+    """Remove a taxonomy option (scoped to ``domain``). Segment labels are kept.
 
     Deleting an option is removing a choice, not erasing history; segments already
     labelled with it keep their topic/subtopic. Returns the number of taxonomy rows
@@ -1329,14 +1357,16 @@ def delete_taxonomy(
         if subtopic is None:
             deleted = conn.execute(
                 "DELETE FROM taxonomy "
-                "WHERE dataset = %s AND kind = %s AND topic = %s AND subtopic IS NULL",
-                (dataset, kind, topic),
+                "WHERE dataset = %s AND domain IS NOT DISTINCT FROM %s "
+                "AND kind = %s AND topic = %s AND subtopic IS NULL",
+                (dataset, domain, kind, topic),
             ).rowcount
         else:
             deleted = conn.execute(
                 "DELETE FROM taxonomy "
-                "WHERE dataset = %s AND kind = %s AND topic = %s AND subtopic = %s",
-                (dataset, kind, topic, subtopic),
+                "WHERE dataset = %s AND domain IS NOT DISTINCT FROM %s "
+                "AND kind = %s AND topic = %s AND subtopic = %s",
+                (dataset, domain, kind, topic, subtopic),
             ).rowcount
     return deleted
 
@@ -1386,40 +1416,50 @@ def used_topics(dataset: str) -> list[str]:
 
 
 def bertopic_labels(dataset: str) -> dict:
-    """Return distinct BERTopic topics + subtopics with per-conversation counts.
+    """Return distinct source topics + subtopics (with domain) and counts.
 
     ``count`` is the number of DISTINCT conversations holding a ``source='gold'``
     segment with that label; NULL labels are excluded and rows are ordered by
-    count desc (then label asc). Subtopic rows carry their parent ``topic`` so
-    the frontend can narrow subtopics by selected topic. Shape:
-    ``{topics: [{topic, count}], subtopics: [{subtopic, topic, count}]}``.
+    count desc (then label asc). Topics are now nav CATEGORIES, so the same
+    category name can exist in two domains — each entry carries its ``domain``
+    (the conversation's) so the UI can cascade Domain -> Topic -> Subtopic.
+    Subtopic rows also carry their parent ``topic``. Shape:
+    ``{topics: [{topic, domain, count}], subtopics: [{subtopic, topic, domain, count}]}``.
     """
     pool = get_pool()
     with pool.connection() as conn:
         topics = conn.execute(
-            "SELECT s.bertopic_topic AS topic, "
+            "SELECT s.bertopic_topic AS topic, c.domain AS domain, "
             "COUNT(DISTINCT s.conversation_id) AS count "
             "FROM segment s JOIN conversation c ON c.id = s.conversation_id "
             "WHERE c.dataset = %s AND s.source = 'gold' "
             "AND s.bertopic_topic IS NOT NULL "
-            "GROUP BY s.bertopic_topic "
+            "GROUP BY s.bertopic_topic, c.domain "
             "ORDER BY count DESC, s.bertopic_topic ASC",
             (dataset,),
         ).fetchall()
         subtopics = conn.execute(
             "SELECT s.bertopic_subtopic AS subtopic, s.bertopic_topic AS topic, "
-            "COUNT(DISTINCT s.conversation_id) AS count "
+            "c.domain AS domain, COUNT(DISTINCT s.conversation_id) AS count "
             "FROM segment s JOIN conversation c ON c.id = s.conversation_id "
             "WHERE c.dataset = %s AND s.source = 'gold' "
             "AND s.bertopic_subtopic IS NOT NULL "
-            "GROUP BY s.bertopic_subtopic, s.bertopic_topic "
+            "GROUP BY s.bertopic_subtopic, s.bertopic_topic, c.domain "
             "ORDER BY count DESC, s.bertopic_subtopic ASC",
             (dataset,),
         ).fetchall()
     return {
-        "topics": [{"topic": r["topic"], "count": r["count"]} for r in topics],
+        "topics": [
+            {"topic": r["topic"], "domain": r["domain"], "count": r["count"]}
+            for r in topics
+        ],
         "subtopics": [
-            {"subtopic": r["subtopic"], "topic": r["topic"], "count": r["count"]}
+            {
+                "subtopic": r["subtopic"],
+                "topic": r["topic"],
+                "domain": r["domain"],
+                "count": r["count"],
+            }
             for r in subtopics
         ],
     }

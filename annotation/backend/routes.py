@@ -197,6 +197,7 @@ def list_conversations(
     q: str | None = Query(default=None),
     status: str | None = Query(default=None),
     topic: str | None = Query(default=None),
+    domain: str | None = Query(default=None),
     labeler: str | None = Query(default=None),
     bertopic_topic: str | None = Query(default=None),
     bertopic_subtopic: str | None = Query(default=None),
@@ -220,6 +221,7 @@ def list_conversations(
         q=q,
         status=status,
         topic=topic,
+        domain=domain,
         labeler=labeler,
         bertopic_topic=bertopic_topic,
         bertopic_subtopic=bertopic_subtopic,
@@ -268,6 +270,7 @@ def get_conversation(dataset: str, conversation: str) -> ConversationView:
     ]
     return ConversationView(
         conversation=conversation,
+        domain=detail.get("domain"),
         messages=[Message(**m) for m in detail["messages"]],
         segments=segments,
         gold_segments=gold,
@@ -282,6 +285,7 @@ def get_taxonomy(dataset: str) -> list[TaxonomyEntry]:
     rows = db.load_taxonomy(dataset)
     return [
         TaxonomyEntry(
+            domain=r.get("domain"),
             topic=r.get("topic"),
             subtopic=r.get("subtopic"),
             description=r.get("description"),
@@ -305,6 +309,7 @@ def create_taxonomy(
         subtopic=request.subtopic,
         description=request.description,
         kind=request.kind,
+        domain=request.domain,
     )
     return TaxonomyMutationResponse(dataset=dataset)
 
@@ -325,6 +330,7 @@ def rename_taxonomy(
         subtopic=request.subtopic,
         new_subtopic=request.new_subtopic,
         kind=request.kind,
+        domain=request.domain,
     )
     return TaxonomyMutationResponse(dataset=dataset, cascaded=cascaded)
 
@@ -343,6 +349,7 @@ def merge_taxonomy(
         from_topic=request.from_topic,
         into_topic=request.into_topic,
         kind=request.kind,
+        domain=request.domain,
     )
     return TaxonomyMutationResponse(dataset=dataset, cascaded=cascaded)
 
@@ -355,10 +362,13 @@ def delete_taxonomy(
     topic: str = Query(...),
     subtopic: str | None = Query(default=None),
     kind: str = Query(default="user"),
+    domain: str | None = Query(default=None),
 ) -> TaxonomyMutationResponse:
-    """Remove a taxonomy option. Already-applied segment labels are left intact."""
+    """Remove a taxonomy option (within its domain). Applied labels are left intact."""
     _require_dataset(dataset)
-    deleted = db.delete_taxonomy(dataset, topic=topic, subtopic=subtopic, kind=kind)
+    deleted = db.delete_taxonomy(
+        dataset, topic=topic, subtopic=subtopic, kind=kind, domain=domain
+    )
     return TaxonomyMutationResponse(dataset=dataset, deleted=deleted)
 
 

@@ -1,0 +1,1541 @@
+{
+  "categories": {
+    "dmv": [
+      "Vehicles",
+      "Tickets & Violations",
+      "Licenses, Permits & IDs",
+      "Records",
+      "Online Transactions",
+      "Offices & Services",
+      "General"
+    ],
+    "ssa": [
+      "Manage Benefits",
+      "Disability",
+      "Retirement",
+      "General",
+      "Survivor",
+      "Social Security Number & Card",
+      "Medicare",
+      "Supplemental Security Income (SSI)"
+    ],
+    "va": [
+      "Health Care",
+      "Life Insurance",
+      "Disability",
+      "Pension",
+      "Careers & Employment",
+      "Education & Training",
+      "Housing Assistance",
+      "Records",
+      "General",
+      "Family & Caregivers"
+    ],
+    "studentaid": [
+      "Complete Aid Process",
+      "Understand Aid",
+      "General",
+      "Apply for Aid",
+      "Manage Loans"
+    ]
+  },
+  "mapping": [
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "A Guide for Facilities:"
+    },
+    {
+      "domain": "dmv",
+      "category": "Tickets & Violations",
+      "document": "About online and alternative delivery method courses (I-PIRP/ADM)"
+    },
+    {
+      "domain": "dmv",
+      "category": "Tickets & Violations",
+      "document": "About problem driver restrictions"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "Automatic license and registration extension for military personnel"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "Become a driving school instructor"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Buy or sell a vehicle (transfer ownership)"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Changes to IRP registration"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Commercial vehicle registration fees, vehicle use taxes and supplemental fees"
+    },
+    {
+      "domain": "dmv",
+      "category": "Records",
+      "document": "DIAL-IN search accounts"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "Driver license and learner permit fees and refunds"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "Escort driver certification"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Estimate registration fees and taxes"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "Exchange your out-of-state driver license"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "Get a driver license"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "Get a license to drive a taxi or livery vehicle"
+    },
+    {
+      "domain": "dmv",
+      "category": "Records",
+      "document": "Get my own CDL driving record (abstract)"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "How to renew a license"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Information about Empire Gold plates"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Know Your Rights in Auto Repair"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "Learner permit restrictions"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "Medical Certification FAQ's"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "Medical Certification Requirements"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Moving out of New York State"
+    },
+    {
+      "domain": "dmv",
+      "category": "Online Transactions",
+      "document": "MyDMV Account Terms of Service"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "NY State Adventure License FAQs"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "New York State Insurance Requirements"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Open a dealership"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "Open a driving school"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Order personalized plates"
+    },
+    {
+      "domain": "dmv",
+      "category": "Tickets & Violations",
+      "document": "Pay driver civil penalty"
+    },
+    {
+      "domain": "dmv",
+      "category": "Tickets & Violations",
+      "document": "Pay suspension termination fee"
+    },
+    {
+      "domain": "dmv",
+      "category": "Offices & Services",
+      "document": "Prepare for your road test"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Refunds and transfer credits for surrendered plates"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Register a moped"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Register a snowmobile"
+    },
+    {
+      "domain": "dmv",
+      "category": "Tickets & Violations",
+      "document": "Registration suspensions for failure to pay tolls"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Remove a lienholder from a title"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "Renew a hazardous materials (HazMat) endorsement"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "Renew non-driver ID card"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "Replace a non-driver ID card"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "Replace license or permit"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Replace or transfer personalized plates"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Sales tax information"
+    },
+    {
+      "domain": "dmv",
+      "category": "Offices & Services",
+      "document": "Schedule and take a road test"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Stolen and recovered vehicles"
+    },
+    {
+      "domain": "dmv",
+      "category": "Vehicles",
+      "document": "Surrender (return or turn in) your plates to the DMV"
+    },
+    {
+      "domain": "dmv",
+      "category": "Tickets & Violations",
+      "document": "Suspensions and revocations"
+    },
+    {
+      "domain": "dmv",
+      "category": "Licenses, Permits & IDs",
+      "document": "The Graduated License Law and Restrictions for Drivers under 18"
+    },
+    {
+      "domain": "dmv",
+      "category": "General",
+      "document": "Top 5 DMV Mistakes and How to Avoid Them"
+    },
+    {
+      "domain": "dmv",
+      "category": "Tickets & Violations",
+      "document": "Traffic Violations Bureau"
+    },
+    {
+      "domain": "dmv",
+      "category": "General",
+      "document": "Voter Registration Application Frequently Asked Questions"
+    },
+    {
+      "domain": "ssa",
+      "category": "Manage Benefits",
+      "document": "Appeal A Decision"
+    },
+    {
+      "domain": "ssa",
+      "category": "Disability",
+      "document": "Apply For A Child (Under Age 18) | Disability Benefits"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Apply for Retirement Benefits"
+    },
+    {
+      "domain": "ssa",
+      "category": "Manage Benefits",
+      "document": "Benefit Verification Letter"
+    },
+    {
+      "domain": "ssa",
+      "category": "General",
+      "document": "Benefits Planner"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Benefits Planner | Social Security Credits and Benefit Eligibility"
+    },
+    {
+      "domain": "ssa",
+      "category": "Disability",
+      "document": "Benefits Planner: Disability"
+    },
+    {
+      "domain": "ssa",
+      "category": "Disability",
+      "document": "Benefits Planner: Disability | Approval Process"
+    },
+    {
+      "domain": "ssa",
+      "category": "Disability",
+      "document": "Benefits Planner: Disability | Are You Working"
+    },
+    {
+      "domain": "ssa",
+      "category": "Disability",
+      "document": "Benefits Planner: Disability | Family Benefits"
+    },
+    {
+      "domain": "ssa",
+      "category": "Disability",
+      "document": "Benefits Planner: Disability | How You Apply"
+    },
+    {
+      "domain": "ssa",
+      "category": "Disability",
+      "document": "Benefits Planner: Disability | How You Qualify"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Benefits Planner: Retirement | Applying for Medicare Only"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Benefits Planner: Retirement | Benefits By Year Of Birth"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Benefits Planner: Retirement | Benefits For Your Family"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Benefits Planner: Retirement | Benefits For Your Spouse"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Benefits Planner: Retirement | Delayed Retirement Credits"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Benefits Planner: Retirement | Getting Benefits While Working"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Benefits Planner: Retirement | Government Pension Offset (GPO) Calculator"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Benefits Planner: Retirement | If You Are Divorced"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Benefits Planner: Retirement | Medicare Premiums"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Benefits Planner: Retirement | Online Calculator (WEP Version)"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Benefits Planner: Retirement | Other Things to Consider"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Benefits Planner: Retirement | You Can Apply For Retirement Benefits Or Medicare"
+    },
+    {
+      "domain": "ssa",
+      "category": "Survivor",
+      "document": "Benefits Planner: Survivors | How You Apply"
+    },
+    {
+      "domain": "ssa",
+      "category": "Survivor",
+      "document": "Benefits Planner: Survivors | If You Are The Survivor"
+    },
+    {
+      "domain": "ssa",
+      "category": "Survivor",
+      "document": "Benefits Planner: Survivors | Planning For Your Survivors"
+    },
+    {
+      "domain": "ssa",
+      "category": "Disability",
+      "document": "Benefits for People with Disabilities"
+    },
+    {
+      "domain": "ssa",
+      "category": "Manage Benefits",
+      "document": "Change of Address| Social Security Administration"
+    },
+    {
+      "domain": "ssa",
+      "category": "Manage Benefits",
+      "document": "Direct Deposit"
+    },
+    {
+      "domain": "ssa",
+      "category": "Disability",
+      "document": "Disability Benefits"
+    },
+    {
+      "domain": "ssa",
+      "category": "General",
+      "document": "Explore The Benefits You May Be Due"
+    },
+    {
+      "domain": "ssa",
+      "category": "Disability",
+      "document": "How To Apply For Social Security Disability Benefits"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Learn About Retirement Benefits"
+    },
+    {
+      "domain": "ssa",
+      "category": "Social Security Number & Card",
+      "document": "Learn what documents you will need to get a Social Security Card"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Manage Your Retirement Benefits"
+    },
+    {
+      "domain": "ssa",
+      "category": "Medicare",
+      "document": "Medicare Benefits"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Retirement Benefits"
+    },
+    {
+      "domain": "ssa",
+      "category": "Retirement",
+      "document": "Retirement Estimator"
+    },
+    {
+      "domain": "ssa",
+      "category": "Manage Benefits",
+      "document": "Social Security Direct Deposit"
+    },
+    {
+      "domain": "ssa",
+      "category": "Supplemental Security Income (SSI)",
+      "document": "Supplemental Security Income (SSI) Benefits"
+    },
+    {
+      "domain": "ssa",
+      "category": "Manage Benefits",
+      "document": "my Social Security | Create an Account | Social Security Administratio"
+    },
+    {
+      "domain": "ssa",
+      "category": "Manage Benefits",
+      "document": "my Social Security | Security and Protection"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Complete Aid Process",
+      "document": "Accepting Aid"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Understand Aid",
+      "document": "Aid for Military Families"
+    },
+    {
+      "domain": "studentaid",
+      "category": "General",
+      "document": "Aidan | The FSA Virtual Assistant"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Apply for Aid",
+      "document": "Appeal a Credit Decision Demo | Extenuating Circumstances"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "Apply for Income-Driven Student Loan Repayment"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "Avoiding Default"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Understand Aid",
+      "document": "Checklists for Academic and Financial Preparation"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "Closed School Discharge"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "Co-sign Your Spouse's Income-Driven Repayment Plan Application"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Complete Aid Process",
+      "document": "Comparing School Aid Offers"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Complete Aid Process",
+      "document": "Completing a Master Promissory Note"
+    },
+    {
+      "domain": "studentaid",
+      "category": "General",
+      "document": "Contracting Information"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Understand Aid",
+      "document": "Eligibility Requirements"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Understand Aid",
+      "document": "Eligibility for Non-U.S. Citizens"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Complete Aid Process",
+      "document": "Entrance Counseling"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Understand Aid",
+      "document": "Estimate Your Aid"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "Exit Counseling"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "Extended Plan"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Apply for Aid",
+      "document": "FAFSA® Help"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "False Certification Discharge"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Understand Aid",
+      "document": "Federal Versus Private Loans"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "Graduated Plan"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Understand Aid",
+      "document": "How Aid Is Calculated"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Apply for Aid",
+      "document": "How to Renew Your FAFSA® Application"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Apply for Aid",
+      "document": "How to Review and Correct Your FAFSA® Application"
+    },
+    {
+      "domain": "studentaid",
+      "category": "General",
+      "document": "IT Standards Library"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "Income-Driven Repayment Plans"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "Income-Sensitive Plan"
+    },
+    {
+      "domain": "studentaid",
+      "category": "General",
+      "document": "Link to Us"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Apply for Aid",
+      "document": "Listing Colleges on the FAFSA® Form"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Understand Aid",
+      "document": "Loans"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Apply for Aid",
+      "document": "PLUS Loan Application for Graduate Students"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Apply for Aid",
+      "document": "Parent PLUS Loan Application"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Understand Aid",
+      "document": "Parent PLUS Loans"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "Perkins Loan Cancellation and Discharge"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Understand Aid",
+      "document": "Preparing for College"
+    },
+    {
+      "domain": "studentaid",
+      "category": "General",
+      "document": "Program Reviews"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "Public Service Loan Forgiveness"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Apply for Aid",
+      "document": "Questions and Answers About FAFSA® Completion Data"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Complete Aid Process",
+      "document": "Receiving Financial Aid"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Apply for Aid",
+      "document": "Reporting Parent Information"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Apply for Aid",
+      "document": "Student Aid Report"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "Student Loan Deferment"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "Student Loan Forbearance"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Understand Aid",
+      "document": "Tax Benefits for Higher Education"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "Teacher Loan Forgiveness"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "Total and Permanent Disability Discharge"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Understand Aid",
+      "document": "Understand Financial Aid"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Understand Aid",
+      "document": "Understanding College Costs"
+    },
+    {
+      "domain": "studentaid",
+      "category": "Manage Loans",
+      "document": "Unpaid Refund Discharge"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "About VA Health Benefits"
+    },
+    {
+      "domain": "va",
+      "category": "Life Insurance",
+      "document": "About VA Insurance Options And Eligibility"
+    },
+    {
+      "domain": "va",
+      "category": "Life Insurance",
+      "document": "Access Your VA Life Insurance Policy Online"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "Active-Duty Service Members And VA Health Care"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Add Dependents To Your VA Disability Benefits"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "Affordable Care Act (ACA) And Your Coverage"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "After You Apply For Health Care Benefits"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Agent Orange Exposure"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Agent Orange Exposure From C-123 Aircraft"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Agent Orange Exposure In Vietnam Or Korea"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Agent Orange Exposure On Navy Or Coast Guard Ships"
+    },
+    {
+      "domain": "va",
+      "category": "Pension",
+      "document": "Aid And Attendance Benefits And Housebound Allowance | VA.gov"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Board hearings with a Veterans Law Judge"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "CHAMPVA Benefits"
+    },
+    {
+      "domain": "va",
+      "category": "Careers & Employment",
+      "document": "Careers And Employment"
+    },
+    {
+      "domain": "va",
+      "category": "Education & Training",
+      "document": "Change Your GI Bill School Or Program"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Check Your VA Claim Or Appeal Status"
+    },
+    {
+      "domain": "va",
+      "category": "Education & Training",
+      "document": "Co-op Training"
+    },
+    {
+      "domain": "va",
+      "category": "Housing Assistance",
+      "document": "Disability Housing Grants For Veterans"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "Eligibility For VA Health Care"
+    },
+    {
+      "domain": "va",
+      "category": "Careers & Employment",
+      "document": "Eligibility For VA Vocational Rehab And Employment"
+    },
+    {
+      "domain": "va",
+      "category": "Pension",
+      "document": "Eligibility For Veterans Pension"
+    },
+    {
+      "domain": "va",
+      "category": "Housing Assistance",
+      "document": "Eligibility Requirements For VA Home Loan Programs"
+    },
+    {
+      "domain": "va",
+      "category": "Careers & Employment",
+      "document": "Employment Benefits For Dependent Family Members"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Exposure Through Project 112 Or Project SHAD"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Exposure To Hazardous Chemicals And Materials"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Exposure To Specific Environmental Hazards"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "Family And Caregiver Health Benefits"
+    },
+    {
+      "domain": "va",
+      "category": "Education & Training",
+      "document": "Foreign Programs"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Frequently asked questions about decision reviews"
+    },
+    {
+      "domain": "va",
+      "category": "Education & Training",
+      "document": "Fry Scholarships"
+    },
+    {
+      "domain": "va",
+      "category": "Pension",
+      "document": "Fully Developed Claim For A VA Pension"
+    },
+    {
+      "domain": "va",
+      "category": "Education & Training",
+      "document": "GI Bill Eligibility"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "Get Your VA Medical Records Online"
+    },
+    {
+      "domain": "va",
+      "category": "Records",
+      "document": "How To Apply For A Veteran ID Card"
+    },
+    {
+      "domain": "va",
+      "category": "Education & Training",
+      "document": "How To Apply For The GI Bill"
+    },
+    {
+      "domain": "va",
+      "category": "Careers & Employment",
+      "document": "How To Apply For VA Voc Rehab And Employment"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Increased Disability Rating For Time In A Hospital"
+    },
+    {
+      "domain": "va",
+      "category": "Life Insurance",
+      "document": "Insurance claims"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Ionizing Radiation Exposure"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "Military Sexual Trauma (MST)"
+    },
+    {
+      "domain": "va",
+      "category": "Education & Training",
+      "document": "Montgomery GI Bill Active Duty (MGIB-AD)"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Multiple party or contested claims"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Mustard Gas Or Lewisite Exposure"
+    },
+    {
+      "domain": "va",
+      "category": "Education & Training",
+      "document": "National Call To Service Program"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "PTSD Treatment"
+    },
+    {
+      "domain": "va",
+      "category": "Education & Training",
+      "document": "Post-9/11 GI Bill"
+    },
+    {
+      "domain": "va",
+      "category": "General",
+      "document": "Print Out Your VA Welcome Kit"
+    },
+    {
+      "domain": "va",
+      "category": "Records",
+      "document": "Reconstruct Military Records Destroyed In NPRC Fire"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Request a Higher-Level Review"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "Schedule And View VA Appointments Online"
+    },
+    {
+      "domain": "va",
+      "category": "Life Insurance",
+      "document": "Servicemembers’ Group Life Insurance (SGLI)"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "Substance Use Treatment For Veterans"
+    },
+    {
+      "domain": "va",
+      "category": "Education & Training",
+      "document": "Survivors’ And Dependents’ Educational Assistance"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Temporary Disability Rating After Surgery Or Cast"
+    },
+    {
+      "domain": "va",
+      "category": "Life Insurance",
+      "document": "Totally Disabled Or Terminally Ill Policyholders"
+    },
+    {
+      "domain": "va",
+      "category": "Education & Training",
+      "document": "Tutorial Assistance"
+    },
+    {
+      "domain": "va",
+      "category": "Records",
+      "document": "Types Of Veteran ID Cards"
+    },
+    {
+      "domain": "va",
+      "category": "Education & Training",
+      "document": "Undergraduate And Graduate Degrees"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "Upload Evidence To Support Your Disability Claim"
+    },
+    {
+      "domain": "va",
+      "category": "General",
+      "document": "VA Benefits For Service Members"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "VA Dental Care"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "VA Disability Compensation"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "VA Disability Compensation For PTSD"
+    },
+    {
+      "domain": "va",
+      "category": "Education & Training",
+      "document": "VA Education Benefits For Survivors And Dependents"
+    },
+    {
+      "domain": "va",
+      "category": "Family & Caregivers",
+      "document": "VA Family Caregiver Assistance Program"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "VA Health Care"
+    },
+    {
+      "domain": "va",
+      "category": "Housing Assistance",
+      "document": "VA Help To Avoid Mortgage Foreclosure"
+    },
+    {
+      "domain": "va",
+      "category": "Housing Assistance",
+      "document": "VA Home Loan Programs For Surviving Spouses"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "VA Individual Unemployability If You Can't Work"
+    },
+    {
+      "domain": "va",
+      "category": "Life Insurance",
+      "document": "VA Life Insurance"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "VA Mental Health Services"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "VA Nursing Homes And Assisted Living"
+    },
+    {
+      "domain": "va",
+      "category": "Pension",
+      "document": "VA Pension Benefits"
+    },
+    {
+      "domain": "va",
+      "category": "Pension",
+      "document": "VA Survivors Pension"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "VA Vision Care"
+    },
+    {
+      "domain": "va",
+      "category": "Careers & Employment",
+      "document": "VA Vocational Rehabilitation (Chapter 31)"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "VA claim exam (C&P exam)"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "VA decision reviews and appeals"
+    },
+    {
+      "domain": "va",
+      "category": "Careers & Employment",
+      "document": "VR&E Independent Living Track"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "Veteran Suicide Prevention"
+    },
+    {
+      "domain": "va",
+      "category": "Education & Training",
+      "document": "Veterans Technology Education Courses"
+    },
+    {
+      "domain": "va",
+      "category": "Careers & Employment",
+      "document": "Veterans Vocational Rehabilitation Programs"
+    },
+    {
+      "domain": "va",
+      "category": "Education & Training",
+      "document": "Veterans’ Educational Assistance Program (VEAP)"
+    },
+    {
+      "domain": "va",
+      "category": "Life Insurance",
+      "document": "Veterans’ Group Life Insurance (VGLI)"
+    },
+    {
+      "domain": "va",
+      "category": "Life Insurance",
+      "document": "Veterans’ Mortgage Life Insurance (VMLI)"
+    },
+    {
+      "domain": "va",
+      "category": "General",
+      "document": "View Your VA Payment History"
+    },
+    {
+      "domain": "va",
+      "category": "Disability",
+      "document": "What To Expect After You Get A Disability Rating"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "Where You'll Go For Care"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "Women's Health Care Needs"
+    },
+    {
+      "domain": "va",
+      "category": "Education & Training",
+      "document": "Yellow Ribbon Program"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "Your Health Care Costs"
+    },
+    {
+      "domain": "va",
+      "category": "Health Care",
+      "document": "Your VA Primary Care Provider"
+    }
+  ],
+  "ambiguous": [
+    {
+      "document": "A Guide for Facilities:",
+      "chosen": "Vehicles",
+      "alternative": "Offices & Services",
+      "why": "Truncated title; appears to be a guide for inspection/repair facilities, a business-facing vehicles topic."
+    },
+    {
+      "document": "About problem driver restrictions",
+      "chosen": "Tickets & Violations",
+      "alternative": "Licenses, Permits & IDs",
+      "why": "Restriction follows suspension/revocation history but is carried on the license itself."
+    },
+    {
+      "document": "Automatic license and registration extension for military personnel",
+      "chosen": "Licenses, Permits & IDs",
+      "alternative": "Vehicles",
+      "why": "Covers both license and registration extensions equally."
+    },
+    {
+      "document": "Become a driving school instructor",
+      "chosen": "Licenses, Permits & IDs",
+      "alternative": "General",
+      "why": "Occupational certification, not a personal driver credential; no business category exists."
+    },
+    {
+      "document": "Open a driving school",
+      "chosen": "Licenses, Permits & IDs",
+      "alternative": "General",
+      "why": "Business licensing topic; nearest consumer category is licensing."
+    },
+    {
+      "document": "Open a dealership",
+      "chosen": "Vehicles",
+      "alternative": "General",
+      "why": "Dealer business regulation; nearest fit is vehicles buying/selling."
+    },
+    {
+      "document": "Know Your Rights in Auto Repair",
+      "chosen": "Vehicles",
+      "alternative": "General",
+      "why": "Consumer-protection info about DMV-regulated repair shops rather than a vehicle transaction."
+    },
+    {
+      "document": "Moving out of New York State",
+      "chosen": "Vehicles",
+      "alternative": "Licenses, Permits & IDs",
+      "why": "Mostly plate surrender and insurance steps, but also touches licenses."
+    },
+    {
+      "document": "Registration suspensions for failure to pay tolls",
+      "chosen": "Tickets & Violations",
+      "alternative": "Vehicles",
+      "why": "A suspension topic (T&V) applied to vehicle registrations."
+    },
+    {
+      "document": "Top 5 DMV Mistakes and How to Avoid Them",
+      "chosen": "General",
+      "alternative": "Vehicles",
+      "why": "Cross-cutting tips spanning plates, insurance, and tickets; fits no single category."
+    },
+    {
+      "document": "Voter Registration Application Frequently Asked Questions",
+      "chosen": "General",
+      "alternative": "Online Transactions",
+      "why": "Voter registration is not a motorist service; only offered via DMV transactions."
+    },
+    {
+      "document": "Benefits Planner",
+      "chosen": "General",
+      "alternative": "Retirement",
+      "why": "Hub page covering retirement, disability, and survivors planners equally."
+    },
+    {
+      "document": "Benefits Planner | Social Security Credits and Benefit Eligibility",
+      "chosen": "Retirement",
+      "alternative": "General",
+      "why": "Work credits govern eligibility for all benefit types; retirement is the canonical planner home."
+    },
+    {
+      "document": "Benefits Planner: Retirement | Applying for Medicare Only",
+      "chosen": "Retirement",
+      "alternative": "Medicare",
+      "why": "X-signal says Retirement but the content is Medicare enrollment."
+    },
+    {
+      "document": "Benefits Planner: Retirement | Medicare Premiums",
+      "chosen": "Retirement",
+      "alternative": "Medicare",
+      "why": "X-signal says Retirement but the content is Medicare premiums."
+    },
+    {
+      "document": "Benefits Planner: Retirement | You Can Apply For Retirement Benefits Or Medicare",
+      "chosen": "Retirement",
+      "alternative": "Medicare",
+      "why": "Straddles retirement filing and Medicare-only filing."
+    },
+    {
+      "document": "Manage Your Retirement Benefits",
+      "chosen": "Retirement",
+      "alternative": "Manage Benefits",
+      "why": "Managing (checks, changes) a specifically retirement benefit."
+    },
+    {
+      "document": "Explore The Benefits You May Be Due",
+      "chosen": "General",
+      "alternative": "Family",
+      "why": "Cross-benefit screening page spanning all SSA programs."
+    },
+    {
+      "document": "Appeal a Credit Decision Demo | Extenuating Circumstances",
+      "chosen": "Apply for Aid",
+      "alternative": "Manage Loans",
+      "why": "PLUS-loan credit appeal happens during the loan application step."
+    },
+    {
+      "document": "Exit Counseling",
+      "chosen": "Manage Loans",
+      "alternative": "Complete Aid Process",
+      "why": "Counseling at exit prepares borrowers for repayment; entrance counterpart sits in Complete Aid Process."
+    },
+    {
+      "document": "How Aid Is Calculated",
+      "chosen": "Understand Aid",
+      "alternative": "Complete Aid Process",
+      "why": "How-aid-works explainer, but the calculation happens during the aid process."
+    },
+    {
+      "document": "Student Aid Report",
+      "chosen": "Apply for Aid",
+      "alternative": "Complete Aid Process",
+      "why": "FAFSA output document; part of applying but reviewed after submission."
+    },
+    {
+      "document": "Questions and Answers About FAFSA® Completion Data",
+      "chosen": "Apply for Aid",
+      "alternative": "General",
+      "why": "Researcher-facing dataset page about FAFSA, not student guidance."
+    },
+    {
+      "document": "Aidan | The FSA Virtual Assistant",
+      "chosen": "General",
+      "alternative": "Apply for Aid",
+      "why": "Site-wide help chatbot, not tied to one aid stage."
+    },
+    {
+      "document": "Contracting Information",
+      "chosen": "General",
+      "alternative": "Understand Aid",
+      "why": "Vendor/business page with no consumer navigation fit."
+    },
+    {
+      "document": "IT Standards Library",
+      "chosen": "General",
+      "alternative": "Understand Aid",
+      "why": "Internal IT/partner documentation, no consumer navigation fit."
+    },
+    {
+      "document": "Link to Us",
+      "chosen": "General",
+      "alternative": "Understand Aid",
+      "why": "Webmaster resource page, no consumer navigation fit."
+    },
+    {
+      "document": "Program Reviews",
+      "chosen": "General",
+      "alternative": "Understand Aid",
+      "why": "FSA oversight-of-schools page, no consumer navigation fit."
+    },
+    {
+      "document": "Board hearings with a Veterans Law Judge",
+      "chosen": "Disability",
+      "alternative": "General",
+      "why": "Decision reviews span all benefit types; disability claims dominate them."
+    },
+    {
+      "document": "Check Your VA Claim Or Appeal Status",
+      "chosen": "Disability",
+      "alternative": "General",
+      "why": "Cross-benefit status tool, most commonly used for disability claims."
+    },
+    {
+      "document": "Frequently asked questions about decision reviews",
+      "chosen": "Disability",
+      "alternative": "General",
+      "why": "Decision reviews apply to any VA claim; disability is the primary context."
+    },
+    {
+      "document": "Multiple party or contested claims",
+      "chosen": "Disability",
+      "alternative": "General",
+      "why": "Appeals-process page not specific to one benefit line."
+    },
+    {
+      "document": "Request a Higher-Level Review",
+      "chosen": "Disability",
+      "alternative": "General",
+      "why": "Decision-review option for any claim; disability is the primary context."
+    },
+    {
+      "document": "VA decision reviews and appeals",
+      "chosen": "Disability",
+      "alternative": "General",
+      "why": "Umbrella appeals page spanning all benefit types."
+    },
+    {
+      "document": "CHAMPVA Benefits",
+      "chosen": "Health Care",
+      "alternative": "Family & Caregivers",
+      "why": "Health coverage program, but the beneficiaries are family members."
+    },
+    {
+      "document": "Family And Caregiver Health Benefits",
+      "chosen": "Health Care",
+      "alternative": "Family & Caregivers",
+      "why": "Lives under va.gov health-care section though titled for families/caregivers."
+    },
+    {
+      "document": "VA Family Caregiver Assistance Program",
+      "chosen": "Family & Caregivers",
+      "alternative": "Health Care",
+      "why": "Caregiver support program administered through VA health care."
+    },
+    {
+      "document": "Get Your VA Medical Records Online",
+      "chosen": "Health Care",
+      "alternative": "Records",
+      "why": "Records category covers military records/ID cards; medical records sit under managing health care."
+    },
+    {
+      "document": "Add Dependents To Your VA Disability Benefits",
+      "chosen": "Disability",
+      "alternative": "Family & Caregivers",
+      "why": "Disability compensation action that concerns family members."
+    },
+    {
+      "document": "Employment Benefits For Dependent Family Members",
+      "chosen": "Careers & Employment",
+      "alternative": "Family & Caregivers",
+      "why": "Career services delivered to dependents rather than veterans."
+    },
+    {
+      "document": "Survivors’ And Dependents’ Educational Assistance",
+      "chosen": "Education & Training",
+      "alternative": "Family & Caregivers",
+      "why": "Education benefit whose recipients are survivors/dependents."
+    },
+    {
+      "document": "VA Education Benefits For Survivors And Dependents",
+      "chosen": "Education & Training",
+      "alternative": "Family & Caregivers",
+      "why": "Education benefit whose recipients are survivors/dependents."
+    },
+    {
+      "document": "Print Out Your VA Welcome Kit",
+      "chosen": "General",
+      "alternative": "Health Care",
+      "why": "Cross-benefit orientation resource, fits no single category."
+    },
+    {
+      "document": "VA Benefits For Service Members",
+      "chosen": "General",
+      "alternative": "Health Care",
+      "why": "Overview spanning every benefit line for active-duty members."
+    },
+    {
+      "document": "View Your VA Payment History",
+      "chosen": "General",
+      "alternative": "Disability",
+      "why": "Payment tool spanning compensation, pension, and education payments."
+    }
+  ],
+  "counts": {
+    "dmv": {
+      "Vehicles": 19,
+      "Tickets & Violations": 7,
+      "Licenses, Permits & IDs": 18,
+      "Records": 2,
+      "Online Transactions": 1,
+      "Offices & Services": 2,
+      "General": 2
+    },
+    "ssa": {
+      "Manage Benefits": 7,
+      "Disability": 10,
+      "Retirement": 18,
+      "General": 2,
+      "Survivor": 3,
+      "Social Security Number & Card": 1,
+      "Medicare": 1,
+      "Supplemental Security Income (SSI)": 1
+    },
+    "studentaid": {
+      "Complete Aid Process": 5,
+      "Understand Aid": 13,
+      "General": 5,
+      "Apply for Aid": 10,
+      "Manage Loans": 17
+    },
+    "va": {
+      "Health Care": 22,
+      "Life Insurance": 8,
+      "Disability": 24,
+      "Pension": 5,
+      "Careers & Employment": 7,
+      "Education & Training": 16,
+      "Housing Assistance": 4,
+      "Records": 3,
+      "General": 3,
+      "Family & Caregivers": 1
+    }
+  }
+}
