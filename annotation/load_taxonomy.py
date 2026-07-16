@@ -100,12 +100,14 @@ def _upsert(rows: list[dict]) -> None:
         with conn.transaction():
             for row in rows:
                 conn.execute(
-                    "INSERT INTO taxonomy (dataset, kind, topic, subtopic, description) "
-                    "VALUES (%s, %s, %s, %s, %s) "
-                    "ON CONFLICT (dataset, kind, topic, subtopic) "
+                    "INSERT INTO taxonomy "
+                    "(dataset, domain, kind, topic, subtopic, description) "
+                    "VALUES (%s, %s, %s, %s, %s, %s) "
+                    "ON CONFLICT (dataset, domain, kind, topic, subtopic) "
                     "DO UPDATE SET description = EXCLUDED.description",
                     (
                         row["dataset"],
+                        row.get("domain"),
                         row["kind"],
                         row["topic"],
                         row["subtopic"],

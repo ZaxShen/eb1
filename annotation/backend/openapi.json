@@ -97,11 +97,22 @@
         "type": "object"
       },
       "BertopicSubtopicCount": {
-        "description": "A distinct BERTopic subtopic with its parent topic and per-conversation count.",
+        "description": "A distinct source subtopic with its parent topic, domain, and per-conversation count.",
         "properties": {
           "count": {
             "title": "Count",
             "type": "integer"
+          },
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Domain"
           },
           "subtopic": {
             "title": "Subtopic",
@@ -127,11 +138,22 @@
         "type": "object"
       },
       "BertopicTopicCount": {
-        "description": "A distinct BERTopic topic with its per-conversation count.",
+        "description": "A distinct source topic (nav category) with its domain + per-conversation count.",
         "properties": {
           "count": {
             "title": "Count",
             "type": "integer"
+          },
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Domain"
           },
           "topic": {
             "title": "Topic",
@@ -304,6 +326,17 @@
             "title": "Conversation",
             "type": "string"
           },
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Domain"
+          },
           "message_count": {
             "title": "Message Count",
             "type": "integer"
@@ -344,6 +377,17 @@
           "conversation": {
             "title": "Conversation",
             "type": "string"
+          },
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Domain"
           },
           "frozen_boundaries": {
             "default": false,
@@ -767,7 +811,7 @@
         "type": "object"
       },
       "TaxonomyCreateRequest": {
-        "description": "Create a taxonomy option (idempotent on dataset/kind/topic/subtopic).",
+        "description": "Create a taxonomy option (idempotent on dataset/domain/kind/topic/subtopic).",
         "properties": {
           "description": {
             "anyOf": [
@@ -779,6 +823,17 @@
               }
             ],
             "title": "Description"
+          },
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Domain"
           },
           "kind": {
             "default": "user",
@@ -808,7 +863,7 @@
         "type": "object"
       },
       "TaxonomyEntry": {
-        "description": "One taxonomy (topic, subtopic) row from the metadata provider.",
+        "description": "One taxonomy (domain, topic, subtopic) row from the metadata provider.",
         "properties": {
           "description": {
             "anyOf": [
@@ -820,6 +875,17 @@
               }
             ],
             "title": "Description"
+          },
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Domain"
           },
           "subtopic": {
             "anyOf": [
@@ -848,8 +914,19 @@
         "type": "object"
       },
       "TaxonomyMergeRequest": {
-        "description": "Fold ``from_topic`` into ``into_topic`` (labels cascade, dup rows dropped).",
+        "description": "Fold ``from_topic`` into ``into_topic`` within a domain (labels cascade).",
         "properties": {
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Domain"
+          },
           "from_topic": {
             "title": "From Topic",
             "type": "string"
@@ -896,8 +973,19 @@
         "type": "object"
       },
       "TaxonomyRenameRequest": {
-        "description": "Rename a taxonomy option, cascading to applied segment labels.\n\nTopic-level rename leaves ``subtopic``/``new_subtopic`` unset; subtopic-level\nrename sets both the matched ``subtopic`` and the ``new_subtopic`` it becomes.",
+        "description": "Rename a taxonomy option (within its domain), cascading to segment labels.\n\nTopic-level rename leaves ``subtopic``/``new_subtopic`` unset; subtopic-level\nrename sets both the matched ``subtopic`` and the ``new_subtopic`` it becomes.",
         "properties": {
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Domain"
+          },
           "kind": {
             "default": "user",
             "title": "Kind",
@@ -1212,6 +1300,22 @@
                 }
               ],
               "title": "Topic"
+            }
+          },
+          {
+            "in": "query",
+            "name": "domain",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Domain"
             }
           },
           {
@@ -1879,7 +1983,7 @@
     },
     "/api/datasets/{dataset}/taxonomy": {
       "delete": {
-        "description": "Remove a taxonomy option. Already-applied segment labels are left intact.",
+        "description": "Remove a taxonomy option (within its domain). Applied labels are left intact.",
         "operationId": "delete_taxonomy_api_datasets__dataset__taxonomy_delete",
         "parameters": [
           {
@@ -1924,6 +2028,22 @@
               "default": "user",
               "title": "Kind",
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "domain",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Domain"
             }
           },
           {

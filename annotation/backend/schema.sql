@@ -38,6 +38,12 @@ CREATE TABLE IF NOT EXISTS conversation (
     UNIQUE (dataset, ext_id)
 );
 
+-- Known deployment domain of a conversation (taxonomy v2, issue #23): the source
+-- site the dialogue came from (ssa / va / dmv / studentaid). It is an ATTRIBUTE,
+-- not a classification target — classification happens within a domain — so the
+-- taxonomy is domain-scoped. Added via ALTER so existing databases migrate.
+ALTER TABLE conversation ADD COLUMN IF NOT EXISTS domain TEXT;
+
 CREATE TABLE IF NOT EXISTS message (
     id              BIGSERIAL PRIMARY KEY,
     conversation_id BIGINT NOT NULL REFERENCES conversation(id) ON DELETE CASCADE,
@@ -78,11 +84,19 @@ CREATE TABLE IF NOT EXISTS taxonomy (
     description TEXT
 );
 
--- One (dataset, kind, topic, subtopic) option exists at most once so create and
--- merge are idempotent. NULLS NOT DISTINCT (PG15+) treats a NULL subtopic as a
--- single value, so a topic-only option cannot be duplicated either.
-CREATE UNIQUE INDEX IF NOT EXISTS taxonomy_option_uidx
-    ON taxonomy (dataset, kind, topic, subtopic) NULLS NOT DISTINCT;
+-- Domain the option lives under (taxonomy v2, issue #23). The nav categories
+-- "Disability" and "General" exist in BOTH ssa and va, so a category name is only
+-- unique WITHIN a domain — every taxonomy operation is domain-scoped. Added via
+-- ALTER so existing databases migrate idempotently on apply_schema.
+ALTER TABLE taxonomy ADD COLUMN IF NOT EXISTS domain TEXT;
+
+-- One (dataset, domain, kind, topic, subtopic) option exists at most once so
+-- create and merge are idempotent. NULLS NOT DISTINCT (PG15+) treats a NULL
+-- subtopic (topic-only option) or a NULL domain (un-scoped dataset) as a single
+-- value. Replaces the pre-v2 domain-less unique index.
+DROP INDEX IF EXISTS taxonomy_option_uidx;
+CREATE UNIQUE INDEX IF NOT EXISTS taxonomy_option_domain_uidx
+    ON taxonomy (dataset, domain, kind, topic, subtopic) NULLS NOT DISTINCT;
 
 CREATE TABLE IF NOT EXISTS worklist (
     id          BIGSERIAL PRIMARY KEY,

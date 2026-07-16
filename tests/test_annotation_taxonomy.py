@@ -385,3 +385,158 @@ def test_mismatch_filter_off_returns_all_conversations(mismatch_client):
     assert _conv_ids(payload) == {
         "mm_match", "mm_topic", "mm_subnull", "mm_unreviewed", "mm_nullsource"
     }
+
+
+# ---------------------------------------------------------------------------
+# Domain-scoped taxonomy (taxonomy v2, issue #23). The nav category "Disability"
+# exists in BOTH ssa and va; every taxonomy operation is scoped to a domain so the
+# two are managed independently, and the conversations list carries a domain
+# exact-match filter.
+# ---------------------------------------------------------------------------
+
+DOMAIN_DATASET = "domaintax"
+DCV_SSA = "dtx_ssa"
+DCV_VA = "dtx_va"
+
+_DOMAIN_CONVERSATIONS = [
+    {
+        "ext_id": DCV_SSA,
+        "domain": "ssa",
+        "messages": [
+            {"role": "user", "content": "Am I eligible for SSDI?"},
+            {"role": "assistant", "content": "Let's check."},
+        ],
+        "segments": [
+            {"message_indices": [0, 1], "topic": "disability", "subtopic": "apply_ssdi"},
+        ],
+    },
+    {
+        "ext_id": DCV_VA,
+        "domain": "va",
+        "messages": [
+            {"role": "user", "content": "VA disability compensation?"},
+            {"role": "assistant", "content": "Here's how."},
+        ],
+        "segments": [
+            {"message_indices": [0, 1], "topic": "disability", "subtopic": "va_comp"},
+        ],
+    },
+]
+
+_DOMAIN_TAXONOMY = [
+    {"domain": "ssa", "topic": "disability", "subtopic": None, "description": "Disability"},
+    {"domain": "ssa", "topic": "disability", "subtopic": "apply_ssdi", "description": "Apply"},
+    {"domain": "va", "topic": "disability", "subtopic": None, "description": "Disability"},
+    {"domain": "va", "topic": "disability", "subtopic": "va_comp", "description": "Comp"},
+]
+
+
+@pytest.fixture()
+def domain_seeded():
+    db.seed_conversations(
+        DOMAIN_DATASET, _DOMAIN_CONVERSATIONS, taxonomy=_DOMAIN_TAXONOMY, reset=True
+    )
+    yield
+    db.seed_conversations(DOMAIN_DATASET, [], reset=True)
+
+
+@pytest.fixture()
+def domain_client(domain_seeded):
+    return TestClient(create_app())
+
+
+def _domain_options() -> set[tuple]:
+    return {
+        (r.get("domain"), r.get("topic"), r.get("subtopic"))
+        for r in db.load_taxonomy(DOMAIN_DATASET)
+    }
+
+
+def _domain_segment_labels(domain: str) -> set[tuple]:
+    pool = db.get_pool()
+    with pool.connection() as conn:
+        rows = conn.execute(
+            "SELECT s.topic, s.subtopic FROM segment s "
+            "JOIN conversation c ON s.conversation_id = c.id "
+            "WHERE c.dataset = %s AND c.domain = %s",
+            (DOMAIN_DATASET, domain),
+        ).fetchall()
+    return {(r["topic"], r["subtopic"]) for r in rows}
+
+
+def test_taxonomy_list_carries_domain(domain_client):
+    resp = domain_client.get(f"/api/datasets/{DOMAIN_DATASET}/taxonomy")
+    assert resp.status_code == 200
+    assert ("ssa", "disability", None) in _domain_options()
+    assert ("va", "disability", None) in _domain_options()
+
+
+def test_create_same_name_in_two_domains_coexists(domain_client):
+    for dom in ("ssa", "va"):
+        resp = domain_client.post(
+            f"/api/datasets/{DOMAIN_DATASET}/taxonomy",
+            json={"topic": "General", "domain": dom},
+        )
+        assert resp.status_code == 200
+    options = _domain_options()
+    assert ("ssa", "general", None) in options
+    assert ("va", "general", None) in options
+
+
+def test_rename_is_scoped_to_domain(domain_client):
+    # Rename ssa's "disability" -> "disability_claims"; va's must be untouched.
+    resp = domain_client.patch(
+        f"/api/datasets/{DOMAIN_DATASET}/taxonomy",
+        json={"topic": "disability", "new_topic": "disability_claims", "domain": "ssa"},
+    )
+    assert resp.status_code == 200
+    options = _domain_options()
+    assert ("ssa", "disability_claims", None) in options
+    assert ("ssa", "disability", None) not in options
+    # va's identically-named category is independent and unchanged.
+    assert ("va", "disability", None) in options
+    # Cascade touched only the ssa conversation's segment.
+    assert ("disability_claims", "apply_ssdi") in _domain_segment_labels("ssa")
+    assert ("disability", "va_comp") in _domain_segment_labels("va")
+
+
+def test_merge_is_scoped_to_domain(domain_client):
+    # Seed a va target then merge va's "disability" into it; ssa is untouched.
+    domain_client.post(
+        f"/api/datasets/{DOMAIN_DATASET}/taxonomy",
+        json={"topic": "health_care", "domain": "va"},
+    )
+    resp = domain_client.post(
+        f"/api/datasets/{DOMAIN_DATASET}/taxonomy/merge",
+        json={"from_topic": "disability", "into_topic": "health_care", "domain": "va"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["cascaded"] == 1
+    assert {t for (t, _) in _domain_segment_labels("va")} == {"health_care"}
+    # ssa's disability segment is untouched by a va-scoped merge.
+    assert {t for (t, _) in _domain_segment_labels("ssa")} == {"disability"}
+    options = _domain_options()
+    assert ("va", "disability", None) not in options
+    assert ("ssa", "disability", None) in options
+
+
+def test_delete_is_scoped_to_domain(domain_client):
+    resp = domain_client.delete(
+        f"/api/datasets/{DOMAIN_DATASET}/taxonomy",
+        params={"topic": "disability", "domain": "ssa"},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["deleted"] == 1
+    options = _domain_options()
+    assert ("ssa", "disability", None) not in options
+    assert ("va", "disability", None) in options
+
+
+def test_conversations_domain_filter(domain_client):
+    payload = domain_client.get(
+        f"/api/datasets/{DOMAIN_DATASET}/conversations",
+        params={"domain": "va"},
+    ).json()
+    assert _conv_ids(payload) == {DCV_VA}
+    assert payload["total"] == 1
+    assert payload["items"][0]["domain"] == "va"

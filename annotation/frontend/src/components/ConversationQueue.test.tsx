@@ -232,7 +232,7 @@ function bertopicCapturingHandler(seen: URLSearchParams[]) {
 }
 
 describe("ConversationQueue (taxonomy filters)", () => {
-  it("shows exactly the two taxonomy dropdowns (no gold-topic filter)", async () => {
+  it("shows the Domain, Topic and Subtopic dropdowns (no gold-topic filter)", async () => {
     usePagedHandler(makeConversations(2));
     renderWithProviders(<Harness bertopicLabels={BERTOPIC_LABELS} />);
 
@@ -240,10 +240,13 @@ describe("ConversationQueue (taxonomy filters)", () => {
       expect(screen.getByText("conv-000")).toBeInTheDocument(),
     );
 
-    // Only the Topic + Subtopic source dropdowns remain — the gold "All topics"
-    // filter is gone, so there are exactly two comboboxes.
+    // The v2 cascade adds a Domain filter above the source Topic + Subtopic
+    // dropdowns, so there are exactly three comboboxes.
     const comboboxes = screen.getAllByRole("combobox");
-    expect(comboboxes).toHaveLength(2);
+    expect(comboboxes).toHaveLength(3);
+    expect(
+      screen.getByRole("combobox", { name: "Domain" }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("combobox", { name: "Topic" }),
     ).toBeInTheDocument();
@@ -380,5 +383,84 @@ describe("ConversationQueue (taxonomy filters)", () => {
       expect(last.get("bertopic_topic")).toBe("logins");
       expect(last.get("bertopic_subtopic")).toBeNull();
     });
+  });
+});
+
+// Categories are now nav categories carried per-domain; "Disability" exists in
+// both ssa and va, so each topic/subtopic entry carries its domain.
+const DOMAIN_LABELS: BertopicLabels = {
+  topics: [
+    { topic: "Disability", domain: "va", count: 5 },
+    { topic: "Disability", domain: "ssa", count: 2 },
+    { topic: "Health Care", domain: "va", count: 4 },
+    { topic: "Retirement", domain: "ssa", count: 3 },
+  ],
+  subtopics: [
+    { subtopic: "VA Disability Comp", topic: "Disability", domain: "va", count: 5 },
+    { subtopic: "SSDI", topic: "Disability", domain: "ssa", count: 2 },
+    { subtopic: "VA Health", topic: "Health Care", domain: "va", count: 4 },
+  ],
+};
+
+describe("ConversationQueue (Domain cascade)", () => {
+  it("de-duplicates a category shared by two domains when no domain is chosen", async () => {
+    const user = userEvent.setup();
+    usePagedHandler(makeConversations(2));
+    renderWithProviders(<Harness bertopicLabels={DOMAIN_LABELS} />);
+
+    await waitFor(() =>
+      expect(screen.getByText("conv-000")).toBeInTheDocument(),
+    );
+
+    await user.click(screen.getByRole("combobox", { name: "Topic" }));
+    // "Disability" lives in ssa AND va but shows once (counts summed 5 + 2 = 7).
+    const disability = screen.getAllByRole("option", { name: /Disability/ });
+    expect(disability).toHaveLength(1);
+    expect(within(disability[0]).getByText("7")).toBeInTheDocument();
+  });
+
+  it("scopes topic options to the chosen domain and sends domain, resetting topic", async () => {
+    const user = userEvent.setup();
+    const seen: URLSearchParams[] = [];
+    server.use(
+      http.get(`/api/datasets/:dataset/conversations`, ({ request }) => {
+        seen.push(new URL(request.url).searchParams);
+        const items = makeConversations(1);
+        return HttpResponse.json({
+          items,
+          total: items.length,
+          page: 1,
+          page_size: PAGE_SIZE,
+        });
+      }),
+    );
+    renderWithProviders(<Harness bertopicLabels={DOMAIN_LABELS} />);
+
+    await waitFor(() =>
+      expect(screen.getByText("conv-000")).toBeInTheDocument(),
+    );
+
+    // Pick a topic first, then switch domain to ssa.
+    await user.click(screen.getByRole("combobox", { name: "Topic" }));
+    await user.click(screen.getByRole("option", { name: /Health Care/ }));
+
+    await user.click(screen.getByRole("combobox", { name: "Domain" }));
+    await user.click(screen.getByRole("option", { name: "Social Security" }));
+
+    // The refetch carries domain=ssa and the va-only topic is cleared.
+    await waitFor(() => {
+      const last = seen[seen.length - 1];
+      expect(last.get("domain")).toBe("ssa");
+      expect(last.get("bertopic_topic")).toBeNull();
+    });
+
+    // The Topic dropdown now offers only ssa's categories.
+    await user.click(screen.getByRole("combobox", { name: "Topic" }));
+    expect(
+      screen.getByRole("option", { name: /Retirement/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("option", { name: /Health Care/ }),
+    ).not.toBeInTheDocument();
   });
 });

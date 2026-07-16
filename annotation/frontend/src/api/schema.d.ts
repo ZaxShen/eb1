@@ -262,7 +262,7 @@ export interface paths {
         post: operations["create_taxonomy_api_datasets__dataset__taxonomy_post"];
         /**
          * Delete Taxonomy
-         * @description Remove a taxonomy option. Already-applied segment labels are left intact.
+         * @description Remove a taxonomy option (within its domain). Applied labels are left intact.
          */
         delete: operations["delete_taxonomy_api_datasets__dataset__taxonomy_delete"];
         options?: never;
@@ -365,11 +365,13 @@ export interface components {
         };
         /**
          * BertopicSubtopicCount
-         * @description A distinct BERTopic subtopic with its parent topic and per-conversation count.
+         * @description A distinct source subtopic with its parent topic, domain, and per-conversation count.
          */
         BertopicSubtopicCount: {
             /** Count */
             count: number;
+            /** Domain */
+            domain?: string | null;
             /** Subtopic */
             subtopic: string;
             /** Topic */
@@ -377,11 +379,13 @@ export interface components {
         };
         /**
          * BertopicTopicCount
-         * @description A distinct BERTopic topic with its per-conversation count.
+         * @description A distinct source topic (nav category) with its domain + per-conversation count.
          */
         BertopicTopicCount: {
             /** Count */
             count: number;
+            /** Domain */
+            domain?: string | null;
             /** Topic */
             topic: string;
         };
@@ -455,6 +459,8 @@ export interface components {
         ConversationSummary: {
             /** Conversation */
             conversation: string;
+            /** Domain */
+            domain?: string | null;
             /** Message Count */
             message_count: number;
             /**
@@ -476,6 +482,8 @@ export interface components {
         ConversationView: {
             /** Conversation */
             conversation: string;
+            /** Domain */
+            domain?: string | null;
             /**
              * Frozen Boundaries
              * @default false
@@ -625,11 +633,13 @@ export interface components {
         };
         /**
          * TaxonomyCreateRequest
-         * @description Create a taxonomy option (idempotent on dataset/kind/topic/subtopic).
+         * @description Create a taxonomy option (idempotent on dataset/domain/kind/topic/subtopic).
          */
         TaxonomyCreateRequest: {
             /** Description */
             description?: string | null;
+            /** Domain */
+            domain?: string | null;
             /**
              * Kind
              * @default user
@@ -642,11 +652,13 @@ export interface components {
         };
         /**
          * TaxonomyEntry
-         * @description One taxonomy (topic, subtopic) row from the metadata provider.
+         * @description One taxonomy (domain, topic, subtopic) row from the metadata provider.
          */
         TaxonomyEntry: {
             /** Description */
             description?: string | null;
+            /** Domain */
+            domain?: string | null;
             /** Subtopic */
             subtopic?: string | null;
             /** Topic */
@@ -654,9 +666,11 @@ export interface components {
         };
         /**
          * TaxonomyMergeRequest
-         * @description Fold ``from_topic`` into ``into_topic`` (labels cascade, dup rows dropped).
+         * @description Fold ``from_topic`` into ``into_topic`` within a domain (labels cascade).
          */
         TaxonomyMergeRequest: {
+            /** Domain */
+            domain?: string | null;
             /** From Topic */
             from_topic: string;
             /** Into Topic */
@@ -687,12 +701,14 @@ export interface components {
         };
         /**
          * TaxonomyRenameRequest
-         * @description Rename a taxonomy option, cascading to applied segment labels.
+         * @description Rename a taxonomy option (within its domain), cascading to segment labels.
          *
          *     Topic-level rename leaves ``subtopic``/``new_subtopic`` unset; subtopic-level
          *     rename sets both the matched ``subtopic`` and the ``new_subtopic`` it becomes.
          */
         TaxonomyRenameRequest: {
+            /** Domain */
+            domain?: string | null;
             /**
              * Kind
              * @default user
@@ -829,6 +845,7 @@ export interface operations {
                 q?: string | null;
                 status?: string | null;
                 topic?: string | null;
+                domain?: string | null;
                 labeler?: string | null;
                 bertopic_topic?: string | null;
                 bertopic_subtopic?: string | null;
@@ -1221,6 +1238,7 @@ export interface operations {
                 topic: string;
                 subtopic?: string | null;
                 kind?: string;
+                domain?: string | null;
             };
             header?: {
                 authorization?: string | null;

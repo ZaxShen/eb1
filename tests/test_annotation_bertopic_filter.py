@@ -178,3 +178,68 @@ def test_bertopic_labels_excludes_nulls(client):
     db.ingest_batch(
         DATASET, [{"ext_id": "btf-conv-unlabeled", "messages": [], "gold_segments": []}]
     )
+
+
+# ---------------------------------------------------------------------------
+# Domain in the labels endpoint (taxonomy v2, issue #23): a nav category like
+# "Disability" can exist in two domains, so every topic/subtopic entry carries the
+# conversation's domain and the same name yields one entry per domain.
+# ---------------------------------------------------------------------------
+
+DOMAIN_DS = "bertopic-domain-ds"
+
+
+@pytest.fixture()
+def domain_seeded():
+    db.ensure_dataset(DOMAIN_DS)
+    db.ingest_batch(
+        DOMAIN_DS,
+        [
+            {
+                "ext_id": "bd-ssa",
+                "messages": [{"role": "user", "content": "ssdi"}],
+                "gold_segments": [{"message_indices": [0]}],
+            },
+            {
+                "ext_id": "bd-va",
+                "messages": [{"role": "user", "content": "va comp"}],
+                "gold_segments": [{"message_indices": [0]}],
+            },
+        ],
+    )
+    pool = db.get_pool()
+    with pool.connection() as conn:
+        conn.execute(
+            "UPDATE conversation SET domain = 'ssa' "
+            "WHERE dataset = %s AND ext_id = 'bd-ssa'",
+            (DOMAIN_DS,),
+        )
+        conn.execute(
+            "UPDATE conversation SET domain = 'va' "
+            "WHERE dataset = %s AND ext_id = 'bd-va'",
+            (DOMAIN_DS,),
+        )
+    for conv, sub in (("bd-ssa", "Apply SSDI"), ("bd-va", "VA Comp")):
+        texts = [r for r in db.gold_segment_texts(DOMAIN_DS) if r["conversation"] == conv]
+        db.write_bertopic_labels(
+            [{"segment_id": texts[0]["segment_id"], "topic": "Disability", "subtopic": sub}]
+        )
+    yield
+    pool = db.get_pool()
+    with pool.connection() as conn:
+        conn.execute("DELETE FROM dataset WHERE name = %s", (DOMAIN_DS,))
+
+
+@pytest.fixture()
+def domain_client(domain_seeded):
+    return TestClient(create_app())
+
+
+def test_bertopic_labels_split_same_category_by_domain(domain_client):
+    payload = domain_client.get(f"/api/datasets/{DOMAIN_DS}/bertopic-labels").json()
+    # "Disability" is one entry per domain, each with its own domain code.
+    disability = {t["domain"] for t in payload["topics"] if t["topic"] == "Disability"}
+    assert disability == {"ssa", "va"}
+    subs = {(s["subtopic"], s["domain"]) for s in payload["subtopics"]}
+    assert ("Apply SSDI", "ssa") in subs
+    assert ("VA Comp", "va") in subs

@@ -1,6 +1,6 @@
 import { createElement, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse, delay } from "msw";
 import { server } from "./test/msw/server";
@@ -23,6 +23,175 @@ async function renderApp() {
   const { default: App } = await import("./App");
   return render(createElement(App));
 }
+
+// A conversation whose KNOWN domain is Veterans Affairs, plus a taxonomy that
+// spans va + ssa, exercising the v2 domain scoping end to end.
+const VA_CONV = "conv-va";
+
+function domainScopedServer(created: { body: unknown }[]) {
+  server.use(
+    http.get(`${base}/datasets/:dataset/labelers`, () =>
+      HttpResponse.json({ labelers: [] }),
+    ),
+    http.get(`${base}/datasets/:dataset/used-topics`, () =>
+      HttpResponse.json({ topics: [] }),
+    ),
+    http.get(`${base}/datasets/:dataset/taxonomy`, () =>
+      HttpResponse.json([
+        { domain: "va", topic: "appeals", subtopic: null, description: null },
+        {
+          domain: "va",
+          topic: "appeals",
+          subtopic: "higher_level",
+          description: null,
+        },
+        { domain: "ssa", topic: "retirement", subtopic: null, description: null },
+      ]),
+    ),
+    http.get(`${base}/datasets/:dataset/conversations`, () =>
+      HttpResponse.json({
+        items: [
+          {
+            conversation: VA_CONV,
+            domain: "va",
+            message_count: 2,
+            segment_count: 1,
+            topics: [],
+            reviewed_count: 0,
+            reviewed: false,
+          },
+        ],
+        total: 1,
+        page: 1,
+        page_size: 50,
+      }),
+    ),
+    http.get(`${base}/datasets/:dataset/conversations/:conversation`, () =>
+      HttpResponse.json({
+        conversation: VA_CONV,
+        domain: "va",
+        frozen_boundaries: false,
+        messages: [
+          { index: 0, id: "m0", type: "user", message: "Appeal?", createdAt: null },
+          { index: 1, id: "m1", type: "agent", message: "Sure.", createdAt: null },
+        ],
+        segments: [
+          {
+            id: 501,
+            conversation: VA_CONV,
+            chunk_index: 0,
+            message_indices: [0, 1],
+            summary: null,
+            topic: null,
+            subtopic: null,
+            sentiment: null,
+            label_confidence: null,
+            reviewed: false,
+            true_topic: null,
+            true_subtopic: null,
+            bertopic_topic: "Disability",
+            bertopic_subtopic: "VA Disability Comp",
+          },
+        ],
+        gold_segments: [],
+      }),
+    ),
+    http.post(`${base}/datasets/:dataset/taxonomy`, async ({ request }) => {
+      created.push({ body: await request.json() });
+      return HttpResponse.json({ dataset: "e2e-fixture", cascaded: 0, deleted: 0 });
+    }),
+  );
+}
+
+describe("App domain-scoped taxonomy (issue #23)", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+    vi.unstubAllEnvs();
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("scopes the True Topic picker to the conversation's domain and creates add-new under it", async () => {
+    const user = userEvent.setup();
+    const created: { body: unknown }[] = [];
+    domainScopedServer(created);
+
+    await renderApp();
+
+    await user.click(await screen.findByText(VA_CONV));
+
+    // Wait for the conversation to load (its message renders) and its first
+    // segment to select (the Annotation panel replaces the empty state).
+    await screen.findByText("Appeal?", {}, { timeout: 4000 });
+    await screen.findByText("Annotation", {}, { timeout: 4000 });
+
+    // The True pickers only offer the va-domain taxonomy — ssa's "Retirement"
+    // is never shown to a VA annotator.
+    const topicPicker = await screen.findByRole("combobox", {
+      name: "True Topic",
+    });
+    await user.click(topicPicker);
+    expect(screen.getByRole("option", { name: "Appeals" })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("option", { name: "Retirement" }),
+    ).not.toBeInTheDocument();
+
+    // Add-new creates the option under the conversation's domain (va). Drive the
+    // inline input with fireEvent — Radix Select's focus-restore races userEvent
+    // keystrokes here (the combobox reclaims focus from the autofocused input).
+    await user.click(screen.getByRole("option", { name: "+ New topic…" }));
+    const nameInput = screen.getByLabelText("True Topic new name");
+    fireEvent.change(nameInput, { target: { value: "widows_pension" } });
+    fireEvent.keyDown(nameInput, { key: "Enter" });
+
+    await waitFor(() => expect(created).toHaveLength(1));
+    expect(created[0].body).toMatchObject({
+      topic: "widows_pension",
+      domain: "va",
+    });
+  });
+
+  it("the queue Domain filter drives a scoped server refetch", async () => {
+    const user = userEvent.setup();
+    const created: { body: unknown }[] = [];
+    const seen: URLSearchParams[] = [];
+    domainScopedServer(created);
+    server.use(
+      http.get(`${base}/datasets/:dataset/conversations`, ({ request }) => {
+        seen.push(new URL(request.url).searchParams);
+        return HttpResponse.json({
+          items: [
+            {
+              conversation: VA_CONV,
+              domain: "va",
+              message_count: 2,
+              segment_count: 1,
+              topics: [],
+              reviewed_count: 0,
+              reviewed: false,
+            },
+          ],
+          total: 1,
+          page: 1,
+          page_size: 50,
+        });
+      }),
+    );
+
+    await renderApp();
+    await screen.findByText(VA_CONV);
+
+    await user.click(await screen.findByRole("combobox", { name: "Domain" }));
+    await user.click(screen.getByRole("option", { name: "Veterans Affairs" }));
+
+    await waitFor(() =>
+      expect(seen.some((p) => p.get("domain") === "va")).toBe(true),
+    );
+  });
+});
+
 
 describe("App labeler filter (identity-bound)", () => {
   beforeEach(() => {

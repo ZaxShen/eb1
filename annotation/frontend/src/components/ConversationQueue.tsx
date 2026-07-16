@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
   Inbox,
+  Landmark,
   MessagesSquare,
   RotateCcw,
   Search,
@@ -32,6 +33,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { topicColorClass } from "../lib/badges";
+import { DOMAINS } from "../lib/domains";
 import { cn, formatLabel } from "../lib/utils";
 
 interface ConversationQueueProps {
@@ -157,13 +159,34 @@ const ConversationQueue = ({
   const update = (patch: Partial<ConversationFilters>) =>
     onFiltersChange({ ...filters, ...patch });
 
-  // Source subtopic options narrow to the picked topic's children; with no
-  // topic chosen every subtopic is offered.
-  const bertopicSubtopics = filters.bertopic_topic
-    ? bertopicLabels.subtopics.filter(
-        (s) => s.topic === filters.bertopic_topic,
-      )
-    : bertopicLabels.subtopics;
+  const selectedDomain = filters.domain;
+
+  // Topic (nav category) options cascade off the chosen domain: with a domain
+  // picked only that domain's categories show; with none picked every category
+  // shows, de-duplicated by name across domains (counts summed) so the same
+  // category living in two domains ("Disability") is a single, unique option.
+  const topicOptions = useMemo(() => {
+    const source = selectedDomain
+      ? bertopicLabels.topics.filter((t) => t.domain === selectedDomain)
+      : bertopicLabels.topics;
+    if (selectedDomain) return source.map((t) => ({ label: t.topic, count: t.count }));
+    const byName = new Map<string, number>();
+    for (const t of source) byName.set(t.topic, (byName.get(t.topic) ?? 0) + t.count);
+    return [...byName.entries()].map(([label, count]) => ({ label, count }));
+  }, [bertopicLabels.topics, selectedDomain]);
+
+  // Source subtopic options narrow to the picked domain then the picked topic's
+  // children; with neither chosen every subtopic is offered (de-duplicated).
+  const subtopicOptions = useMemo(() => {
+    let source = bertopicLabels.subtopics;
+    if (selectedDomain) source = source.filter((s) => s.domain === selectedDomain);
+    if (filters.bertopic_topic)
+      source = source.filter((s) => s.topic === filters.bertopic_topic);
+    const byName = new Map<string, number>();
+    for (const s of source)
+      byName.set(s.subtopic, (byName.get(s.subtopic) ?? 0) + s.count);
+    return [...byName.entries()].map(([label, count]) => ({ label, count }));
+  }, [bertopicLabels.subtopics, selectedDomain, filters.bertopic_topic]);
 
   // Local mirror of the search box so typing is instant; the committed `q`
   // (which triggers a server refetch) is debounced off it.
@@ -187,6 +210,7 @@ const ConversationQueue = ({
   const hasActiveFilters =
     filters.status !== undefined ||
     filters.topic !== undefined ||
+    filters.domain !== undefined ||
     filters.bertopic_topic !== undefined ||
     filters.bertopic_subtopic !== undefined ||
     filters.mismatch === true ||
@@ -260,6 +284,33 @@ const ConversationQueue = ({
         </div>
 
         <Select
+          value={filters.domain ?? ALL_TOPICS}
+          onValueChange={(v) => {
+            const next = v === ALL_TOPICS ? undefined : v;
+            // A domain switch scopes the categories, so any picked topic/subtopic
+            // from the previous domain is dropped.
+            update({
+              domain: next,
+              bertopic_topic: undefined,
+              bertopic_subtopic: undefined,
+            });
+          }}
+        >
+          <SelectTrigger size="sm" className="w-full" aria-label="Domain">
+            <Landmark className="size-3.5 text-muted-foreground" />
+            <SelectValue placeholder="All domains" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_TOPICS}>All domains</SelectItem>
+            {DOMAINS.map((d) => (
+              <SelectItem key={d.code} value={d.code}>
+                {d.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select
           value={filters.bertopic_topic ?? ALL_TOPICS}
           onValueChange={(v) => {
             const next = v === ALL_TOPICS ? undefined : v;
@@ -286,10 +337,10 @@ const ConversationQueue = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={ALL_TOPICS}>All topics</SelectItem>
-            {bertopicLabels.topics.map((t) => (
-              <SelectItem key={t.topic} value={t.topic}>
+            {topicOptions.map((t) => (
+              <SelectItem key={t.label} value={t.label}>
                 <span className="flex-1 min-w-0 truncate">
-                  {formatLabel(t.topic)}
+                  {formatLabel(t.label)}
                 </span>
                 <span className="text-muted-foreground text-xs tabular-nums">
                   {t.count}
@@ -311,10 +362,10 @@ const ConversationQueue = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={ALL_TOPICS}>All subtopics</SelectItem>
-            {bertopicSubtopics.map((s) => (
-              <SelectItem key={s.subtopic} value={s.subtopic}>
+            {subtopicOptions.map((s) => (
+              <SelectItem key={s.label} value={s.label}>
                 <span className="flex-1 min-w-0 truncate">
-                  {formatLabel(s.subtopic)}
+                  {formatLabel(s.label)}
                 </span>
                 <span className="text-muted-foreground text-xs tabular-nums">
                   {s.count}

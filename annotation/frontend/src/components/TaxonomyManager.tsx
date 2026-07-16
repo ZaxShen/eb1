@@ -1,8 +1,9 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { api, type TaxonomyEntry } from "../api";
 import { buildTaxonomyMap, sortedTopics } from "../lib/taxonomy";
+import { DOMAINS } from "../lib/domains";
 import { formatLabel, slugify } from "../lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +40,10 @@ interface TaxonomyManagerProps {
  * action. Every mutation refetches the taxonomy (via `onChanged`) so the
  * annotation dropdowns reflect it immediately.
  */
+// Radix Select forbids an empty-string / null value, so the un-scoped bucket
+// (entries with no domain) uses a sentinel mapped back to null at the boundary.
+const NO_DOMAIN = "__none__";
+
 function TaxonomyManager({
   open,
   onOpenChange,
@@ -46,9 +51,41 @@ function TaxonomyManager({
   entries,
   onChanged,
 }: TaxonomyManagerProps) {
+  // Which domains the dataset's taxonomy spans — the manager scopes every list +
+  // mutation to one at a time (categories like "Disability" live in two domains).
+  const domainOptions = useMemo(() => {
+    const present = new Set(entries.map((e) => e.domain ?? null));
+    const list: { code: string | null; label: string }[] = DOMAINS.filter((d) =>
+      present.has(d.code),
+    ).map((d) => ({ code: d.code as string | null, label: d.label }));
+    for (const code of present) {
+      if (code !== null && !DOMAINS.some((d) => d.code === code)) {
+        list.push({ code, label: code });
+      }
+    }
+    if (present.has(null)) list.push({ code: null, label: "No domain" });
+    return list;
+  }, [entries]);
+
+  const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
+
+  // Keep the scope on a domain the current entries still contain (default the
+  // first) as the dataset / taxonomy changes.
+  useEffect(() => {
+    if (domainOptions.length === 0) return;
+    setSelectedDomain((cur) =>
+      domainOptions.some((d) => d.code === cur) ? cur : domainOptions[0].code,
+    );
+  }, [domainOptions]);
+
   const topics = useMemo(
-    () => sortedTopics(buildTaxonomyMap(entries)),
-    [entries],
+    () =>
+      sortedTopics(
+        buildTaxonomyMap(
+          entries.filter((e) => (e.domain ?? null) === selectedDomain),
+        ),
+      ),
+    [entries, selectedDomain],
   );
 
   const [newTopic, setNewTopic] = useState("");
@@ -81,11 +118,16 @@ function TaxonomyManager({
     const name = slugify(newTopic);
     if (!name) return;
     await run(
-      () => api.createTaxonomy(dataset, { topic: name, kind: "user" }),
+      () =>
+        api.createTaxonomy(dataset, {
+          topic: name,
+          kind: "user",
+          domain: selectedDomain ?? undefined,
+        }),
       `Added "${name}"`,
     );
     setNewTopic("");
-  }, [newTopic, run, dataset]);
+  }, [newTopic, run, dataset, selectedDomain]);
 
   const startEdit = useCallback((topic: string) => {
     setEditing(topic);
@@ -105,22 +147,28 @@ function TaxonomyManager({
             topic,
             new_topic: next,
             kind: "user",
+            domain: selectedDomain ?? undefined,
           }),
         `Renamed to "${next}"`,
       );
       setEditing(null);
     },
-    [editValue, run, dataset],
+    [editValue, run, dataset, selectedDomain],
   );
 
   const removeTopic = useCallback(
     async (topic: string) => {
       await run(
-        () => api.deleteTaxonomy(dataset, { topic, kind: "user" }),
+        () =>
+          api.deleteTaxonomy(dataset, {
+            topic,
+            kind: "user",
+            domain: selectedDomain ?? undefined,
+          }),
         `Deleted "${topic}"`,
       );
     },
-    [run, dataset],
+    [run, dataset, selectedDomain],
   );
 
   const doMerge = useCallback(async () => {
@@ -131,12 +179,13 @@ function TaxonomyManager({
           from_topic: mergeFrom,
           into_topic: mergeInto,
           kind: "user",
+          domain: selectedDomain ?? undefined,
         }),
       `Merged "${mergeFrom}" into "${mergeInto}"`,
     );
     setMergeFrom("");
     setMergeInto("");
-  }, [mergeFrom, mergeInto, run, dataset]);
+  }, [mergeFrom, mergeInto, run, dataset, selectedDomain]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -147,6 +196,26 @@ function TaxonomyManager({
             Topics for {dataset}. Renames cascade to existing labels.
           </DialogDescription>
         </DialogHeader>
+
+        {domainOptions.length > 1 && (
+          <Select
+            value={selectedDomain ?? NO_DOMAIN}
+            onValueChange={(v) =>
+              setSelectedDomain(v === NO_DOMAIN ? null : v)
+            }
+          >
+            <SelectTrigger size="sm" className="w-full" aria-label="Domain">
+              <SelectValue placeholder="Domain" />
+            </SelectTrigger>
+            <SelectContent>
+              {domainOptions.map((d) => (
+                <SelectItem key={d.code ?? NO_DOMAIN} value={d.code ?? NO_DOMAIN}>
+                  {d.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
 
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
