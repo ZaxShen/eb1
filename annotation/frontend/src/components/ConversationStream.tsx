@@ -185,9 +185,9 @@ const SegmentDivider = ({
       <Badge
         variant="outline"
         title={sourceChipLabel(segment)}
-        className="max-w-[220px] truncate border-dashed italic text-muted-foreground/80"
+        className="max-w-[220px] min-w-0 border-dashed italic text-muted-foreground/80"
       >
-        {sourceChipLabel(segment)}
+        <span className="truncate">{sourceChipLabel(segment)}</span>
       </Badge>
     ) : (
       <Badge variant="outline" className="text-muted-foreground">
