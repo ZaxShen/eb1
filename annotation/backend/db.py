@@ -663,13 +663,13 @@ def _effective_from(conv_ext: str, predicted: list[dict], gold: list[dict]) -> l
     predicted stands with relabel/confirm gold overlaid onto its topic/subtopic.
     """
     boundary = [g for g in gold if g["source"] in ("boundary", "gold")]
+    overlay = {
+        g["base_segment_id"]: g
+        for g in gold
+        if g["base_segment_id"] is not None and g["source"] in ("relabel", "confirm")
+    }
 
     if not boundary:
-        overlay = {
-            g["base_segment_id"]: g
-            for g in gold
-            if g["base_segment_id"] is not None and g["source"] in ("relabel", "confirm")
-        }
         result: list[dict] = []
         for s in predicted:
             g = overlay.get(s["id"])
@@ -694,6 +694,17 @@ def _effective_from(conv_ext: str, predicted: list[dict], gold: list[dict]) -> l
     effective: list[dict] = []
     for i, g in enumerate(boundary):
         inherited = _inherit_label(g["message_indices"], predicted)
+        over = overlay.get(g["id"])
+        topic = g["topic"] if g["topic"] is not None else inherited["topic"]
+        subtopic = g["subtopic"] if g["subtopic"] is not None else inherited["subtopic"]
+        sentiment = (
+            g["sentiment"] if g["sentiment"] is not None else inherited["sentiment"]
+        )
+        if over is not None:
+            topic = over["topic"]
+            subtopic = over["subtopic"]
+            if over["sentiment"] is not None:
+                sentiment = over["sentiment"]
         effective.append(
             {
                 "id": g["id"],
@@ -701,17 +712,13 @@ def _effective_from(conv_ext: str, predicted: list[dict], gold: list[dict]) -> l
                 "chunk_index": i,
                 "message_indices": g["message_indices"],
                 "summary": None,
-                "topic": g["topic"] if g["topic"] is not None else inherited["topic"],
-                "subtopic": g["subtopic"]
-                if g["subtopic"] is not None
-                else inherited["subtopic"],
-                "sentiment": g["sentiment"]
-                if g["sentiment"] is not None
-                else inherited["sentiment"],
+                "topic": topic,
+                "subtopic": subtopic,
+                "sentiment": sentiment,
                 "label_confidence": None,
                 "bertopic_topic": g.get("bertopic_topic"),
                 "bertopic_subtopic": g.get("bertopic_subtopic"),
-                "base_segment_id": g["base_segment_id"],
+                "base_segment_id": g["id"],
             }
         )
     return effective
@@ -1075,8 +1082,9 @@ def upsert_gold_for_segment(
             row = conn.execute(
                 "INSERT INTO segment "
                 "(conversation_id, chunk_index, message_indices, topic, subtopic, "
-                "sentiment, source, base_segment_id, reviewed_by, reviewed_at) "
-                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+                "sentiment, bertopic_topic, bertopic_subtopic, source, "
+                "base_segment_id, reviewed_by, reviewed_at) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
                 (
                     conv_id,
                     base_segment["chunk_index"],
@@ -1084,6 +1092,8 @@ def upsert_gold_for_segment(
                     topic,
                     subtopic,
                     sentiment,
+                    base_segment.get("bertopic_topic"),
+                    base_segment.get("bertopic_subtopic"),
                     source,
                     base_id,
                     reviewed_by,

@@ -301,17 +301,23 @@ describe("ConversationStream (MSW component)", () => {
       />,
     );
 
-    const chip = screen.getByText(
+    const label = screen.getByText(
       "src: Licenses, Permits & IDs · Medical Certification Requirements",
     );
-    expect(chip).toBeInTheDocument();
-    // Full text preserved in the title even when the chip truncates.
-    expect(chip).toHaveAttribute(
+    expect(label).toBeInTheDocument();
+    // The label text lives in an inner truncating span so a long label
+    // right-truncates with an ellipsis instead of clipping on both edges.
+    expect(label.className).toContain("truncate");
+    // The Badge wraps the span, carries the full text in its title, and keeps
+    // its max width + dashed/muted styling.
+    const badge = label.parentElement as HTMLElement;
+    expect(badge).toHaveAttribute(
       "title",
       "src: Licenses, Permits & IDs · Medical Certification Requirements",
     );
+    expect(badge.className).toContain("max-w-[220px]");
     // Styled distinct from a gold chip (dashed/muted, not a topic color).
-    expect(chip.className).toContain("border-dashed");
+    expect(badge.className).toContain("border-dashed");
     // Not the empty "No topic" state.
     expect(screen.queryByText("No topic")).not.toBeInTheDocument();
   });
