@@ -126,6 +126,14 @@ const MessageBubble = ({
   );
 };
 
+// Source (BERTopic) labels for the validate-first flow: category always,
+// document appended when present. Display strings are shown verbatim (not
+// slugified) — they mirror what the picker prefills as slugs.
+function sourceChipLabel(segment: SegmentSummary): string {
+  const doc = segment.bertopic_subtopic;
+  return `src: ${segment.bertopic_topic}${doc ? ` · ${doc}` : ""}`;
+}
+
 const SegmentDivider = ({
   label,
   segment,
@@ -172,6 +180,14 @@ const SegmentDivider = ({
     {segment.topic ? (
       <Badge variant="outline" className={topicColorClass(segment.topic)}>
         {formatLabel(segment.topic)}
+      </Badge>
+    ) : segment.bertopic_topic ? (
+      <Badge
+        variant="outline"
+        title={sourceChipLabel(segment)}
+        className="max-w-[220px] truncate border-dashed italic text-muted-foreground/80"
+      >
+        {sourceChipLabel(segment)}
       </Badge>
     ) : (
       <Badge variant="outline" className="text-muted-foreground">
