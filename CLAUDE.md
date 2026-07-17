@@ -25,6 +25,7 @@ The underlying pipeline (`pipeline/`, `db/`, `config/`, `tests/`) is a **frozen 
 | eb1 design history + benchmark proposals | `docs/notion/Versions ...md`, `docs/pipeline-improvement-proposals.md` |
 | Downstream consumer (Dynamic User Profile) | `docs/dynamic-user-profile.md` |
 | LLM benchmark pricing (2026-03-17) | `docs/llm-benchmark-pricing.md` |
+| BERTopic per-domain baseline (setup + results) | `docs/bertopic-baseline.md` |
 | Prod deployment numbers | `docs/production-deployment.md` |
 
 ## Project Structure
