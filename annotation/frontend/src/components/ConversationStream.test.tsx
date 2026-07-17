@@ -272,6 +272,138 @@ describe("ConversationStream (MSW component)", () => {
     expect(column.className).not.toContain("items-end");
   });
 
+  it("shows a muted source chip on the divider when the segment has no gold topic", () => {
+    // Validate-first: an unlabeled segment (no gold topic) still carries source
+    // BERTopic labels — surfaced as a muted `src: …` chip, category + document,
+    // distinct from a gold chip and titled with the full text.
+    const sourceView: ConversationView = {
+      ...conversationView,
+      segments: [
+        {
+          ...conversationView.segments[0],
+          topic: null,
+          subtopic: null,
+          reviewed: false,
+          true_topic: null,
+          true_subtopic: null,
+          bertopic_topic: "Licenses, Permits & IDs",
+          bertopic_subtopic: "Medical Certification Requirements",
+        },
+      ],
+    };
+    renderWithProviders(
+      <ConversationStream
+        view={sourceView}
+        loading={false}
+        selectedSegmentId={null}
+        onSelectSegment={vi.fn()}
+        onReplaceBoundaries={vi.fn()}
+      />,
+    );
+
+    const chip = screen.getByText(
+      "src: Licenses, Permits & IDs · Medical Certification Requirements",
+    );
+    expect(chip).toBeInTheDocument();
+    // Full text preserved in the title even when the chip truncates.
+    expect(chip).toHaveAttribute(
+      "title",
+      "src: Licenses, Permits & IDs · Medical Certification Requirements",
+    );
+    // Styled distinct from a gold chip (dashed/muted, not a topic color).
+    expect(chip.className).toContain("border-dashed");
+    // Not the empty "No topic" state.
+    expect(screen.queryByText("No topic")).not.toBeInTheDocument();
+  });
+
+  it("shows only the category when the source has no document subtopic", () => {
+    const sourceView: ConversationView = {
+      ...conversationView,
+      segments: [
+        {
+          ...conversationView.segments[0],
+          topic: null,
+          subtopic: null,
+          reviewed: false,
+          true_topic: null,
+          true_subtopic: null,
+          bertopic_topic: "Veterans Affairs",
+          bertopic_subtopic: null,
+        },
+      ],
+    };
+    renderWithProviders(
+      <ConversationStream
+        view={sourceView}
+        loading={false}
+        selectedSegmentId={null}
+        onSelectSegment={vi.fn()}
+        onReplaceBoundaries={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("src: Veterans Affairs")).toBeInTheDocument();
+  });
+
+  it("shows the gold chip (not the source chip) once a gold topic exists", () => {
+    // Gold wins: a segment with a gold topic renders the topic chip exactly as
+    // before and the source chip disappears.
+    const goldView: ConversationView = {
+      ...conversationView,
+      segments: [
+        {
+          ...conversationView.segments[0],
+          topic: "billing",
+          subtopic: "refund_request",
+          reviewed: true,
+          true_topic: "billing",
+          true_subtopic: "refund_request",
+          bertopic_topic: "Licenses, Permits & IDs",
+          bertopic_subtopic: "Medical Certification Requirements",
+        },
+      ],
+    };
+    renderWithProviders(
+      <ConversationStream
+        view={goldView}
+        loading={false}
+        selectedSegmentId={null}
+        onSelectSegment={vi.fn()}
+        onReplaceBoundaries={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("Billing")).toBeInTheDocument();
+    expect(screen.queryByText(/^src:/)).not.toBeInTheDocument();
+  });
+
+  it("shows 'No topic' when the segment has neither gold nor source labels", () => {
+    const bareView: ConversationView = {
+      ...conversationView,
+      segments: [
+        {
+          ...conversationView.segments[0],
+          topic: null,
+          subtopic: null,
+          reviewed: false,
+          true_topic: null,
+          true_subtopic: null,
+          bertopic_topic: null,
+          bertopic_subtopic: null,
+        },
+      ],
+    };
+    renderWithProviders(
+      <ConversationStream
+        view={bareView}
+        loading={false}
+        selectedSegmentId={null}
+        onSelectSegment={vi.fn()}
+        onReplaceBoundaries={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("No topic")).toBeInTheDocument();
+    expect(screen.queryByText(/^src:/)).not.toBeInTheDocument();
+  });
+
   it("shows the empty-state when a conversation has no segments", () => {
     renderWithProviders(
       <ConversationStream

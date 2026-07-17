@@ -348,3 +348,87 @@ describe("App queue fetch race", () => {
     ).not.toBeInTheDocument();
   });
 });
+
+describe("App validate-first prefill", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+    vi.unstubAllEnvs();
+    server.use(
+      http.get(`${base}/datasets/:dataset/labelers`, () =>
+        HttpResponse.json({ labelers: [] }),
+      ),
+    );
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("prefills an unreviewed segment's pickers from source labels and Save sends those slugs", async () => {
+    // conv-001 segment 101 is unreviewed with source labels refunds/double_charge
+    // (no gold). The pickers prefill the slugified source, so a single Save
+    // validates it — and the payload is identical to a manual pick (slugs).
+    const bodies: Record<string, unknown>[] = [];
+    server.use(
+      http.post(
+        `${base}/datasets/:dataset/segments/:segmentId/annotate`,
+        async ({ request }) => {
+          bodies.push((await request.json()) as Record<string, unknown>);
+          return HttpResponse.json({ ok: true });
+        },
+      ),
+    );
+    const user = userEvent.setup();
+
+    await renderApp();
+
+    await waitFor(() =>
+      expect(screen.getByText("conv-001")).toBeInTheDocument(),
+    );
+    await user.click(screen.getByText("conv-001"));
+    await screen.findByText("Annotation", {}, { timeout: 4000 });
+
+    // The True Topic picker prefilled from the source category (slug refunds →
+    // "Refunds"), instead of empty.
+    const topicPicker = await screen.findByRole("combobox", {
+      name: "True Topic",
+    });
+    await waitFor(() => expect(topicPicker).toHaveTextContent("Refunds"));
+
+    await user.click(screen.getByRole("button", { name: /Save/ }));
+    await waitFor(() => expect(bodies.length).toBeGreaterThan(0));
+    expect(bodies[0]).toMatchObject({
+      true_topic: "refunds",
+      true_subtopic: "double_charge",
+    });
+  });
+
+  it("prefills gold for a reviewed segment and re-derives the prefill on segment switch", async () => {
+    const user = userEvent.setup();
+
+    await renderApp();
+
+    await waitFor(() =>
+      expect(screen.getByText("conv-001")).toBeInTheDocument(),
+    );
+    await user.click(screen.getByText("conv-001"));
+    await screen.findByText("Annotation", {}, { timeout: 4000 });
+
+    // Segment 101 (unreviewed) → source prefill "Refunds".
+    await waitFor(() =>
+      expect(
+        screen.getByRole("combobox", { name: "True Topic" }),
+      ).toHaveTextContent("Refunds"),
+    );
+
+    // Switch to segment 102 (reviewed, gold technical_support): the prefill
+    // re-derives from gold, with no stale carryover from 101.
+    await user.click(screen.getByText("Also I cannot log in on mobile."));
+    await screen.findByText("102");
+    await waitFor(() =>
+      expect(
+        screen.getByRole("combobox", { name: "True Topic" }),
+      ).toHaveTextContent("Technical Support"),
+    );
+  });
+});

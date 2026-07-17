@@ -57,6 +57,7 @@ import {
   useAuth,
 } from "./auth/AuthContext";
 import SignInGate from "./auth/SignInGate";
+import { slugify } from "./lib/utils";
 
 const PAGE_SIZE = 50;
 
@@ -337,10 +338,22 @@ function AnnotationApp() {
     refreshQueue(dataset, filters, page, search, labeler);
   }, [dataset, labelersReadyFor, filters, page, search, labeler, refreshQueue]);
 
+  // Validate-first prefill: an unreviewed segment carrying source (BERTopic)
+  // labels seeds the pickers with the slugified source labels (Save = one-click
+  // validation, editing = correction). A reviewed segment prefills from its gold
+  // values as before. Selecting always re-derives, so switching segments never
+  // carries a stale prefill across.
   const selectSegment = useCallback((segment: SegmentSummary) => {
     setSelectedSegment(segment);
-    setTopic(segment.topic ?? "");
-    setSubtopic(segment.subtopic ?? "");
+    if (!segment.reviewed && segment.bertopic_topic) {
+      setTopic(slugify(segment.bertopic_topic));
+      setSubtopic(
+        segment.bertopic_subtopic ? slugify(segment.bertopic_subtopic) : "",
+      );
+    } else {
+      setTopic(segment.topic ?? "");
+      setSubtopic(segment.subtopic ?? "");
+    }
   }, []);
 
   const loadConversation = useCallback(
